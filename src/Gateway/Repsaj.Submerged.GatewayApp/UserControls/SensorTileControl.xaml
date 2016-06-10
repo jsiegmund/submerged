@@ -1,0 +1,35 @@
+﻿<UserControl x:Name="userControl"
+    x:Class="Repsaj.Submerged.GatewayApp.UserControls.SensorTileControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Repsaj.Submerged.GatewayApp.UserControls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:UniversalWrapPanel="using:Gregstoll"  
+    mc:Ignorable="d"
+    d:DesignHeight="150"
+    d:DesignWidth="150">
+
+    <Border x:Name="borMain">
+        <Grid Background="#1A237E">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0"
+                Name="imgMain"
+                Style="{StaticResource submergedTileImageStyle}" Height="48" Width="48" Source="{Binding ImageUri}" HorizontalAlignment="Right" Margin="0,16,20,16" />
+            <TextBlock Grid.Row="0"
+            	x:Name="tbReading"
+            	Style="{StaticResource submergedTileReadingStyle}"
+            	Text="{Binding Path=Reading}" Margin="15,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock 
+                Grid.Row="1"
+                Name="tbSensorName"
+                Style="{StaticResource submergedTileTextBlockStyle}"
+                Text="{Binding Path=SensorName}" />
+        </Grid>
+    </Border>
+
+
+</UserControl>

@@ -1,0 +1,49 @@
+<div ng-show="vm.loading">
+    <md-card layout="column" layout-fill layout-padding layout-margin layout-align="center center">
+        <h4>Loading data</h4>
+        <p>Please wait a short moment whilst we're getting your settings from the cloud...</p>
+        <div layout="row" layout-sm="column" layout-align="space-around">
+            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+        </div>
+    </md-card>
+</div>
+
+<div ng-hide="vm.loading">
+    <div class="md-padding md-body-1">
+        Use the below sliders to change your notification settings.  Use the toggle to switch the threshold on/off. These values are also used for the Live view.
+    </div>
+    <section>
+        <md-subheader class="md-no-sticky"><strong>Sensor thresholds</strong></md-subheader>
+        <div layout-margin>
+            <div ng-repeat="sensor in vm.sensors" class="md-body-1">
+                <b>{{sensor.displayName}}</b>
+                <div layout="row">
+                    <div layout="column" flex="5" layout-align="center center">{{sensor.minThreshold}}</div>
+                    <div layout="column" flex layout-align="center center">
+                        <md-slider min="{{sensor.minimumValue}}" max="{{sensor.maximumValue}}" step="{{sensor.step}}" ng-model="sensor.minThreshold" style="width: 90%;">
+                        </md-slider>
+                    </div>
+                    <div layout="column" flex="10" layout-align="end center">
+                        <md-switch ng-model="sensor.minThresholdEnabled"></md-switch>
+                    </div>                    
+                </div>
+                <div layout="row">
+                    <div layout="column" flex="5" layout-align="center center">{{sensor.maxThreshold}}</div>
+                    <div layout="column" flex layout-align="center center">
+                        <md-slider min="{{sensor.minimumValue}}" max="{{sensor.maximumValue}}" step="{{sensor.step}}" ng-model="sensor.maxThreshold" style="width: 90%;">
+                        </md-slider>
+                    </div>
+                    <div layout="column" flex="10" layout-align="end center">
+                        <md-switch ng-model="sensor.maxThresholdEnabled"></md-switch>
+                    </div>
+                </div>
+            </div>
+            <md-divider ng-if="!$last"></md-divider>
+        </div>
+    </section>
+
+    <md-button ng-click="vm.save()" ng-disabled="vm.saving">
+        <span ng-hide="vm.saving">Save</span>
+        <span ng-show="vm.saving">Saving</span>
+    </md-button>
+</div>

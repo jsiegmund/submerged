@@ -1,0 +1,54 @@
+﻿<div ng-cloak>
+    <md-content>
+        <md-tabs md-dynamic-height md-border-bottom md-selected="vm.selectedTabIndex" md-swipe-content="true" md-enable-disconnect="true">
+            <md-tab label="Hour">
+                <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
+                <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
+                <div layout="column" ng-show="vm.loading == false">
+                    <div>
+                        <div google-chart chart="vm.tempChartHour" agc-on-ready="vm.chartReady(chartWrapper)"></div>
+                    </div>
+                    <div>
+                        <div google-chart chart="vm.pHChartHour" agc-on-ready="vm.chartReady(chartWrapper)"></div>
+                    </div>
+                </div>
+            </md-tab>
+            <md-tab label="Day">
+                <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
+                <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
+                <div layout="column" ng-show="vm.loading == false">
+                    <div>
+                        <div google-chart chart="vm.tempChartDay" style="height:300px;"></div>
+                    </div>
+                    <div>
+                        <div google-chart chart="vm.pHChartDay" style="height:300px;"></div>
+                    </div>
+                </div>
+            </md-tab>
+            <md-tab label="Week">
+                <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
+                <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
+                <div layout="column" ng-show="vm.loading == false">
+                    <div>
+                        <div google-chart chart="vm.tempChartWeek" style="height:300px;"></div>
+                    </div>
+                    <div>
+                        <div google-chart chart="vm.pHChartWeek" style="height:300px;"></div>
+                    </div>
+                </div>
+            </md-tab>
+            <md-tab label="Month">
+                <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
+                <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
+                <div layout="column" ng-show="vm.loading == false">
+                    <div>
+                        <div google-chart chart="vm.tempChartMonth" style="height:300px;"></div>
+                    </div>
+                    <div>
+                        <div google-chart chart="vm.pHChartMonth" style="height:300px;"></div>
+                    </div>
+                </div>
+            </md-tab>
+        </md-tabs>
+    </md-content>
+</div>

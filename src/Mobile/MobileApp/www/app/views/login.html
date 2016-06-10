@@ -1,0 +1,14 @@
+<div layout="column" layout-align="center center" flex>
+  <md-whiteframe class="md-whiteframe-3dp" layout="column" style="margin: 1em; width: 22em; height: 15em;" flex>
+    <div layout="column" flex style="margin-left: 1em;">
+        Welcome to Submerged Mobile.
+    </div>
+    <md-divider></md-divider>
+    <div ng-show="vm.loading">
+        Checking connection...
+    </div>
+    <div ng-show="vm.loading" class="ng-hide">
+        <md-button ng-click="vm.login()">Log in!</md-button>
+    </div>
+  </md-whiteframe>
+</div>

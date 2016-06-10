@@ -1,0 +1,29 @@
+{
+  "name": "cordova-plugin-hockeyapp",
+  "version": "2.2.2",
+  "description": "Cordova plugin for HockeyApp",
+  "cordova": {
+    "id": "cordova-plugin-hockeyapp",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitstadium/HockeySDK-Cordova.git"
+  },
+  "keywords": [
+    "cordova",
+    "hockeyapp",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": "Paul Panserrieu <paul@42loops.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bitstadium/HockeySDK-Cordova/issues"
+  },
+  "homepage": "https://github.com/bitstadium/HockeySDK-Cordova"
+}

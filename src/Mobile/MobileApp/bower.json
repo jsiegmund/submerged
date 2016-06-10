@@ -1,0 +1,9 @@
+{
+  "name": "MobileApp2",
+  "dependencies": {
+    "angular-jwt": "~0.0.9",
+    "angular-material": "~1.0.8",
+    "angular-timer": "~1.3.4",
+    "angular-ui": "0.4.0"
+  }
+}

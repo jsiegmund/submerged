@@ -1,0 +1,19 @@
+﻿.md-button.npt-kpigreen {
+    background-color: #1B5E20;
+    color: white;
+}
+
+.md-button.npt-kpiorange {
+    background-color: #E65100;
+    color: white;
+}
+
+.md-button.npt-kpired {
+    background-color: #B71C1C;
+    color: white;
+}
+
+.md-button.npt-kpigray {
+    background-color: gray;
+    color: white;
+}

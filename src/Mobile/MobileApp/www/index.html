@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://login.windows.net https://neptune-mobileapi.azurewebsites.net; style-src 'self'">-->
+    <!--<link rel="stylesheet" type="text/css" href="assets/css/index.css" />-->
+    <link rel="stylesheet" type="text/css" href="css/neptune.css" />
+    <link rel="stylesheet" type="text/css" href="lib/angular/angular-csp.css" />
+    <link rel="stylesheet" type="text/css" href="lib/angular-material/angular-material.min.css" />
+    <link rel="stylesheet" type="text/css" href="lib/angular-material-icons/angular-material-icons.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" />
+
+    <!-- Add compatibility for the windows store -->
+    <!--<script type="text/javascript" src="app/shared/winstore-jscompat.js"></script>-->
+
+    <!-- JQuery -->
+    <script type="text/javascript" src="lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/signalr/jquery.signalR.min.js"></script>
+
+    <!-- RequireJS -->
+    <!--script type="text/javascript" src="lib/requirejs/require.js"></script>-->
+
+    <!-- AngularJs -->
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="lib/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script type="text/javascript" src="lib/angular-aria/angular-aria.min.js"></script>
+    <script type="text/javascript" src="lib/angular-animate/angular-animate.min.js"></script>
+    <script type="text/javascript" src="lib/ngstorage/ngStorage.min.js"></script>
+    <script type="text/javascript" src="lib/angular-jwt/dist/angular-jwt.min.js"></script>
+    <!--script type="text/javascript" src="assets/lib/ngTouch.min.js"></script  No Longer Supported by Angular-Material-->
+    <!--<script type="text/javascript" src="assets/lib/angular-signalr-hub/signalr-hub.js"></script>-->
+    <!-- Angular Material -->
+    <script type="text/javascript" src="lib/angular-material/angular-material.min.js"></script>
+    <script type="text/javascript" src="lib/angular-material-icons/angular-material-icons.min.js"></script>
+
+    <!-- Google charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+    </script>
+
+    <title>NgApp</title>
+</head>
+
+<body ng-cloak>
+
+    <div ng-controller="MenuController">
+        <md-toolbar flex>
+            <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+                <md-button class="md-icon-button md-primary" aria-label="Menu" ng-click="toggle()">
+                    <md-icon md-svg-src="icons/menu_24px.svg" class="s24"></md-icon>
+                </md-button>
+                <p>{{ title }}</p>
+                <div style="width: 40px; height: 40px;"></div>
+            </div>
+        </md-toolbar>
+
+        <md-sidenav class="md-sidenav-left" md-component-id="left">
+            <md-toolbar>
+                <h1 class="md-toolbar-tools">Menu</h1>
+            </md-toolbar>
+            <md-list ng-cloak>
+                <md-list-item ng-click="navigate('main')">
+                    <md-icon md-svg-src="icons/home_24px.svg" class="s24"></md-icon>
+                    <p>Home</p>
+                </md-list-item>
+                <md-list-item ng-click="navigate('live')">
+                    <md-icon md-svg-src="icons/tap_and_play_24px.svg" class="s24"></md-icon>
+                    <p>Live</p>
+                </md-list-item>
+                <md-list-item ng-click="navigate('analytics')">
+                    <md-icon md-svg-src="icons/trending_up_24px.svg" class="s24"></md-icon>
+                    <p>Analytics</p>
+                </md-list-item>
+                <md-list-item ng-click="navigate('control')">
+                    <md-icon md-svg-src="icons/power_settings_new_24px.svg" class="s24"></md-icon>
+                    <p>Outlet control</p>
+                </md-list-item>
+                <md-list-item ng-click="navigate('settings')">
+                    <md-icon md-svg-src="icons/settings_24px.svg" class="s24"></md-icon>
+                    <p>Settings</p>
+                </md-list-item>
+            </md-list>
+        </md-sidenav>
+    </div>
+
+    <md-content flex layout="column">
+        <ui-view></ui-view>
+    </md-content>
+
+    <!-- Cordova -->
+    <script type="text/javascript" src="lib/ngCordova/dist/ng-cordova.min.js"></script>
+    <script type="text/javascript" src="cordova.js"></script>
+
+    <!-- Application scripts -->
+    <script type="text/javascript" src="scripts/appBundle.js"></script>
+    <script type="text/javascript" src="scripts/init.js"></script>
+
+</body>
+</html>
