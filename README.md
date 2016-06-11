@@ -54,5 +54,5 @@ I'm aware that there's plenty of room for improvement, but one must start out so
 
 Pictures say more than a thousands words!
 
-<img src="http://www.repsaj.nl/Uploads/submerged/submerged_live.png" alt="Screenshot Live" style="width: 400px;"/>
-<img src="http://www.repsaj.nl/Uploads/submerged/submerged_relays.png" alt="Screenshot Relays" style="width: 400px;"/>
+<img src="http://www.repsaj.nl/Uploads/submerged/submerged_live.png" alt="Screenshot Live" width="400"/>
+<img src="http://www.repsaj.nl/Uploads/submerged/submerged_relays.png" alt="Screenshot Relays" width="400"/>
