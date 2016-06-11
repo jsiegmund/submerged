@@ -179,7 +179,7 @@ namespace Submerged.Controllers {
             this.renderChart(data.dataLabels, data.dataSeries[2], "pH_chart");
         }
 
-        renderChart(dataLabels: any[], data: any[], elementId: string): any {
+        renderChart(dataLabels: any[], data: any[], elementId: string): void {
 
             var dataTable: google.visualization.DataTable = new google.visualization.DataTable();
             dataTable.addColumn('string');

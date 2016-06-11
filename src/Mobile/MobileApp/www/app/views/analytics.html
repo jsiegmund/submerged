@@ -4,49 +4,33 @@
             <md-tab label="Hour">
                 <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
                 <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
-                <div layout="column" ng-show="vm.loading == false">
-                    <div>
-                        <div google-chart chart="vm.tempChartHour" agc-on-ready="vm.chartReady(chartWrapper)"></div>
-                    </div>
-                    <div>
-                        <div google-chart chart="vm.pHChartHour" agc-on-ready="vm.chartReady(chartWrapper)"></div>
-                    </div>
+
+                <div ng-repeat="sensor in vm.sensors">
+                    <div id="{{sensor.name}}_chart_hour" ng-show="vm.loading == false"></div>
                 </div>
             </md-tab>
             <md-tab label="Day">
                 <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
                 <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
-                <div layout="column" ng-show="vm.loading == false">
-                    <div>
-                        <div google-chart chart="vm.tempChartDay" style="height:300px;"></div>
-                    </div>
-                    <div>
-                        <div google-chart chart="vm.pHChartDay" style="height:300px;"></div>
-                    </div>
+
+                <div ng-repeat="sensor in vm.sensors">
+                    <div id="{{sensor.name}}_chart_day" ng-show="vm.loading == false"></div>
                 </div>
             </md-tab>
             <md-tab label="Week">
                 <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
                 <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
-                <div layout="column" ng-show="vm.loading == false">
-                    <div>
-                        <div google-chart chart="vm.tempChartWeek" style="height:300px;"></div>
-                    </div>
-                    <div>
-                        <div google-chart chart="vm.pHChartWeek" style="height:300px;"></div>
-                    </div>
+
+                <div ng-repeat="sensor in vm.sensors">
+                    <div id="{{sensor.name}}_chart_week" ng-show="vm.loading == false"></div>
                 </div>
             </md-tab>
             <md-tab label="Month">
                 <md-datepicker ng-model="vm.pickedDate" md-placeholder="Enter date"></md-datepicker>
                 <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
-                <div layout="column" ng-show="vm.loading == false">
-                    <div>
-                        <div google-chart chart="vm.tempChartMonth" style="height:300px;"></div>
-                    </div>
-                    <div>
-                        <div google-chart chart="vm.pHChartMonth" style="height:300px;"></div>
-                    </div>
+
+                <div ng-repeat="sensor in vm.sensors">
+                    <div id="{{sensor.name}}_chart_month" ng-show="vm.loading == false"></div>
                 </div>
             </md-tab>
         </md-tabs>

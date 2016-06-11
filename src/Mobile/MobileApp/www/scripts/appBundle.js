@@ -701,18 +701,16 @@ var Submerged;
     var Controllers;
     (function (Controllers) {
         class AnalyticsController {
-            constructor(shared, mobileService, googleChartApiPromise, $scope, $stateParams, $timeout) {
+            constructor(shared, mobileService, $scope, $stateParams, $timeout) {
                 this.shared = shared;
                 this.mobileService = mobileService;
-                this.googleChartApiPromise = googleChartApiPromise;
                 this.$scope = $scope;
                 this.$stateParams = $stateParams;
                 this.$timeout = $timeout;
-                this.tempChartTitle = "Temperature";
-                this.pHChartTitle = "pH";
                 this.pickedDate = new Date();
                 this.loadedTabData = -1;
                 this.selectedTabIndex = 0;
+                this.loadSensors();
                 $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
                     this.getData();
                 });
@@ -731,6 +729,83 @@ var Submerged;
                     case 3:
                         return "month";
                 }
+            }
+            loadSensors() {
+                var apiUrl = "sensors?deviceId=" + this.shared.deviceInfo.deviceId;
+                this.mobileService.invokeApi(apiUrl, {
+                    body: null,
+                    method: "post"
+                }, ((error, success) => {
+                    if (error) {
+                        // do nothing
+                        console.log("Error calling /sensors to get sensors data: " + error);
+                    }
+                    else {
+                        var sensors = success.result;
+                        this.processSensors(sensors); // process the last known data for display
+                        this.shared.settings.sensors = sensors;
+                        this.shared.save();
+                    }
+                }).bind(this));
+            }
+            processSensors(sensors) {
+                this.sensors = sensors;
+            }
+            chartOptions(sensor, hAxisLabel, hAxisLabels) {
+                var options = {
+                    isStacked: false,
+                    legend: 'none',
+                    title: sensor.displayName,
+                    vAxis: {
+                        gridlines: {
+                            count: 5
+                        },
+                        maxValue: sensor.maxThreshold,
+                        minValue: sensor.minThreshold
+                    },
+                    hAxis: {
+                        showTextEvery: hAxisLabels,
+                        title: hAxisLabel
+                    }
+                };
+                return options;
+            }
+            ;
+            renderChart(dataLabels, data, sensor, chartPostfix) {
+                var columnName;
+                var hAxisLabels;
+                switch (this.selectedTabIndex) {
+                    case 0:
+                        columnName = "Minutes";
+                        hAxisLabels = 10;
+                        break;
+                    case 1:
+                        columnName = "Hours";
+                        hAxisLabels = 2;
+                        break;
+                    case 2:
+                        columnName = "Weekdays";
+                        hAxisLabels = 2;
+                        break;
+                    case 3:
+                        columnName = "Days";
+                        hAxisLabels = 4;
+                        break;
+                }
+                var dataTable = new google.visualization.DataTable();
+                dataTable.addColumn('string', columnName);
+                dataTable.addColumn('number', sensor.displayName);
+                for (var i = 0; i < data.length; i++) {
+                    dataTable.addRow([dataLabels[i], data[i]]);
+                }
+                // construct the options class for this chart
+                var options = this.chartOptions(sensor, columnName, hAxisLabels);
+                // construct the element id of the chart 
+                var elementId = sensor.name + '_chart_' + chartPostfix;
+                var element = document.getElementById(elementId);
+                // construct the chart object and render the chart in the element
+                var chart = new google.visualization.AreaChart(element);
+                chart.draw(dataTable, options);
             }
             getData() {
                 // prevent loading multiple times
@@ -752,117 +827,22 @@ var Submerged;
                         console.log("Failure getting data from API: " + error);
                     }
                     else {
-                        this.googleChartApiPromise.then((() => {
-                            var reportModel = success.result;
-                            var columnName = "";
-                            switch (selectedTab) {
-                                case 'hour':
-                                    columnName = "Minutes";
-                                    break;
-                                case 'day':
-                                    columnName = "Hours";
-                                    break;
-                                case 'week':
-                                    columnName = "Weekdays";
-                                    break;
-                                case 'month':
-                                    columnName = "Days";
-                                    break;
-                            }
-                            // build up a datamodel having the hours and two temperature ranges in it
-                            var tempData = new google.visualization.DataTable();
-                            tempData.addColumn('string', columnName);
-                            tempData.addColumn('number', reportModel.serieLabels[0]);
-                            tempData.addColumn('number', reportModel.serieLabels[1]);
-                            for (var i = 0; i < reportModel.dataSeries[0].length; i++) {
-                                tempData.addRow([reportModel.dataLabels[i], reportModel.dataSeries[0][i], reportModel.dataSeries[1][i]]);
-                            }
-                            // build up a datamodel having the hours and two temperature ranges in it
-                            var pHData = new google.visualization.DataTable();
-                            pHData.addColumn('string', columnName);
-                            pHData.addColumn('number', reportModel.serieLabels[2]);
-                            for (var i = 0; i < reportModel.dataSeries[0].length; i++) {
-                                pHData.addRow([reportModel.dataLabels[i], reportModel.dataSeries[2][i]]);
-                            }
-                            var pHChart = this.getPHChart();
-                            // bind the temperature data to the chart and reset the haxis label
-                            pHChart.data = pHData;
-                            pHChart.options.hAxis.title = columnName;
-                            var tempChart = this.getTempChart();
-                            // bind the temperature data to the chart and reset the haxis label
-                            tempChart.data = tempData;
-                            tempChart.options.hAxis.title = columnName;
-                            switch (this.selectedTabIndex) {
-                                case 0:
-                                    this.tempChartHour = tempChart;
-                                    this.pHChartHour = pHChart;
-                                    break;
-                                case 1:
-                                    this.tempChartDay = tempChart;
-                                    this.pHChartDay = pHChart;
-                                    break;
-                                case 2:
-                                    this.tempChartWeek = tempChart;
-                                    this.pHChartWeek = pHChart;
-                                    break;
-                                case 3:
-                                    this.tempChartMonth = tempChart;
-                                    this.pHChartMonth = pHChart;
-                                    break;
-                            }
-                            console.log("data loaded, setting loadedTabData to " + this.selectedTabIndex);
-                            this.loadedTabData = this.selectedTabIndex;
-                            this.loading = false;
-                        }).bind(this));
+                        var reportModel = success.result;
+                        var columnName = "";
+                        var temp1Sensor = this.sensors.firstOrDefault({ name: "temperature1" });
+                        this.renderChart(reportModel.dataLabels, reportModel.dataSeries[0], temp1Sensor, selectedTab);
+                        var temp2Sensor = this.sensors.firstOrDefault({ name: "temperature2" });
+                        this.renderChart(reportModel.dataLabels, reportModel.dataSeries[1], temp2Sensor, selectedTab);
+                        var pHSensor = this.sensors.firstOrDefault({ name: 'pH' });
+                        this.renderChart(reportModel.dataLabels, reportModel.dataSeries[2], pHSensor, selectedTab);
+                        console.log("data loaded, setting loadedTabData to " + this.selectedTabIndex);
+                        this.loadedTabData = this.selectedTabIndex;
+                        this.loading = false;
                     }
                 }).bind(this));
             }
-            getTempChart() {
-                var tempChart = {};
-                tempChart.type = "AreaChart";
-                //tempChart.displayed = true;
-                tempChart.options = {
-                    "title": this.tempChartTitle,
-                    "isStacked": "false",
-                    "fill": 20,
-                    "displayExactValues": true,
-                    "legend": "bottom",
-                    "vAxis": {
-                        "gridlines": {
-                            "count": 10
-                        }
-                    },
-                    "hAxis": {
-                        "title": "Hour"
-                    }
-                };
-                tempChart.formatters = {};
-                return tempChart;
-            }
-            getPHChart() {
-                var pHChart = {};
-                pHChart.type = "AreaChart";
-                //pHChart.displayed = false;
-                pHChart.options = {
-                    "title": this.pHChartTitle,
-                    "isStacked": "false",
-                    "fill": 20,
-                    "displayExactValues": true,
-                    "legend": "none",
-                    "vAxis": {
-                        "gridlines": {
-                            "count": 10
-                        }
-                    },
-                    "hAxis": {
-                        "title": "Hour"
-                    }
-                };
-                pHChart.formatters = {};
-                return pHChart;
-            }
         }
-        AnalyticsController.$inject = ['shared', 'mobileService', 'googleChartApiPromise', '$scope', '$stateParams', '$timeout'];
+        AnalyticsController.$inject = ['shared', 'mobileService', '$scope', '$stateParams', '$timeout'];
         Controllers.AnalyticsController = AnalyticsController;
         angular.module("ngapp").controller("AnalyticsController", AnalyticsController);
     })(Controllers = Submerged.Controllers || (Submerged.Controllers = {}));
