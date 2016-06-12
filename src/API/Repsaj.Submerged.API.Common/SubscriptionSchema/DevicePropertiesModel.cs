@@ -13,6 +13,9 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public DateTime? UpdatedTime { get; set; }
         public bool IsSimulatedDevice { get; set; }
         public int? DisplayOrder { get; set; }
+        public string PrimaryKey { get; set; }
+        public string SecondaryKey { get; set; }
+
 
         public DevicePropertiesModel(string deviceId, bool isSimulated)
         {

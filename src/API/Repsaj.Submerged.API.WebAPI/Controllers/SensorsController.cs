@@ -30,7 +30,7 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Sensors(string deviceId)
         {
-            var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId);
+            var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
             return Ok(sensorModels);
         }
         
@@ -43,7 +43,7 @@ namespace Repsaj.Submerged.API.Controllers
             {
                 foreach(var updatedSensor in updatedSensors)
                 {
-                    await _subscriptionLogic.UpdateSensorAsync(updatedSensor, deviceId);
+                    await _subscriptionLogic.UpdateSensorAsync(updatedSensor, deviceId, AuthenticationHelper.UserId);
                 }
 
                 return Ok();

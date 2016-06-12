@@ -11,4 +11,10 @@ namespace Repsaj.Submerged.Common.Models
         public static readonly string SENSORS = "SensorModule";
         public static readonly string CABINET = "CabinetModule";
     }
+
+    public static class SensorTypes
+    {
+        public static readonly string TEMPERATURE = "temperature";
+        public static readonly string PH = "pH";
+    }
 }

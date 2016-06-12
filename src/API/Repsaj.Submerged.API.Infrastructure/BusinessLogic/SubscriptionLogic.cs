@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.Common.Configurations;
 using Repsaj.Submerged.Common.DeviceSchema;
+using Repsaj.Submerged.Common.Models;
 using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.Exceptions;
 using Repsaj.Submerged.Infrastructure.Models;
@@ -20,14 +21,33 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         private readonly IConfigurationProvider _configProvider;
         private readonly IIotHubRepository _iotHubRepository;
         private readonly IDeviceRulesLogic _deviceRulesLogic;
+        private readonly ISecurityKeyGenerator _securityKeyGenerator;
 
-        public SubscriptionLogic(ISubscriptionRepository subscriptionRepository, IConfigurationProvider configProvider, 
-            IIotHubRepository iotHubRepository, IDeviceRulesLogic deviceRulesLogic)
+        public SubscriptionLogic(ISubscriptionRepository subscriptionRepository, IConfigurationProvider configProvider,
+            IIotHubRepository iotHubRepository, IDeviceRulesLogic deviceRulesLogic, ISecurityKeyGenerator securityKeyGenerator)
         {
             _subscriptionRepository = subscriptionRepository;
             _configProvider = configProvider;
             _iotHubRepository = iotHubRepository;
             _deviceRulesLogic = deviceRulesLogic;
+            _securityKeyGenerator = securityKeyGenerator;
+        }
+
+        public async Task<bool> ValidateDeviceOwnerAsync(string deviceId, string userId)
+        {
+            if (String.IsNullOrEmpty(deviceId))
+                throw new ArgumentException("The deviceId cannot be null or empty.", "deviceId");
+
+            if (String.IsNullOrEmpty(userId))
+                throw new ArgumentException("The userId argument cannot be null or empty.", "userId");
+
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, "", true);
+
+            if (subscription == null || 
+                ! String.Equals(deviceId, userId, StringComparison.InvariantCultureIgnoreCase))
+                throw new SubscriptionValidationException(Strings.ValidationWrongUser);
+
+            return true;
         }
 
         public async Task<SubscriptionModel> AddSubscriptionAsync(SubscriptionModel subscription)
@@ -39,25 +59,26 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return (SubscriptionModel)savedSubscription;
         }
 
-        public async Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId)
+
+        public async Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string owner)
         {
-            return await _subscriptionRepository.GetSubscriptionAsync(subscriptionId);
+            return await _subscriptionRepository.GetSubscriptionAsync(subscriptionId, owner);
         }
 
-        public async Task<SubscriptionModel> GetSubscriptionAsync(string subscriptionUser)
+        public async Task<SubscriptionModel> GetSubscriptionAsync(string owner)
         {
-            return await _subscriptionRepository.GetSubscriptionAsync(subscriptionUser);
+            return await _subscriptionRepository.GetSubscriptionAsync(owner);
         }
 
-        public async Task<DeviceModel> GetDeviceAsync(string deviceId)
+        public async Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false)
         {
-            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId);
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, owner, skipValidation);
             return subscription.Devices.SingleOrDefault(d => d.DeviceProperties.DeviceID == deviceId);
         }
 
-        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription)
+        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string owner, bool skipValidation = false)
         {
-            return await _subscriptionRepository.UpdateSubscriptionAsync(subscription);
+            return await _subscriptionRepository.UpdateSubscriptionAsync(subscription, owner);
         }
 
         private bool ValidateSubscriptionId(SubscriptionModel subscription, List<string> validationErrors)
@@ -103,9 +124,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
         }
 
-        public async Task<SubscriptionModel> AddTankAsync(TankModel tank, string subscriptionUser)
+        public async Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner)
         {
-            SubscriptionModel subscription = await GetSubscriptionAsync(subscriptionUser);
+            SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
             if (subscription == null)
             {
@@ -116,7 +137,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             var existingTank = subscription.Tanks.SingleOrDefault(t => t.Id == tank.Id);
             if (existingTank != null)
             {
-                throw new SubscriptionValidationException(subscriptionUser);
+                throw new SubscriptionValidationException(owner);
             }
 
             // check there isn't another tank having the same name
@@ -127,12 +148,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             subscription.Tanks.Add(tank);
-            return await UpdateSubscriptionAsync(subscription);
+            return await UpdateSubscriptionAsync(subscription, owner);
         }
 
-        public async Task<SubscriptionModel> UpdateTankAsync(TankModel updatedTank, string subscriptionUser)
+        public async Task<SubscriptionModel> UpdateTankAsync(TankModel updatedTank, string owner)
         {
-            SubscriptionModel subscription = await GetSubscriptionAsync(subscriptionUser);
+            SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
             if (subscription == null)
             {
@@ -149,12 +170,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             subscription.Tanks.Remove(existingTank);
             subscription.Tanks.Add(updatedTank);
 
-            return await UpdateSubscriptionAsync(subscription);
+            return await UpdateSubscriptionAsync(subscription, owner);
         }
 
-        public async Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string subscriptionUser)
+        public async Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string owner)
         {
-            SubscriptionModel subscription = await GetSubscriptionAsync(subscriptionUser);
+            SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
             if (subscription == null)
             {
@@ -169,12 +190,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             subscription.Tanks.Remove(existingTank);
-            return await UpdateSubscriptionAsync(subscription);
+            return await UpdateSubscriptionAsync(subscription, owner);
         }
 
-        public async Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string subscriptionUser)
+        public async Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string owner)
         {
-            SubscriptionModel subscription = await GetSubscriptionAsync(subscriptionUser);
+            SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
             if (subscription == null)
             {
@@ -188,8 +209,16 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.DeviceAlreadyRegisteredExceptionMessage);
             }
 
+            // register a new device in the IoT hub instance 
+            SecurityKeys generatedSecurityKeys = _securityKeyGenerator.CreateRandomKeys();
+            await _iotHubRepository.AddDeviceAsync(device, generatedSecurityKeys);
+
+            device.DeviceProperties.PrimaryKey = generatedSecurityKeys.PrimaryKey;
+            device.DeviceProperties.SecondaryKey = generatedSecurityKeys.SecondaryKey;
+
             subscription.Devices.Add(device);
-            return await UpdateSubscriptionAsync(subscription);
+
+            return await UpdateSubscriptionAsync(subscription, owner);
         }
 
         private async Task SendDeviceConfigurationMessage(DeviceModel device)
@@ -201,9 +230,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             await _iotHubRepository.SendCommand(device.DeviceProperties.DeviceID, command);
         }
 
-        public async Task<DeviceModel> UpdateDeviceAsync(DeviceModel updatedDevice)
+        public async Task<DeviceModel> UpdateDeviceAsync(DeviceModel updatedDevice, string owner)
         {
-            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(updatedDevice.DeviceProperties.DeviceID);
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(updatedDevice.DeviceProperties.DeviceID, owner);
 
             if (subscription == null)
             {
@@ -223,7 +252,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             subscription.Devices.Add(updatedDevice);
 
             // update the subscription 
-            await UpdateSubscriptionAsync(subscription);
+            await UpdateSubscriptionAsync(subscription, owner);
 
             return updatedDevice;
         }
@@ -246,7 +275,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             string deviceId = DeviceSchemaHelper.GetDeviceID(updatedDevice);
-            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId);
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, "", true);
 
             // check the tank isn't an existing one
             var existingDevice = subscription.Devices.SingleOrDefault(t => t.DeviceProperties.DeviceID == deviceId);
@@ -265,12 +294,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 }
             }
 
-            return await UpdateSubscriptionAsync(subscription);
+            return await UpdateSubscriptionAsync(subscription, "", true);
         }
 
-        public async Task DeleteDeviceAsync(DeviceModel updatedDevice)
+        public async Task DeleteDeviceAsync(DeviceModel updatedDevice, string owner)
         {
-            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(updatedDevice.DeviceProperties.DeviceID);
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(updatedDevice.DeviceProperties.DeviceID, owner);
 
             if (subscription == null)
             {
@@ -285,12 +314,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             subscription.Devices.Remove(existingDevice);
-            await UpdateSubscriptionAsync(subscription);
+            await UpdateSubscriptionAsync(subscription, owner);
         }
         
-        public async Task<ModuleModel> AddModuleAsync(ModuleModel module, string deviceId)
+        public async Task<ModuleModel> AddModuleAsync(ModuleModel module, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -302,15 +331,15 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             device.Modules.Add(module);
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
             await SendDeviceConfigurationMessage(device);
 
             return module;
         }
 
-        public async Task<ModuleModel> UpdateModuleAsync(ModuleModel updatedModule, string deviceId)
+        public async Task<ModuleModel> UpdateModuleAsync(ModuleModel updatedModule, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -323,15 +352,15 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             device.Modules.Remove(existingModule);
             device.Modules.Add(updatedModule);
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
             await SendDeviceConfigurationMessage(device);
 
             return updatedModule;
         }
 
-        public async Task DeleteModuleAsync(ModuleModel module, string deviceId)
+        public async Task DeleteModuleAsync(ModuleModel module, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -342,39 +371,39 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationModuleUnknown, module.Name));
 
             device.Modules.Remove(module);
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
         }
 
-        public async Task<IEnumerable<ModuleModel>> GetModulesAsync(string deviceId)
+        public async Task<IEnumerable<ModuleModel>> GetModulesAsync(string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
             return device.Modules.OrderBy(m => m.DisplayOrder);
         }
 
-        public async Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData)
+        public async Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData, string owner, bool skipValidation = false)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner, skipValidation);
 
             device.LastTelemetryData = deviceData;
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
         }
 
-        public async Task<dynamic> GetLatestTelemetryData(string deviceId)
+        public async Task<dynamic> GetLatestTelemetryData(string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
             return device.LastTelemetryData;
         }
 
-        public async Task<IEnumerable<SensorModel>> GetSensorsAsync(string deviceId)
+        public async Task<IEnumerable<SensorModel>> GetSensorsAsync(string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
             return device.Sensors.OrderBy(s => s.OrderNumber);
         }
 
-        public async Task<SensorModel> AddSensorAsync(SensorModel sensor, string deviceId)
+        public async Task<SensorModel> AddSensorAsync(SensorModel sensor, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -387,7 +416,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             device.Sensors.Add(sensor);
 
             await UpdateSensorRules(sensor, deviceId);
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
 
             return sensor;
         }
@@ -424,7 +453,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 minRule.RuleOutput = sensor.Name + "MinAlarm";
             }
 
-            minRule.Threshold = sensor.MinThreshold;
+            minRule.Threshold = sensor.MinThreshold ?? 0;
             minRule.EnabledState = sensor.MinThresholdEnabled;
 
             await _deviceRulesLogic.SaveDeviceRuleAsync(minRule);
@@ -439,15 +468,15 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 maxRule.RuleOutput = sensor.Name + "MaxAlarm";
             }
 
-            maxRule.Threshold = sensor.MaxThreshold;
+            maxRule.Threshold = sensor.MaxThreshold ?? 0;
             maxRule.EnabledState = sensor.MaxThresholdEnabled;
 
             await _deviceRulesLogic.SaveDeviceRuleAsync(maxRule);
         }
 
-        public async Task<SensorModel> UpdateSensorAsync(SensorModel updatedSensor, string deviceId)
+        public async Task<SensorModel> UpdateSensorAsync(SensorModel updatedSensor, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -462,14 +491,14 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             device.Sensors.Remove(existingSensor);
             device.Sensors.Add(updatedSensor);
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
 
             return updatedSensor; 
         }
 
-        public async Task DeleteSensorAsync(SensorModel sensor, string deviceId)
+        public async Task DeleteSensorAsync(SensorModel sensor, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -482,18 +511,18 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             await DeleteSensorRules(sensor, deviceId);
             device.Sensors.Remove(existingSensor);
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
         }
 
-        public async Task<IEnumerable<RelayModel>> GetRelaysAsync(string deviceId)
+        public async Task<IEnumerable<RelayModel>> GetRelaysAsync(string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
             return device.Relays;
         }
 
-        public async Task<RelayModel> AddRelayAsync(RelayModel relay, string deviceId)
+        public async Task<RelayModel> AddRelayAsync(RelayModel relay, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -504,13 +533,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.ValidationRelayExists);
 
             device.Relays.Add(relay);
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
 
             return relay;
         }
-        public async Task<RelayModel> UpdateRelayAsync(RelayModel updatedRelay, string deviceId)
+        public async Task<RelayModel> UpdateRelayAsync(RelayModel updatedRelay, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -523,13 +552,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             device.Relays.Remove(existingRelay);
             device.Relays.Add(updatedRelay);
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
             return updatedRelay;
         }
 
-        public async Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId)
+        public async Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -541,14 +570,14 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             relay.State = state;
 
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
 
             return relay;
         }
 
-        public async Task DeleteRelayAsync(RelayModel relay, string deviceId)
+        public async Task DeleteRelayAsync(RelayModel relay, string deviceId, string owner)
         {
-            DeviceModel device = await GetDeviceAsync(deviceId);
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
@@ -559,7 +588,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, existingRelay.RelayNumber));
 
             device.Relays.Remove(existingRelay);
-            await UpdateDeviceAsync(device);
+            await UpdateDeviceAsync(device, owner);
         }
     }
 }

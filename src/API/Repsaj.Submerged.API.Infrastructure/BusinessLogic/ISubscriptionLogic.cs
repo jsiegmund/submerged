@@ -10,35 +10,35 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
     public interface ISubscriptionLogic
     {
         Task<SubscriptionModel> AddSubscriptionAsync(SubscriptionModel subscription);
-        Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId);
-        Task<SubscriptionModel> GetSubscriptionAsync(string subscriptionUser);
-        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel device);
-        Task<SubscriptionModel> AddTankAsync(TankModel tank, string subscriptionUser);
-        Task<SubscriptionModel> UpdateTankAsync(TankModel tank, string subscriptionUser);
-        Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string subscriptionUser);
-        Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string subscriptionUser);
-        Task<DeviceModel> GetDeviceAsync(string deviceId);
-        Task<DeviceModel> UpdateDeviceAsync(DeviceModel device);
+        Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string owner);
+        Task<SubscriptionModel> GetSubscriptionAsync(string owner);
+        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel device, string owner, bool skipValidation = false);
+        Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner);
+        Task<SubscriptionModel> UpdateTankAsync(TankModel tank, string owner);
+        Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string owner);
+        Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string owner);
+        Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false);
+        Task<DeviceModel> UpdateDeviceAsync(DeviceModel device, string owner);
         Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device);
-        Task DeleteDeviceAsync(DeviceModel device);
+        Task DeleteDeviceAsync(DeviceModel device, string owner);
 
-        Task<IEnumerable<ModuleModel>> GetModulesAsync(string deviceId);
-        Task<ModuleModel> AddModuleAsync(ModuleModel module, string deviceId);
-        Task<ModuleModel> UpdateModuleAsync(ModuleModel module, string deviceId);
-        Task DeleteModuleAsync(ModuleModel module, string deviceId);
+        Task<IEnumerable<ModuleModel>> GetModulesAsync(string deviceId, string owner);
+        Task<ModuleModel> AddModuleAsync(ModuleModel module, string deviceId, string owner);
+        Task<ModuleModel> UpdateModuleAsync(ModuleModel module, string deviceId, string owner);
+        Task DeleteModuleAsync(ModuleModel module, string deviceId, string owner);
+        Task<bool> ValidateDeviceOwnerAsync(string deviceId, string userId);
+        Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData, string owner, bool skipValidation = false);        
+        Task<dynamic> GetLatestTelemetryData(string deviceId, string owner);
 
-        Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData);
-        Task<dynamic> GetLatestTelemetryData(string deviceId);
+        Task<IEnumerable<SensorModel>> GetSensorsAsync(string deviceId, string owner);
+        Task<SensorModel> AddSensorAsync(SensorModel sensor, string deviceId, string owner);
+        Task<SensorModel> UpdateSensorAsync(SensorModel updatedSensor, string deviceId, string owner);
+        Task DeleteSensorAsync(SensorModel sensor, string deviceId, string owner);
 
-        Task<IEnumerable<SensorModel>> GetSensorsAsync(string deviceId);
-        Task<SensorModel> AddSensorAsync(SensorModel sensor, string deviceId);
-        Task<SensorModel> UpdateSensorAsync(SensorModel updatedSensor, string deviceId);
-        Task DeleteSensorAsync(SensorModel sensor, string deviceId);
-
-        Task<IEnumerable<RelayModel>> GetRelaysAsync(string deviceId);
-        Task<RelayModel> AddRelayAsync(RelayModel relay, string deviceId);
-        Task<RelayModel> UpdateRelayAsync(RelayModel updatedRelay, string deviceId);
-        Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId);
-        Task DeleteRelayAsync(RelayModel relay, string deviceId);
+        Task<IEnumerable<RelayModel>> GetRelaysAsync(string deviceId, string owner);
+        Task<RelayModel> AddRelayAsync(RelayModel relay, string deviceId, string owner);
+        Task<RelayModel> UpdateRelayAsync(RelayModel updatedRelay, string deviceId, string owner);
+        Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId, string owner);
+        Task DeleteRelayAsync(RelayModel relay, string deviceId, string owner);
     }
 }

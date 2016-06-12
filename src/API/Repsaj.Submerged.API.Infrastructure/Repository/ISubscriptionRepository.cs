@@ -21,7 +21,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </summary>
         /// <param name="subscriptionId">The subscription identifier.</param>
         /// <returns></returns>
-        Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId);
+        Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string subscriptionUser);
 
         /// <summary>
         /// Gets a subscription asynchronously.
@@ -30,13 +30,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// <returns></returns>
         Task<SubscriptionModel> GetSubscriptionAsync(string subscriptionUser);
 
-        Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId);
+        Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool? skipValidation = false);
 
         /// <summary>
         /// Updates a subscription asynchronously.
         /// </summary>
         /// <param name="subscription">The subscription.</param>
         /// <returns></returns>
-        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription);
+        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser);
     }
 }

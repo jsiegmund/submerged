@@ -1,4 +1,6 @@
 ﻿using Microsoft.Azure.Mobile.Server.Config;
+using Repsaj.Submerged.API.Helpers;
+using Repsaj.Submerged.Common.Models.Commands;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
@@ -30,7 +32,7 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Relays(string deviceId)
         {
-            var relays = await _subscriptionLogic.GetRelaysAsync(deviceId);
+            var relays = await _subscriptionLogic.GetRelaysAsync(deviceId, AuthenticationHelper.UserId);
             return Ok(relays);
         }
 
@@ -44,11 +46,13 @@ namespace Repsaj.Submerged.API.Controllers
             commandParams.Add("RelayNumber", relayNumber);
             commandParams.Add("RelayState", state);
 
+            await _subscriptionLogic.ValidateDeviceOwnerAsync(deviceId, AuthenticationHelper.UserId);
+
             // send the command to the device
-            await _deviceLogic.SendCommandAsync(deviceId, "SwitchRelay", commandParams);
+            await _deviceLogic.SendCommandAsync(deviceId, DeviceCommandTypes.SWITCH_RELAY, commandParams);
 
             // store the new state of the relay after the command has been sent
-            await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId);
+            await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId, AuthenticationHelper.UserId);
 
             return Ok();
         }

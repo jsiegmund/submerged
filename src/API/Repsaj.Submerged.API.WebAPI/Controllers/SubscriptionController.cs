@@ -6,31 +6,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace Repsaj.Submerged.API.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/modules")]
+    [RoutePrefix("api/subscription")]
     [MobileAppController]
     [System.Web.Mvc.OutputCache(CacheProfile = "NoCacheProfile")]
-    public class ModulesController : ApiController
+    public class SubscriptionController : ApiController
     {
         private readonly ISubscriptionLogic _subscriptionLogic;
 
-        public ModulesController(ISubscriptionLogic subscriptionLogic)
+        public SubscriptionController(ISubscriptionLogic subscriptionLogic)
         {
             _subscriptionLogic = subscriptionLogic;
         }
 
         [Route("")]
-        [HttpPost]
         [HttpGet]
-        public async Task<IHttpActionResult> Modules(string deviceId)
+        [HttpPost]
+        public async Task<IHttpActionResult> GetSubscription()
         {
-            var modules = await _subscriptionLogic.GetModulesAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(modules);
+            var deviceData = await _subscriptionLogic.GetSubscriptionAsync(AuthenticationHelper.UserId);
+            return Ok(deviceData);
         }
     }
 }

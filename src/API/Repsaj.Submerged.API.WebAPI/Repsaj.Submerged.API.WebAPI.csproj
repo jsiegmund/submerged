@@ -311,11 +311,14 @@
     <Compile Include="Controllers\DeviceController.cs" />
     <Compile Include="Controllers\ModulesController.cs" />
     <Compile Include="Controllers\SensorsController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Filters\ErrorHandlingFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Handlers\AzureADAuthorizationHandler.cs" />
+    <Compile Include="Helpers\AuthenticationHelper.cs" />
     <Compile Include="Helpers\FilteredCamelCasePropertyNamesContractResolver.cs" />
     <Compile Include="Helpers\RulesHelper.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />

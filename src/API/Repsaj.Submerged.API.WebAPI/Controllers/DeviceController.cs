@@ -1,4 +1,5 @@
-﻿using Repsaj.Submerged.Infrastructure.BusinessLogic;
+﻿using Repsaj.Submerged.API.Helpers;
+using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.Linq;

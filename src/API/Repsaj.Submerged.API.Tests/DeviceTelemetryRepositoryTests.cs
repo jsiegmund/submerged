@@ -14,7 +14,7 @@ namespace Repsaj.Submerged.APITests
         [TestMethod]
         public void CanLoadLatestDeviceTelemetryAsync()
         {
-            Task<DeviceTelemetryModel> task = DeviceTelemetryRepository.LoadLatestDeviceTelemetryAsync("");
+            Task<DeviceTelemetryModel> task = DeviceTelemetryRepository.LoadLatestDeviceTelemetryAsync(DeviceId);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }
@@ -23,7 +23,7 @@ namespace Repsaj.Submerged.APITests
         public void CanLoadDeviceTelemetryReportDataLastThreeHoursAsync()
         {
             DateTime timestamp = DateTime.UtcNow;
-            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync("", timestamp, offset);
+            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(DeviceId, timestamp, offset);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }
@@ -32,7 +32,7 @@ namespace Repsaj.Submerged.APITests
         public void CanLoadDeviceSummaryDataPerHour()
         {
             DateTime timestamp = DateTime.UtcNow;
-            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync("", timestamp, offset);
+            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(DeviceId, timestamp, offset);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }
@@ -41,7 +41,7 @@ namespace Repsaj.Submerged.APITests
         public void CanLoadDeviceSummaryDataPerDay()
         {
             DateTime test = DateTime.UtcNow;
-            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync("", test, offset);
+            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(DeviceId, test, offset);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }
@@ -49,7 +49,7 @@ namespace Repsaj.Submerged.APITests
         [TestMethod]
         public void CanLoadDeviceSummaryDataPerWeek()
         {
-            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync("", DateTime.UtcNow, offset);
+            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(DeviceId, DateTime.UtcNow, offset);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }
@@ -57,7 +57,7 @@ namespace Repsaj.Submerged.APITests
         [TestMethod]
         public void CanLoadDeviceSummaryDataPerMonth()
         {
-            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync("", DateTime.UtcNow, offset);
+            Task<DeviceTelemetryReportModel> task = DeviceTelemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(DeviceId, DateTime.UtcNow, offset);
             task.Wait();
             Assert.IsNotNull(task.Result);
         }

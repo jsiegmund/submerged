@@ -268,11 +268,29 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find a subscription..
+        /// </summary>
+        internal static string ValidationSubscriptionUnknown {
+            get {
+                return ResourceManager.GetString("ValidationSubscriptionUnknown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find a tank with that Id in the registry..
         /// </summary>
         internal static string ValidationTankNotFound {
             get {
                 return ResourceManager.GetString("ValidationTankNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The passed in User ID does not match the registered user. Cannot continue..
+        /// </summary>
+        internal static string ValidationWrongUser {
+            get {
+                return ResourceManager.GetString("ValidationWrongUser", resourceCulture);
             }
         }
     }

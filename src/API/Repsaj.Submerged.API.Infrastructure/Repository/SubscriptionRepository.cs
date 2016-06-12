@@ -54,13 +54,22 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             return subscription;
         }
 
-
-
-        public async Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId)
+        private async Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId)
         {
             Dictionary<string, Object> queryParams = new Dictionary<string, Object>();
             queryParams.Add("@id", subscriptionId);
             var result = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root WHERE (root.SubscriptionProperties.SubscriptionID = @id)", queryParams);
+
+            return result.FirstOrDefault();
+        }
+
+
+        public async Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string subscriptionUser)
+        {
+            Dictionary<string, Object> queryParams = new Dictionary<string, Object>();
+            queryParams.Add("@id", subscriptionId);
+            queryParams.Add("@user", subscriptionUser);
+            var result = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root WHERE (root.SubscriptionProperties.SubscriptionID = @id AND root.SubscriptionProperties.User = @user)", queryParams);
 
             return result.FirstOrDefault();
         }
@@ -74,26 +83,43 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             return result.FirstOrDefault();
         }      
         
-        public async Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId)
+        public async Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool? skipValidation = false)
         {
             Dictionary<string, Object> queryParams = new Dictionary<string, Object>();
             queryParams.Add("@deviceId", deviceId);
-            var result = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root JOIN device IN root.Devices WHERE (device.DeviceProperties.DeviceID = @deviceId)", queryParams);
 
-            return result.FirstOrDefault();
+            IEnumerable<SubscriptionModel> queryResult;
+
+            if (skipValidation.HasValue && skipValidation.Value == true)
+            {
+                queryResult = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root JOIN device IN root.Devices WHERE (device.DeviceProperties.DeviceID = @deviceId)", queryParams);
+            }
+            else
+            {
+                queryParams.Add("@user", subscriptionUser);
+                queryResult = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root JOIN device IN root.Devices WHERE (device.DeviceProperties.DeviceID = @deviceId AND root.SubscriptionProperties.User = @user)", queryParams);
+            }
+
+            if (queryResult.Count() != 1)
+                throw new SubscriptionValidationException(Strings.ValidationSubscriptionUnknown);
+
+            return queryResult.FirstOrDefault();
         }
 
-        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription)
+        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser)
         {
-            dynamic existingDevice = await GetSubscriptionAsync(subscription.SubscriptionProperties.User);
+            dynamic exisingSubscription = await GetSubscriptionAsync(subscription.SubscriptionProperties.User);
 
-            if (existingDevice == null)
+            if (exisingSubscription == null)
             {
                 throw new SubscriptionUnknownException(subscription.SubscriptionProperties.User);
             }
 
-            SubscriptionSchemaHelper.UpdateUpdatedTime(subscription);
+            // ensure the subscription being updated belongs to the passed in user
+            if (subscription.SubscriptionProperties.User != subscriptionUser)
+                throw new SubscriptionValidationException(Strings.ValidationWrongUser);
 
+            SubscriptionSchemaHelper.UpdateUpdatedTime(subscription);
             SubscriptionModel updatedSubscription = await _docDbOperations.UpdateDocumentAsync(subscription, subscription.Id);
 
             return updatedSubscription;

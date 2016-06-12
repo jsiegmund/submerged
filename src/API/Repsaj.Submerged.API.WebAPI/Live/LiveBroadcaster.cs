@@ -59,7 +59,7 @@ namespace Repsaj.Submerged.API.Live
                     string deviceId = (string)dataObject.GetValue("deviceId");
 
                     // store the package in documentDb
-                    _subscriptionLogic.UpdateLatestTelemetryData(deviceId, data);
+                    _subscriptionLogic.UpdateLatestTelemetryData(deviceId, data, "", true);
                 }
 
             }

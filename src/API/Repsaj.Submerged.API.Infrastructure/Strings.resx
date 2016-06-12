@@ -186,7 +186,13 @@
   <data name="ValidationSubscriptionIdMissing" xml:space="preserve">
     <value>SubscriptionID cannot be empty or null</value>
   </data>
+  <data name="ValidationSubscriptionUnknown" xml:space="preserve">
+    <value>Could not find a subscription.</value>
+  </data>
   <data name="ValidationTankNotFound" xml:space="preserve">
     <value>Could not find a tank with that Id in the registry.</value>
+  </data>
+  <data name="ValidationWrongUser" xml:space="preserve">
+    <value>The passed in User ID does not match the registered user. Cannot continue.</value>
   </data>
 </root>

@@ -16,4 +16,9 @@ namespace Repsaj.Submerged.Common.Models.Commands
         public const string ERROR_MESSAGE = "ErrorMessage";
         public const string PARAMETERS = "Parameters";
     }
+
+    public static class DeviceCommandTypes
+    {
+        public const string SWITCH_RELAY = "SwitchRelay";
+    }
 }

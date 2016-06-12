@@ -17,32 +17,32 @@ namespace Repsaj.Submerged.API
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301864
         public void ConfigureAuth(IAppBuilder app, IConfigurationProvider configProvider)
         {
-            //app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
+            app.SetDefaultSignInAsAuthenticationType(CookieAuthenticationDefaults.AuthenticationType);
 
-            //// Primary authentication method for web site to Azure AD via the WsFederation below
-            //app.UseCookieAuthentication(new CookieAuthenticationOptions());
+            // Primary authentication method for web site to Azure AD via the WsFederation below
+            app.UseCookieAuthentication(new CookieAuthenticationOptions());
 
-            //string federationMetadataAddress = configProvider.GetConfigurationSettingValue("ida.FederationMetadataAddress");
-            //string federationRealm = configProvider.GetConfigurationSettingValue("ida.FederationRealm");
+            string federationMetadataAddress = configProvider.GetConfigurationSettingValue("ida.FederationMetadataAddress");
+            string federationRealm = configProvider.GetConfigurationSettingValue("ida.FederationRealm");
 
-            //if (string.IsNullOrEmpty(federationMetadataAddress) || string.IsNullOrEmpty(federationRealm))
-            //{
-            //    throw new ApplicationException("Config issue: Unable to load required federation values from web.config or other configuration source.");
-            //}
+            if (string.IsNullOrEmpty(federationMetadataAddress) || string.IsNullOrEmpty(federationRealm))
+            {
+                throw new ApplicationException("Config issue: Unable to load required federation values from web.config or other configuration source.");
+            }
 
-            //// check for default values that will cause app to fail to startup with an unhelpful 404 exception
-            //if (federationMetadataAddress.StartsWith("-- ", StringComparison.Ordinal) ||
-            //    federationRealm.StartsWith("-- ", StringComparison.Ordinal))
-            //{
-            //    throw new ApplicationException("Config issue: Default federation values from web.config need to be overridden or replaced.");
-            //}
+            // check for default values that will cause app to fail to startup with an unhelpful 404 exception
+            if (federationMetadataAddress.StartsWith("-- ", StringComparison.Ordinal) ||
+                federationRealm.StartsWith("-- ", StringComparison.Ordinal))
+            {
+                throw new ApplicationException("Config issue: Default federation values from web.config need to be overridden or replaced.");
+            }
 
-            //app.UseWsFederationAuthentication(
-            //    new WsFederationAuthenticationOptions
-            //    {
-            //        MetadataAddress = federationMetadataAddress,
-            //        Wtrealm = federationRealm
-            //    });
+            app.UseWsFederationAuthentication(
+                new WsFederationAuthenticationOptions
+                {
+                    MetadataAddress = federationMetadataAddress,
+                    Wtrealm = federationRealm
+                });
 
             string aadTenant = configProvider.GetConfigurationSettingValue("ida.Tenant");
             string aadAudience = configProvider.GetConfigurationSettingValue("ida.Audience");
