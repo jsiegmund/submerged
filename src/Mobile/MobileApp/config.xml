@@ -115,16 +115,15 @@
   <plugin name="cordova-plugin-device" version="1.1.2" />
   <plugin name="cordova-plugin-file" version="4.2.0" />
   <plugin name="cordova-plugin-globalization" version="1.0.3" />
-  <plugin name="cordova-plugin-hockeyapp" version="2.2.2" />
   <plugin name="cordova-plugin-inappbrowser" version="1.4.0" />
   <plugin name="cordova-plugin-dialogs" version="1.2.1" />
   <plugin name="cordova-plugin-statusbar" version="2.1.3" />
   <preference name="android-minSdkVersion" value="14" />
   <plugin name="cordova-plugin-compat" version="1.0.0" />
-  <plugin name="phonegap-plugin-push" version="1.6.3" src="https://github.com/phonegap/phonegap-plugin-push">
-    <param name="SENDER_ID" value="532189147734" />
-    <param name="WindowsToastCapable" value="" />
-  </plugin>
   <plugin name="com.phonegap.plugins.OrientationLock" version="0.1" src="https://github.com/cogitor/PhoneGap-OrientationLock.git" />
   <plugin name="cordova-plugin-splashscreen" version="4.0.0" />
+  <plugin name="phonegap-plugin-push" version="1.6.3" src="https://github.com/phonegap/phonegap-plugin-push">
+    <variable name="SENDER_ID" value="532189147734" />
+  </plugin>
+  <plugin name="cordova-plugin-hockeyapp" version="2.2.2" />
 </widget>

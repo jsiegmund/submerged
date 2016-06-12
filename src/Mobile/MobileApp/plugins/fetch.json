@@ -63,14 +63,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-hockeyapp": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-hockeyapp"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-dialogs": {
         "source": {
             "type": "registry",
@@ -115,5 +107,13 @@
         "variables": {
             "SENDER_ID": "532189147734"
         }
+    },
+    "cordova-plugin-hockeyapp": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-hockeyapp"
+        },
+        "is_top_level": true,
+        "variables": {}
     }
 }
