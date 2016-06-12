@@ -15,6 +15,7 @@
                 }).bind(this)
                 , this.errorHandler).then(
                 (() => {
+                    navigator.splashscreen.hide();
                     this.redirect();
                 }).bind(this)
                 , this.errorHandler);

@@ -23,5 +23,8 @@
     "cordova-plugins-globalization": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/cc3d223a946f661eff871787edeb0fcb8f0db156/cordova/plugins/Globalization.d.ts",
     "cordova-plugins-statusbar": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/cc3d223a946f661eff871787edeb0fcb8f0db156/cordova/plugins/StatusBar.d.ts",
     "requirejs": "registry:npm/requirejs#2.2.0+20160319062357"
+  },
+  "globalDependencies": {
+    "cordova/plugins/splashscreen": "registry:dt/cordova/plugins/splashscreen#0.0.0+20160316155526"
   }
 }

@@ -1479,6 +1479,7 @@ var Submerged;
                 this.ensureLogin().then((() => {
                     return this.loadSettings.bind(this)();
                 }).bind(this), this.errorHandler).then((() => {
+                    navigator.splashscreen.hide();
                     this.redirect();
                 }).bind(this), this.errorHandler);
             }
