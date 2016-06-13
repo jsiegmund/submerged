@@ -9,15 +9,15 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 {
     public interface IDeviceLogic
     {
-        Task<DeviceWithKeys> AddDeviceAsync(dynamic device);
+        //Task<DeviceWithKeys> AddDeviceAsync(dynamic device);
         Task SendCommandAsync(string deviceId, string commandName, dynamic parameters);
-        Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device);
+        //Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device);
         Task<dynamic> GetDeviceAsync(string deviceId);
-        Task<dynamic> UpdateDeviceAsync(dynamic device);
+        //Task<dynamic> UpdateDeviceAsync(dynamic device);
 
-        void ApplyDevicePropertyValueModels(
-            dynamic device,
-            IEnumerable<DevicePropertyValueModel> devicePropertyValueModels);
+        //void ApplyDevicePropertyValueModels(
+        //    dynamic device,
+        //    IEnumerable<DevicePropertyValueModel> devicePropertyValueModels);
         IEnumerable<DevicePropertyValueModel> ExtractDevicePropertyValuesModels(dynamic device);
     }
 }

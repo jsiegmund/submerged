@@ -50,8 +50,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return true;
         }
 
-        public async Task<SubscriptionModel> AddSubscriptionAsync(SubscriptionModel subscription)
+        public async Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user)
         {
+            SubscriptionModel subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), name, description, user);
+
             // Validation logic throws an exception if it finds a validation error
             await ValidateSubscription(subscription);
 
@@ -92,7 +94,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return true;
         }
 
-        private async Task CheckIfDeviceExists(dynamic subscription, List<string> validationErrors)
+        private async Task CheckIfSubscriptionExists(dynamic subscription, List<string> validationErrors)
         {
             // check if subscription exists
             if (await GetSubscriptionAsync(SubscriptionSchemaHelper.GetSubscriptionUser(subscription)) != null)
@@ -107,7 +109,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             if (ValidateSubscriptionId(subscription, validationErrors))
             {
-                await CheckIfDeviceExists(subscription, validationErrors);
+                await CheckIfSubscriptionExists(subscription, validationErrors);
             }
 
             if (validationErrors.Count > 0)

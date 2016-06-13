@@ -63,9 +63,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         {
             return await Task.Run(() =>
             {
-                var rule = new DeviceRule();
-                rule.InitializeNewRule(deviceId);
-
+                DeviceRule rule = DeviceRule.BuildRule(deviceId);
                 return rule;
             });
         }       

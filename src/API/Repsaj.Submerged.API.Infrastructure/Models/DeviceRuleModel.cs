@@ -31,12 +31,17 @@ namespace Repsaj.Submerged.Infrastructure.Models
         /// <summary>
         /// This method will initialize any required, and automatically-built properties for a new rule
         /// </summary>
-        public void InitializeNewRule(string deviceId)
+        public static DeviceRule BuildRule(string deviceId)
         {
-            DeviceID = deviceId;
-            RuleId = Guid.NewGuid().ToString();
-            EnabledState = true;
-            Operator = ">";
+            DeviceRule rule = new DeviceRule()
+            {
+                DeviceID = deviceId,
+                RuleId = Guid.NewGuid().ToString(),
+                EnabledState = true,
+                Operator = ">"
+            };
+
+            return rule;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 {
     public interface ISubscriptionLogic
     {
-        Task<SubscriptionModel> AddSubscriptionAsync(SubscriptionModel subscription);
+        Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user);
         Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string owner);
         Task<SubscriptionModel> GetSubscriptionAsync(string owner);
         Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel device, string owner, bool skipValidation = false);

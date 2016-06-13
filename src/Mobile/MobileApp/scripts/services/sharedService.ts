@@ -19,11 +19,13 @@ namespace Submerged.Services {
     }
 
     export interface ISettings {
+        subscription: Models.SubscriptionModel;
         modules: Models.ModuleModel[];
         sensors: Models.SensorModel[];
     }
 
     export class Settings implements ISettings {
+        subscription: Models.SubscriptionModel;
         modules: Models.ModuleModel[];
         sensors: Models.SensorModel[];
 
@@ -138,19 +140,41 @@ namespace Submerged.Services {
             var deferred = this.$q.defer<ISettings>();
 
             this.$q.all([
+                this.loadSubscription(mobileService),
                 this.loadSensors(this.deviceInfo.deviceId, mobileService),
                 this.loadModules(this.deviceInfo.deviceId, mobileService)
             ]).then(function(values) {
 
                 var settings: ISettings = new Settings();
-                settings.sensors = values[0];
-                settings.modules = values[1];
+                settings.subscription = values[0];
+                settings.sensors = values[1]
+                settings.modules = values[2];
 
                 deferred.resolve(settings);
 
             }, function (err) {
                 deferred.reject();
             });
+
+            return deferred.promise;
+        }
+
+        loadSubscription(mobileService: IMobileService): ng.IPromise<Models.SubscriptionModel> {
+            var deferred = this.$q.defer<Models.SubscriptionModel>();
+            var apiUrl = "subscription";
+            mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, ((error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /subscription to load the subscription details: " + error);
+                    deferred.reject();
+                }
+                else {
+                    deferred.resolve(success.result);
+                }
+            }));
 
             return deferred.promise;
         }
