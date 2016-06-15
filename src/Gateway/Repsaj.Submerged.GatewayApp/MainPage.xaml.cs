@@ -36,6 +36,7 @@ using System.Text;
 using Repsaj.Submerged.GatewayApp.Device;
 using Autofac.Core;
 using System.Threading;
+using Windows.UI.Xaml.Media.Imaging;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -61,6 +62,7 @@ namespace Repsaj.Submerged.GatewayApp
 
             Submerged = new MainModel();
 
+
             //DeviceConfigurationModel configModel = new DeviceConfigurationModel()
             //{
             //    DeviceId = Statics.DeviceID,
@@ -74,6 +76,12 @@ namespace Repsaj.Submerged.GatewayApp
 
         private async void Init()
         {
+
+            //var _iconImageUrl = "ms-appx:///Icons/Sensor_Temperature.png";
+            //var uri = new Uri(_iconImageUrl);
+            //var file = await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri);
+            //var test = new BitmapImage();
+
             _deviceManager = _autofacContainer.Resolve<IDeviceManager>();
             _deviceManager.NewLogLine += UpdateLog;
             _deviceManager.SensorDataChanged += _deviceManager_SensorDataChanged;

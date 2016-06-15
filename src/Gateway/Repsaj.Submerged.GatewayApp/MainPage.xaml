@@ -10,14 +10,14 @@
     x:Class="Repsaj.Submerged.GatewayApp.MainPage"   
     mc:Ignorable="d" Width="1024" Height="600">
 
-    <Grid Background="#FF64B5F6">
+    <Grid Background="#212121">
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
             <RowDefinition Height="300" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" x:Name="textBlock_Title" Margin="10,10" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Submerged IoT Gateway" VerticalAlignment="Top" Style="{StaticResource submergedHeader}"/>
-        <Image x:Name="image" Height="90" VerticalAlignment="Top" Margin="0,10,10,0" Source="/Icons/submerged_logo.png" HorizontalAlignment="Right" Width="90"/>
+        <Image x:Name="image" Height="90" VerticalAlignment="Top" Margin="0,10,20,0" Source="/Icons/submerged_logo.png" HorizontalAlignment="Right" Width="90"/>
         <Grid Grid.Row="1" Width="Auto" Padding="10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -34,7 +34,7 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Submerged:SensorTileControl Height="150" Width="150" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="/Icons/Sensor_Temperature.png"/>
+                            <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}"/>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
@@ -76,7 +76,7 @@
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" x:Name="textBlock_Sensors_Copy" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Cloud Connection" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
             <TextBlock Grid.Row="1" x:Name="tbLogHeading" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Log" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-            <TextBox Grid.Row="2" x:Name="tbLog" TextWrapping="Wrap" Text=""/>
+            <TextBox Grid.Row="2" x:Name="tbLog" TextWrapping="Wrap" Text="" IsTapEnabled="False" IsRightTapEnabled="False" IsHoldingEnabled="False" IsDoubleTapEnabled="False" IsReadOnly="True"/>
         </Grid>
     </Grid>
 </Page>

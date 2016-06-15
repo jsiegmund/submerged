@@ -6,12 +6,25 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
     public class SensorModel : NotificationBase<Sensor>
     {
-        public SensorModel(Sensor sensor = null) : base(sensor) { }
+        public SensorModel(Sensor sensor = null) : base(sensor)
+        {
+            if (This.SensorType == SensorTypes.TEMPERATURE)
+            {
+                var value = "ms-appx:///Icons/Sensor_Temperature.png";
+                SetProperty(this._iconImageUrl, value, () => this._iconImageUrl = value);
+            }
+            else
+            {
+                var value = "ms-appx:///Icons/Sensor_Gauge.png";
+                SetProperty(this._iconImageUrl, value, () => this._iconImageUrl = value);
+            }
+        }
 
         public String Name
         {
@@ -30,6 +43,12 @@ namespace Repsaj.Submerged.GatewayApp.Models
         {
             get { return _reading; }
             set { SetProperty(this._reading, value, () => this._reading = value); RaisePropertyChanged("ReadingAsText"); }
+        }
+
+        private string _iconImageUrl;
+        public string IconImageUri
+        {
+            get { return _iconImageUrl; }
         }
 
         public string ReadingAsText

@@ -9,7 +9,7 @@
         <Setter Property="FontSize"
                 Value="34"/>
         <Setter Property="Foreground"
-                Value="#1A237E"/>
+                Value="#FFFFFF"/>
     </Style>
     <Style TargetType="TextBlock"
            x:Key="submergedSubheader">
@@ -18,7 +18,7 @@
         <Setter Property="FontSize"
                 Value="24"/>
         <Setter Property="Foreground"
-                Value="#1A237E"/>
+                Value="#F5F5F5"/>
     </Style>
     <Style TargetType="TextBlock"
          x:Key="submergedText">
@@ -29,7 +29,7 @@
         <Setter Property="FontSize"
             Value="13" />
         <Setter Property="Foreground"
-            Value="#1A237E"/>
+            Value="#F5F5F5"/>
     </Style>
 
     <!-- ***************** -->
@@ -75,7 +75,7 @@
         <Setter Property="FontFamily"
             Value="Segoe UI" />
         <Setter Property="FontSize"
-            Value="13" />
+            Value="15" />
         <Setter Property="Foreground"
             Value="White"/>
     </Style>

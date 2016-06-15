@@ -145,7 +145,7 @@
     <None Include="RemoteArduino_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Icons\Sensor_pH.png" />
+    <Content Include="Icons\Sensor_Gauge.png" />
     <Content Include="Icons\Sensor_Temperature.png" />
     <Content Include="Icons\submerged_logo.png" />
     <Content Include="Properties\Default.rd.xml" />

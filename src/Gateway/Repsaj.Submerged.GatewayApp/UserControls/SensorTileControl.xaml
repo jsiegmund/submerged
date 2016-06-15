@@ -7,22 +7,22 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:UniversalWrapPanel="using:Gregstoll"  
     mc:Ignorable="d"
-    d:DesignHeight="150"
-    d:DesignWidth="150">
+    d:DesignHeight="120"
+    d:DesignWidth="120">
 
     <Border x:Name="borMain">
-        <Grid Background="#1A237E">
+        <Grid Background="#616161">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <Image Grid.Row="0"
                 Name="imgMain"
-                Style="{StaticResource submergedTileImageStyle}" Height="48" Width="48" Source="{Binding ImageUri}" HorizontalAlignment="Right" Margin="0,16,20,16" />
+                Style="{StaticResource submergedTileImageStyle}" Height="48" Width="48" Source="{Binding ImageUri}" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" />
             <TextBlock Grid.Row="0"
             	x:Name="tbReading"
             	Style="{StaticResource submergedTileReadingStyle}"
-            	Text="{Binding Path=Reading}" Margin="15,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            	Text="{Binding Path=Reading}" Margin="15,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Top" />
             <TextBlock 
                 Grid.Row="1"
                 Name="tbSensorName"
