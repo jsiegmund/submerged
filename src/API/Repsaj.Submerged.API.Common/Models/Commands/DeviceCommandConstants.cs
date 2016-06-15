@@ -20,5 +20,6 @@ namespace Repsaj.Submerged.Common.Models.Commands
     public static class DeviceCommandTypes
     {
         public const string SWITCH_RELAY = "SwitchRelay";
+        public const string UPDATE_INFO = "UpdateInfo";
     }
 }

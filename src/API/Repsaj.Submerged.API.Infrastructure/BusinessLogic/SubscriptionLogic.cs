@@ -2,6 +2,7 @@
 using Repsaj.Submerged.Common.Configurations;
 using Repsaj.Submerged.Common.DeviceSchema;
 using Repsaj.Submerged.Common.Models;
+using Repsaj.Submerged.Common.Models.Commands;
 using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.Exceptions;
 using Repsaj.Submerged.Infrastructure.Models;
@@ -225,7 +226,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         private async Task SendDeviceConfigurationMessage(DeviceModel device)
         {
-            DeviceCommandModel command = DeviceCommandModel.BuildDeviceCommand("UpdateInfo");
+            DeviceCommandModel command = DeviceCommandModel.BuildDeviceCommand(DeviceCommandTypes.UPDATE_INFO);
             command.Parameters = device;
 
             // send the updated device configuration to the device via a cloud 2 device message

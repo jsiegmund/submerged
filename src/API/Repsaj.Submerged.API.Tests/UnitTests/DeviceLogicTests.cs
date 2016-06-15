@@ -7,6 +7,7 @@ using Repsaj.Submerged.API.Tests.Helpers;
 using System.Collections.Generic;
 using Repsaj.Submerged.Common.DeviceSchema;
 using Repsaj.Submerged.Infrastructure.Repository;
+using Repsaj.Submerged.Common.Models.Commands;
 
 namespace Repsaj.Submerged.API.Tests.UnitTests
 {
@@ -28,7 +29,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 commandParams.Add("RelayState", true);
 
                 var deviceLogic = autoMock.Create<DeviceLogic>();
-                deviceLogic.SendCommandAsync(TestConfigHelper.DeviceId, "SwitchRelay", commandParams).Wait();
+                deviceLogic.SendCommandAsync(TestConfigHelper.DeviceId, DeviceCommandTypes.SWITCH_RELAY, commandParams).Wait();
             }
         }
 
