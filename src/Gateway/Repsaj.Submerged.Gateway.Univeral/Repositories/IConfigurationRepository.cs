@@ -9,9 +9,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 {
     public interface IConfigurationRepository
     {
-        Task<IEnumerable<ModuleConfigurationModel>> GetModuleConfiguration();
-        Task SaveModuleConfiguration(ModuleConfigurationModel[] moduleConfiguration);
-        Task<DeviceConfigurationModel> GetDeviceConfiguration();
-        Task SaveDeviceConfiguration(DeviceConfigurationModel model);
+        //Task<IEnumerable<ModuleConfigurationModel>> GetModuleConfiguration();
+        //Task SaveModuleConfiguration(ModuleConfigurationModel[] moduleConfiguration);
+
+        Task<ConnectionInformationModel> GetConnectionInformationModel();
+        Task SaveConnectionInformationModel(ConnectionInformationModel model);
+
+        Task<DeviceModel> GetDeviceModel();
+        Task SaveDeviceModel(DeviceModel model);
     }
 }

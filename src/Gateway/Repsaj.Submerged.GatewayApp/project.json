@@ -1,6 +1,7 @@
 ﻿{
   "dependencies": {
     "Autofac": "3.5.2",
+    "AutoMapper": "4.2.1",
     "Dynamitey": "1.0.2",
     "Microsoft.Azure.Devices.Client": "1.0.11",
     "Microsoft.NETCore.Runtime": "1.0.1-beta-23516",

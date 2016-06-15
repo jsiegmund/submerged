@@ -4,6 +4,7 @@
 
         loading: boolean;        
         deviceId: string;
+        timezoneOffset: number;
 
         pickedDate: Date = new Date();
         loadedTabData: number = -1;
@@ -26,6 +27,7 @@
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService) {
 
             this.deviceId = shared.settings.getDeviceId();
+            this.timezoneOffset = shared.settings.globalizationInfo.server_offset;
             this.loadSensors();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
@@ -138,7 +140,7 @@
             var selectedTab = this.selectedTabName();
 
             // toISOString already converts the date 
-            var resourceUri = "data/" + selectedTab + "?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
+            var resourceUri = "data/" + selectedTab + "?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffset;
 
             console.log("Requesting data from back-end API");
 

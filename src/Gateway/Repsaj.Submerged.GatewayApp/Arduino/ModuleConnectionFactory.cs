@@ -12,19 +12,20 @@ using Windows.Devices.Enumeration;
 
 namespace Repsaj.Submerged.GatewayApp.Arduino
 {
-    public class ModuleConnectionFactory
+    public class ModuleConnectionFactory : IModuleConnectionFactory
     {
         DeviceInformationCollection _devices;
         Dictionary<string, ModuleConnection> _connections = new Dictionary<string, ModuleConnection>();
 
         public ModuleConnectionFactory()
         {
+        }
+
+        public async Task Init()
+        {
             try
             {
-                Task<DeviceInformationCollection> task = DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort)).AsTask();
-                task.Wait();
-                _devices = task.Result;
-
+                _devices = await DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort)).AsTask();
                 int count = _devices.Count;
             }
             catch (Exception ex)
@@ -40,35 +41,35 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             return _connections.Values.SingleOrDefault(m => m.ModuleName == moduleName);
         }
 
-        public ModuleConnection GetModuleConnection(ModuleConfigurationModel moduleConfig)
+        public ModuleConnection GetModuleConnection(Module module)
         {
             ModuleConnection connection = null;
 
-            if (_connections.ContainsKey(moduleConfig.ConnectionString))
-                return _connections[moduleConfig.ConnectionString];
+            if (_connections.ContainsKey(module.ConnectionString))
+                return _connections[module.ConnectionString];
 
             try
             {
-                var device = _devices.SingleOrDefault(d => d.Id == moduleConfig.ConnectionString);
+                var device = _devices.SingleOrDefault(d => d.Id == module.ConnectionString);
 
                 if (device == null)
                 {
-                    string msg = $"Could not find module {moduleConfig.Name} in the device registry. Check the connectionstring or repair the device";
+                    string msg = $"Could not find module {module.Name} in the device registry. Check the connectionstring or repair the device";
                     //MinimalEventSource.Log.LogWarning(msg);
                     return null;
                 }
 
-                if (moduleConfig.ModuleType == ModuleTypes.CABINET)
-                    connection = new CabinetModuleConnection(device, moduleConfig.Name);
-                else if (moduleConfig.ModuleType == ModuleTypes.SENSORS)
-                    connection = new SensorModuleConnection(device, moduleConfig.Name);
+                if (module.ModuleType == ModuleTypes.CABINET)
+                    connection = new CabinetModuleConnection(device, module.Name);
+                else if (module.ModuleType == ModuleTypes.SENSORS)
+                    connection = new SensorModuleConnection(device, module.Name);
                 else
-                    throw new ArgumentException($"Module type {moduleConfig.ModuleType} is not supported by this device.");
+                    throw new ArgumentException($"Module type {module.ModuleType} is not supported by this device.");
 
                 connection.Init();
 
                 // add to the list of managed connections
-                _connections.Add(moduleConfig.ConnectionString, connection);
+                _connections.Add(module.ConnectionString, connection);
             }
             catch (Exception ex)
             {

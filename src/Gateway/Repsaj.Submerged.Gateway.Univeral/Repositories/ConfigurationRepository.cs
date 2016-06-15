@@ -12,7 +12,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
     {
         private readonly IStorageRepository _storageRepository;
 
-        private readonly string FILE_MODULE = "moduleconfig.json";
+        private readonly string FILE_CONNECTION = "connectioninfo.json";
         private readonly string FILE_DEVICE = "deviceconfig.json";
 
         public ConfigurationRepository(IStorageRepository storageRepository)
@@ -20,45 +20,39 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
             _storageRepository = storageRepository;
         }
 
-        public async Task<DeviceConfigurationModel> GetDeviceConfiguration()
+        public async Task<ConnectionInformationModel> GetConnectionInformationModel()
         {
-            dynamic stored = await _storageRepository.GetStoredObject(FILE_DEVICE);
+            dynamic stored = await _storageRepository.GetStoredObject(FILE_CONNECTION);
 
             if (stored != null)
             {
-                return ((JObject)stored).ToObject<DeviceConfigurationModel>();
+                return ((JObject)stored).ToObject<ConnectionInformationModel>();
             }
 
             return null;
         }
 
-        public async Task SaveDeviceConfiguration(DeviceConfigurationModel model)
+        public async Task SaveConnectionInformationModel(ConnectionInformationModel model)
         {
-            await _storageRepository.SaveObjectToStorage(model, FILE_DEVICE);
+            await _storageRepository.SaveObjectToStorage(model, FILE_CONNECTION);
         }
 
-        public async Task<IEnumerable<ModuleConfigurationModel>> GetModuleConfiguration()
+        public async Task<DeviceModel> GetDeviceModel()
         {
-            dynamic stored = await _storageRepository.GetStoredObject(FILE_MODULE);
+            dynamic stored = await _storageRepository.GetStoredObject(FILE_DEVICE);
 
             if (stored != null)
             {
-                List<ModuleConfigurationModel> result = new List<ModuleConfigurationModel>();
-
-                foreach (JObject obj in (stored as JArray))
-                {
-                    result.Add(obj.ToObject<ModuleConfigurationModel>());
-                }
-
-                return result.ToArray();
+                JObject deviceModelObject = (JObject)stored;
+                return deviceModelObject.ToObject<DeviceModel>();
             }
             else
-                return new ModuleConfigurationModel[0];
+                return null;
         }
 
-        public async Task SaveModuleConfiguration(ModuleConfigurationModel[] moduleConfiguration)
+        public async Task SaveDeviceModel(DeviceModel model)
         {
-            await _storageRepository.SaveObjectToStorage(moduleConfiguration, FILE_MODULE);
+            await _storageRepository.SaveObjectToStorage(model, FILE_DEVICE);
         }
     }
 }

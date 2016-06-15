@@ -120,9 +120,14 @@
     <Compile Include="Device\TelemetryHelper.cs" />
     <Compile Include="Exceptions\DeviceNotFoundException.cs" />
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
-    <Compile Include="Models\DeviceConfigurationModel.cs" />
+    <Compile Include="Models\ConnectionInformationModel.cs" />
+    <Compile Include="Models\DeviceModel.cs" />
     <Compile Include="Models\DeviceModelConstants.cs" />
-    <Compile Include="Models\ModuleConfigurationModel.cs" />
+    <Compile Include="Models\DevicePropertiesModel.cs" />
+    <Compile Include="Models\Module.cs" />
+    <Compile Include="Models\Relay.cs" />
+    <Compile Include="Models\Sensor.cs" />
+    <Compile Include="Models\ModelConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigurationRepository.cs" />
     <Compile Include="Repositories\IConfigurationRepository.cs" />

@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:UniversalWrapPanel="using:Gregstoll"   
     xmlns:Submerged="using:Repsaj.Submerged.GatewayApp.UserControls"
+    xmlns:viewModels="using:Repsaj.Submerged.GatewayApp.Models"
     x:Class="Repsaj.Submerged.GatewayApp.MainPage"   
     mc:Ignorable="d" Width="1024" Height="600">
 
@@ -25,7 +26,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel x:Name="SensorsPanel" Grid.Column="0">
                 <TextBlock Grid.Row="0" x:Name="textBlock_Sensors" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Sensor Readings" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Sensors" HorizontalAlignment="Left">
+                <ListView x:Name="listView_Sensors" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Sensors}">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal" />
@@ -33,14 +34,14 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Submerged:SensorTileControl Height="150" Width="150" SensorName="{Binding Name}" Reading="{Binding ReadingAsText}" ImageUri="/Icons/Sensor_Temperature.png"/>
+                            <Submerged:SensorTileControl Height="150" Width="150" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="/Icons/Sensor_Temperature.png"/>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </StackPanel>
             <StackPanel x:Name="RelayPanel" Grid.Column="1">
                 <TextBlock x:Name="textBlock_Relays" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Relay status" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Relays" HorizontalAlignment="Left">
+                <ListView x:Name="listView_Relays" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Relays}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal">
@@ -54,7 +55,7 @@
             </StackPanel>
             <StackPanel x:Name="ModulePanel" Grid.Column="2">
                 <TextBlock x:Name="textBlock_Modules" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Modules" VerticalAlignment="Top" FontWeight="Normal" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Modules" HorizontalAlignment="Left">
+                <ListView x:Name="listView_Modules" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Modules}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal">

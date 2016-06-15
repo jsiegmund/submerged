@@ -13,10 +13,10 @@ namespace RemoteArduino.Commands
     public class SwitchRelayCommandProcessor : ICommandProcessor
     {
         IGPIOController _gpioController;
-        ModuleConnectionFactory _moduleConnectionFactory;
+        IModuleConnectionFactory _moduleConnectionFactory;
         private const string SWITCH_RELAY = "SwitchRelay";
 
-        public SwitchRelayCommandProcessor(IGPIOController gpioController, ModuleConnectionFactory connectionFactory)
+        public SwitchRelayCommandProcessor(IGPIOController gpioController, IModuleConnectionFactory connectionFactory)
         {
             this._gpioController = gpioController;
             this._moduleConnectionFactory = connectionFactory;

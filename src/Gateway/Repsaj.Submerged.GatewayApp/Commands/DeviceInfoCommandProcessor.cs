@@ -26,23 +26,24 @@ namespace RemoteArduino.Commands
             {
                 try
                 {
-                    dynamic parameters = command.Command.Parameters;
+                    JObject deviceObject = (JObject)command.Command.Parameters;
+                    DeviceModel deviceModel = deviceObject.ToObject<DeviceModel>();
+                    await _configRepository.SaveDeviceModel(deviceModel);
 
-                    JArray modulesArray = parameters.Modules;
-                    List<ModuleConfigurationModel> modules = new List<ModuleConfigurationModel>();
+                    //JArray modulesArray = device.Modules;
+                    //List<ModuleConfigurationModel> modules = new List<ModuleConfigurationModel>();
 
-                    foreach (JObject moduleObj in modulesArray)
-                    {
-                        ModuleConfigurationModel model = new ModuleConfigurationModel();
+                    //foreach (JObject moduleObj in modulesArray)
+                    //{
+                    //    ModuleConfigurationModel model = new ModuleConfigurationModel();
 
-                        model.ConnectionString = (string)moduleObj["ConnectionString"];
-                        model.ModuleType = (string)moduleObj["ModuleType"];
-                        model.Name = (string)moduleObj["Name"];
+                    //    model.ConnectionString = (string)moduleObj["ConnectionString"];
+                    //    model.ModuleType = (string)moduleObj["ModuleType"];
+                    //    model.Name = (string)moduleObj["Name"];
 
-                        modules.Add(model);
-                    }
+                    //    modules.Add(model);
+                    //}
 
-                    await _configRepository.SaveModuleConfiguration(modules.ToArray());
 
                     return CommandProcessingResult.Success;
                 }

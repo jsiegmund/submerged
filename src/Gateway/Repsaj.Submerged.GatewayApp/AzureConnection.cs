@@ -14,10 +14,8 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp
 {
-    class AzureConnection
+    class AzureConnection : IAzureConnection
     {
-        public delegate Task ICommandReceived(DeserializableCommand command);
-
         public event ICommandReceived CommandReceived;
 
         string _deviceConnectionString;

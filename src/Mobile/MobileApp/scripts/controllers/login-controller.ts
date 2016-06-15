@@ -49,18 +49,3 @@
 
     angular.module("ngapp").controller("LoginContoller", LoginController);
 }
-
-//angular.module("ngapp").controller("LoginContoller", function (shared, mobileService, $scope, $location) {
-//    var vm = this;
-
-//    vm.loading = true;
-//    vm.login = function () {
-//        mobileService.login();
-//    }
-
-//    vm.init = function () {
-
-//    }
-
-//    vm.init();
-//});

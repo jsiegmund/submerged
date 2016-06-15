@@ -21,8 +21,10 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         Dictionary<string, string> GetModuleStatuses();
         Task ConnectModules();
         JObject GetAvailableData();
-        IEnumerable<ModuleModel> GetModuleModels();
+        //IEnumerable<ModuleStatusModel> GetModuleStatusModels();
 
         bool AllModulesInitialized { get; }
+
+        Task Init();
     }
 }

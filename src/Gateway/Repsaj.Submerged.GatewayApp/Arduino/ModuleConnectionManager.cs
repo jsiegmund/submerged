@@ -15,10 +15,10 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
     public class ModuleConnectionManager : IModuleConnectionManager
     {
         IConfigurationRepository _configurationRepository;
-        ModuleConnectionFactory _moduleConnectionFactory;
+        IModuleConnectionFactory _moduleConnectionFactory;
 
         Dictionary<string, ModuleConnection> _modules = new Dictionary<string, ModuleConnection>();
-        IEnumerable<ModuleConfigurationModel> _moduleConfig;
+        IEnumerable<Module> _moduleConfig;
 
         Dictionary<string, ModuleConnectionStatus> _moduleStatuses = new Dictionary<string, ModuleConnectionStatus>();
         public event IModuleStatusChanged ModuleConnecting;
@@ -29,7 +29,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         public bool AllModulesInitialized { get; private set; }
 
 
-        public ModuleConnectionManager(IConfigurationRepository configurationRepository, ModuleConnectionFactory moduleConnectionFactory)
+        public ModuleConnectionManager(IConfigurationRepository configurationRepository, IModuleConnectionFactory moduleConnectionFactory)
         {
             _configurationRepository = configurationRepository;
             _moduleConnectionFactory = moduleConnectionFactory;
@@ -37,14 +37,20 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             AllModulesInitialized = false;
         }
 
+        public async Task Init()
+        {
+            await _moduleConnectionFactory.Init();
+        }
+
         public async Task ConnectModules()
         {
             // TODO: fetch the module configuration from Azure (now hardcoded)
-            _moduleConfig = await _configurationRepository.GetModuleConfiguration();
+            var device = await _configurationRepository.GetDeviceModel();
+            _moduleConfig = device.Modules;
             //MinimalEventSource.Log.LogInfo($"Found {_moduleConfig.Count()} module(s) to initialize.");
 
             // Initialize all of the Arduino connections
-            foreach (ModuleConfigurationModel module in _moduleConfig)
+            foreach (Module module in _moduleConfig)
             {
                 try
                 {
@@ -144,24 +150,19 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
 
         public Dictionary<string, string> GetModuleStatuses()
         {
-            return GetModuleModels().ToDictionary<ModuleModel, string, string>(m => m.Name, m => m.Status);
-        }
-
-        public IEnumerable<ModuleModel> GetModuleModels()
-        {
-            List<ModuleModel> result = new List<ModuleModel>();
+            Dictionary<string, string> statuses = new Dictionary<string, string>();
 
             foreach (var moduleConfig in _moduleConfig)
             {
                 var module = _modules.Values.SingleOrDefault(m => m.ModuleName == moduleConfig.Name);
 
                 if (module != null)
-                    result.Add(new ModuleModel() { Name = module.ModuleName, Status = module.StatusAsText });
+                    statuses.Add(module.ModuleName, module.StatusAsText);
                 else
-                    result.Add(new ModuleModel() { Name = moduleConfig.Name, Status = "Error" });
+                    statuses.Add(moduleConfig.Name, "Error");
             }
 
-            return result;
+            return statuses;
         }
     }
 }

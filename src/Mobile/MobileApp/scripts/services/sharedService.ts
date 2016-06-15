@@ -12,6 +12,13 @@ namespace Submerged.Services {
     export class GlobalizationInfo {
         utc_offset: number;
         dst_offset: number;
+        server_offset: number;
+
+        constructor() {
+            this.dst_offset = 0;
+            this.utc_offset = 0;
+            this.server_offset = 0;
+        }
     }
 
     export interface ISettings {
@@ -70,8 +77,6 @@ namespace Submerged.Services {
             this.settings.apiInfo = apiInfoObj;
 
             var globalizationInfoObj = new GlobalizationInfo();
-            globalizationInfoObj.dst_offset = 0;
-            globalizationInfoObj.utc_offset = 0;
             this.settings.globalizationInfo = globalizationInfoObj;
         }
 
@@ -79,6 +84,7 @@ namespace Submerged.Services {
             console.log(`setting globalization info to utc_offset: ${pattern.utc_offset}.`);
             this.settings.globalizationInfo.utc_offset = pattern.utc_offset;
             this.settings.globalizationInfo.dst_offset = pattern.dst_offset;
+            this.settings.globalizationInfo.server_offset = pattern.utc_offset + pattern.dst_offset;
         }
 
         globalizationError(globalizationError) {
