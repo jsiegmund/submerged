@@ -3,6 +3,7 @@
     export class AnalyticsController {
 
         loading: boolean;        
+        deviceId: string;
 
         pickedDate: Date = new Date();
         loadedTabData: number = -1;
@@ -24,6 +25,7 @@
         constructor(private shared: Services.IShared, private mobileService: Services.IMobileService,
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService) {
 
+            this.deviceId = shared.settings.getDeviceId();
             this.loadSensors();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
@@ -48,7 +50,7 @@
         }
 
         loadSensors(): void {
-            var apiUrl = "sensors?deviceId=" + this.shared.deviceInfo.deviceId;
+            var apiUrl = "sensors?deviceId=" + this.deviceId;
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
@@ -61,7 +63,7 @@
                     var sensors: Models.SensorModel[] = success.result;
                     this.processSensors(sensors);      // process the last known data for display
 
-                    this.shared.settings.sensors = sensors;
+                    this.shared.settings.subscription.sensors = sensors;
                     this.shared.save();
                 }
             }).bind(this));
@@ -136,7 +138,7 @@
             var selectedTab = this.selectedTabName();
 
             // toISOString already converts the date 
-            var resourceUri = "data/" + selectedTab + "?deviceId=" + this.shared.deviceInfo.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
+            var resourceUri = "data/" + selectedTab + "?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
 
             console.log("Requesting data from back-end API");
 

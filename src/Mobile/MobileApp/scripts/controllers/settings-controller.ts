@@ -3,13 +3,18 @@
     export class SettingsController {
         loading: boolean = true;
         saving: boolean = false;
+
         sensors: any[];
         indexedRules = [];
+
+        deviceId: string;
 
         constructor(private shared: Services.IShared, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
             private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService) {
 
-            var apiUrl = "sensors?deviceId=" + shared.deviceInfo.deviceId;
+            this.deviceId = shared.settings.getDeviceId();
+
+            var apiUrl = "sensors?deviceId=" + this.deviceId;
             mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
@@ -58,12 +63,12 @@
         save(): void {
             this.saving = true;
 
-            this.shared.settings.sensors = this.sensors;
+            this.shared.settings.subscription.sensors = this.sensors;
             this.shared.save();
 
-            var apiUrl = "sensors/save?deviceId=" + this.shared.deviceInfo.deviceId;
+            var apiUrl = "sensors/save?deviceId=" + this.deviceId;
             this.mobileService.invokeApi(apiUrl, {
-                body: this.shared.settings.sensors,
+                body: this.shared.settings.subscription.sensors,
                 method: "post"
             }, ((error, success) => {
                 this.saving = false;

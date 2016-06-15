@@ -22,6 +22,7 @@
         }
 
         errorHandler(err): void {
+            navigator.splashscreen.hide();
             console.log("Error occurred during login procedure: " + err);
         }        
 

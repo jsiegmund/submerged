@@ -2,11 +2,14 @@
     export class ControlController {
 
         relays: Models.RelayModel[];
+        deviceId: string;
 
         constructor(private shared: Services.IShared, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
             private $state: ng.ui.IStateService) {
 
-            var apiUrl = "control/relays?deviceId=" + this.shared.deviceInfo.deviceId;
+            this.deviceId = shared.settings.getDeviceId();
+
+            var apiUrl = "control/relays?deviceId=" + this.deviceId;
 
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
@@ -33,7 +36,7 @@
         };
 
         toggle(relayNumber: number, relayState: boolean) {
-            var apiUrl = "control/setrelay?deviceId=" + this.shared.deviceInfo.deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
+            var apiUrl = "control/setrelay?deviceId=" + this.deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"

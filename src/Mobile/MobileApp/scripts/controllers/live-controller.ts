@@ -40,6 +40,8 @@ namespace Submerged.Controllers {
 
         timeoutId: any;
 
+        deviceId: string;
+
         static $inject = ['shared', 'mobileService', 'signalRService', '$state', '$scope', '$timeout', '$sce'];
 
         constructor(private shared: Submerged.Services.IShared, private mobileService: Submerged.Services.IMobileService,
@@ -47,13 +49,15 @@ namespace Submerged.Controllers {
             private $state: ng.ui.IState, private $scope: ng.IRootScopeService, private $timeout: ng.ITimeoutService,
             private $sce: ng.ISCEService) {
 
+            this.deviceId = shared.settings.getDeviceId();
+
             // get the settings stored in local storage; when empty refresh from cloud
             var settings = shared.settings;
-            if (settings.sensors == null || settings.sensors.length == 0) {
+            if (settings.subscription.sensors == null || settings.subscription.sensors.length == 0) {
                 this.loadSensors();
             }
             else {
-                this.processSensors(settings.sensors);
+                this.processSensors(settings.subscription.sensors);
             }
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
@@ -90,7 +94,7 @@ namespace Submerged.Controllers {
         };
 
         loadSensors(): void {
-            var apiUrl = "sensors?deviceId=" + this.shared.deviceInfo.deviceId;
+            var apiUrl = "sensors?deviceId=" + this.deviceId;
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
@@ -103,7 +107,7 @@ namespace Submerged.Controllers {
                     var sensors: Models.SensorModel[] = success.result;
                     this.processSensors(sensors);      // process the last known data for display
 
-                    this.shared.settings.sensors = sensors;
+                    this.shared.settings.subscription.sensors = sensors;
                     this.shared.save();    
                 }
             }).bind(this));
@@ -130,7 +134,7 @@ namespace Submerged.Controllers {
 
         loadLastThreeHours(): void {
             var date = new Date();
-            var url = "data/threehours?deviceId=" + this.shared.deviceInfo.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
+            var url = "data/threehours?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
 
              this.mobileService.invokeApi(url, {
                 body: null,
@@ -148,7 +152,7 @@ namespace Submerged.Controllers {
 
         loadLatestTelemetry(): void {
             // get the latest available data record to show untill it's updated
-            this.mobileService.invokeApi("data/latest?deviceId=" + this.shared.deviceInfo.deviceId, {
+            this.mobileService.invokeApi("data/latest?deviceId=" + this.deviceId, {
                 body: null,
                 method: "post"
             }, function (error, success) {
@@ -253,7 +257,7 @@ namespace Submerged.Controllers {
             this.loading = true;
 
             // get the latest available data record to show untill it's updated
-            this.mobileService.invokeApi("modules?deviceId=" + this.shared.deviceInfo.deviceId, {
+            this.mobileService.invokeApi("modules?deviceId=" + this.deviceId, {
                 body: null,
                 method: "post"
             }, function (error, success) {

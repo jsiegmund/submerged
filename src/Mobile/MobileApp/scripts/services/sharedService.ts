@@ -9,10 +9,6 @@ namespace Submerged.Services {
         gcmSenderID: string;
     }
 
-    export class DeviceInfo {
-        deviceId: string;
-    }
-
     export class GlobalizationInfo {
         utc_offset: number;
         dst_offset: number;
@@ -20,23 +16,30 @@ namespace Submerged.Services {
 
     export interface ISettings {
         subscription: Models.SubscriptionModel;
-        modules: Models.ModuleModel[];
-        sensors: Models.SensorModel[];
+        apiInfo: ApiInfo;
+        globalizationInfo: GlobalizationInfo;
+        getDeviceId(): string;
     }
 
     export class Settings implements ISettings {
         subscription: Models.SubscriptionModel;
-        modules: Models.ModuleModel[];
-        sensors: Models.SensorModel[];
+        apiInfo: ApiInfo;
+        globalizationInfo: GlobalizationInfo;
 
         constructor() {
+        }
+
+        getDeviceId(): string {
+            if (this.subscription != null &&
+                this.subscription.devices != null &&
+                this.subscription.devices.length > 0)
+                return this.subscription.devices[0].deviceProperties.deviceID;
+            else
+                return "";
         }
     }
 
     export interface IShared {
-        apiInfo: ApiInfo;
-        deviceInfo: DeviceInfo;
-        globalizationInfo: GlobalizationInfo;
         settings: ISettings;
 
         init(): void;
@@ -49,7 +52,6 @@ namespace Submerged.Services {
 
         settings: ISettings;
         apiInfo: ApiInfo;
-        deviceInfo: DeviceInfo;
         globalizationInfo: GlobalizationInfo;
         file: string = "settings.json";
 
@@ -58,22 +60,32 @@ namespace Submerged.Services {
         constructor(private fileService: IFileService, private $q: ng.IQService) {
             console.log("Constructor of shared called");
 
+            this.settings = new Settings();
+
             var apiInfoObj = new ApiInfo();
             apiInfoObj.apiUrl = 'https://neptune-mobileapi.azurewebsites.net';
-            apiInfoObj.baseUrl = "https://neptune-mobileapi.azurewebsites.net/api";
-            apiInfoObj.signalRUrl = "https://neptune-mobileapi.azurewebsites.net/";
+            apiInfoObj.baseUrl = apiInfoObj.apiUrl + '/api';
+            apiInfoObj.signalRUrl = apiInfoObj.apiUrl;
             apiInfoObj.gcmSenderID = '532189147734';
-            this.apiInfo = apiInfoObj;
-
-            var deviceInfoObj = new DeviceInfo();
-            deviceInfoObj.deviceId = "repsaj-neptune-win10pi";
-            this.deviceInfo = deviceInfoObj;
+            this.settings.apiInfo = apiInfoObj;
 
             var globalizationInfoObj = new GlobalizationInfo();
             globalizationInfoObj.dst_offset = 0;
             globalizationInfoObj.utc_offset = 0;
-            this.globalizationInfo = globalizationInfoObj;
+            this.settings.globalizationInfo = globalizationInfoObj;
+
+            navigator.globalization.getDatePattern(this.globalizationSuccess, this.globalizationError);
         }
+
+        globalizationSuccess(pattern) {
+            this.globalizationInfo.utc_offset = pattern.utc_offset;
+            this.globalizationInfo.dst_offset = pattern.dst_offset;
+        }
+
+        globalizationError(globalizationError) {
+            console.log("Globalization error: " + globalizationError.message);
+        }
+
 
         public init(): void {
 
@@ -139,16 +151,11 @@ namespace Submerged.Services {
         private loadFromCloud(mobileService: IMobileService): ng.IPromise<ISettings> {
             var deferred = this.$q.defer<ISettings>();
 
-            this.$q.all([
-                this.loadSubscription(mobileService),
-                this.loadSensors(this.deviceInfo.deviceId, mobileService),
-                this.loadModules(this.deviceInfo.deviceId, mobileService)
-            ]).then(function(values) {
+            this.loadSubscription(mobileService).then(function(subscription) {
 
+                // build a new settings object and save the subscription in it
                 var settings: ISettings = new Settings();
-                settings.subscription = values[0];
-                settings.sensors = values[1]
-                settings.modules = values[2];
+                settings.subscription = subscription;
 
                 deferred.resolve(settings);
 
@@ -179,45 +186,45 @@ namespace Submerged.Services {
             return deferred.promise;
         }
 
-        loadSensors(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.SensorModel[]> {
-            var deferred = this.$q.defer<Models.SensorModel[]>();
-            var apiUrl = "sensors?deviceId=" + deviceId;
-            mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to load the sensor settings: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve(success.result);
-                }
-            }));
+        //loadSensors(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.SensorModel[]> {
+        //    var deferred = this.$q.defer<Models.SensorModel[]>();
+        //    var apiUrl = "sensors?deviceId=" + deviceId;
+        //    mobileService.invokeApi(apiUrl, {
+        //        body: null,
+        //        method: "post"
+        //    }, ((error, success) => {
+        //        if (error) {
+        //            // do nothing
+        //            console.log("Error calling /sensors to load the sensor settings: " + error);
+        //            deferred.reject();
+        //        }
+        //        else {
+        //            deferred.resolve(success.result);
+        //        }
+        //    }));
 
-            return deferred.promise;
-        }
+        //    return deferred.promise;
+        //}
 
-        loadModules(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.ModuleModel[]> {
-            var deferred = this.$q.defer<Models.ModuleModel[]>();
-            var apiUrl = "sensors?deviceId=" + deviceId;
-            mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to load the sensor settings: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve(success.result);
-                }
-            }));
+        //loadModules(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.ModuleModel[]> {
+        //    var deferred = this.$q.defer<Models.ModuleModel[]>();
+        //    var apiUrl = "sensors?deviceId=" + deviceId;
+        //    mobileService.invokeApi(apiUrl, {
+        //        body: null,
+        //        method: "post"
+        //    }, ((error, success) => {
+        //        if (error) {
+        //            // do nothing
+        //            console.log("Error calling /sensors to load the sensor settings: " + error);
+        //            deferred.reject();
+        //        }
+        //        else {
+        //            deferred.resolve(success.result);
+        //        }
+        //    }));
 
-            return deferred.promise;
-        }
+        //    return deferred.promise;
+        //}
 
 
     }

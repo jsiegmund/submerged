@@ -8,14 +8,6 @@ angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "n
         window.plugins.orientationLock.lock("portrait");
         //document.addEventListener("backbutton", onBackButton, false);
         document.addEventListener("resume", onResume, false);
-        navigator.globalization.getDatePattern(globalizationSuccess, globalizationError);
-    }
-    function globalizationSuccess(pattern) {
-        shared.globalizationInfo.utc_offset = pattern.utc_offset;
-        shared.globalizationInfo.dst_offset = pattern.dst_offset;
-    }
-    function globalizationError(globalizationError) {
-        console.log("Globalization error: " + globalizationError.message);
     }
     /* Hijack Android Back Button (You Can Set Different Functions for Each View by Checking the $state.current) */
     function onBackButton() {
@@ -193,7 +185,7 @@ var Submerged;
                 this.pushRegistration = null;
                 this.registrationId = null;
                 this.file = "authtoken.json";
-                this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.shared.apiInfo.apiUrl);
+                this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.shared.settings.apiInfo.apiUrl);
                 this.init();
             }
             init() {
@@ -301,7 +293,7 @@ var Submerged;
                 console.log("Initializing push notifications");
                 this.pushRegistration = window.PushNotification.init({
                     android: {
-                        senderID: this.shared.apiInfo.gcmSenderID
+                        senderID: this.shared.settings.apiInfo.gcmSenderID
                     }
                 });
                 this.pushRegistration.on('registration', ((data) => {
@@ -354,14 +346,19 @@ var Submerged;
         class ApiInfo {
         }
         Services.ApiInfo = ApiInfo;
-        class DeviceInfo {
-        }
-        Services.DeviceInfo = DeviceInfo;
         class GlobalizationInfo {
         }
         Services.GlobalizationInfo = GlobalizationInfo;
         class Settings {
             constructor() {
+            }
+            getDeviceId() {
+                if (this.subscription != null &&
+                    this.subscription.devices != null &&
+                    this.subscription.devices.length > 0)
+                    return this.subscription.devices[0].deviceProperties.deviceID;
+                else
+                    return "";
             }
         }
         Services.Settings = Settings;
@@ -371,19 +368,25 @@ var Submerged;
                 this.$q = $q;
                 this.file = "settings.json";
                 console.log("Constructor of shared called");
+                this.settings = new Settings();
                 var apiInfoObj = new ApiInfo();
                 apiInfoObj.apiUrl = 'https://neptune-mobileapi.azurewebsites.net';
-                apiInfoObj.baseUrl = "https://neptune-mobileapi.azurewebsites.net/api";
-                apiInfoObj.signalRUrl = "https://neptune-mobileapi.azurewebsites.net/";
+                apiInfoObj.baseUrl = apiInfoObj.apiUrl + '/api';
+                apiInfoObj.signalRUrl = apiInfoObj.apiUrl;
                 apiInfoObj.gcmSenderID = '532189147734';
-                this.apiInfo = apiInfoObj;
-                var deviceInfoObj = new DeviceInfo();
-                deviceInfoObj.deviceId = "repsaj-neptune-win10pi";
-                this.deviceInfo = deviceInfoObj;
+                this.settings.apiInfo = apiInfoObj;
                 var globalizationInfoObj = new GlobalizationInfo();
                 globalizationInfoObj.dst_offset = 0;
                 globalizationInfoObj.utc_offset = 0;
-                this.globalizationInfo = globalizationInfoObj;
+                this.settings.globalizationInfo = globalizationInfoObj;
+                navigator.globalization.getDatePattern(this.globalizationSuccess, this.globalizationError);
+            }
+            globalizationSuccess(pattern) {
+                this.globalizationInfo.utc_offset = pattern.utc_offset;
+                this.globalizationInfo.dst_offset = pattern.dst_offset;
+            }
+            globalizationError(globalizationError) {
+                console.log("Globalization error: " + globalizationError.message);
             }
             init() {
             }
@@ -433,15 +436,10 @@ var Submerged;
             }
             loadFromCloud(mobileService) {
                 var deferred = this.$q.defer();
-                this.$q.all([
-                    this.loadSubscription(mobileService),
-                    this.loadSensors(this.deviceInfo.deviceId, mobileService),
-                    this.loadModules(this.deviceInfo.deviceId, mobileService)
-                ]).then(function (values) {
+                this.loadSubscription(mobileService).then(function (subscription) {
+                    // build a new settings object and save the subscription in it
                     var settings = new Settings();
-                    settings.subscription = values[0];
-                    settings.sensors = values[1];
-                    settings.modules = values[2];
+                    settings.subscription = subscription;
                     deferred.resolve(settings);
                 }, function (err) {
                     deferred.reject();
@@ -458,42 +456,6 @@ var Submerged;
                     if (error) {
                         // do nothing
                         console.log("Error calling /subscription to load the subscription details: " + error);
-                        deferred.reject();
-                    }
-                    else {
-                        deferred.resolve(success.result);
-                    }
-                }));
-                return deferred.promise;
-            }
-            loadSensors(deviceId, mobileService) {
-                var deferred = this.$q.defer();
-                var apiUrl = "sensors?deviceId=" + deviceId;
-                mobileService.invokeApi(apiUrl, {
-                    body: null,
-                    method: "post"
-                }, ((error, success) => {
-                    if (error) {
-                        // do nothing
-                        console.log("Error calling /sensors to load the sensor settings: " + error);
-                        deferred.reject();
-                    }
-                    else {
-                        deferred.resolve(success.result);
-                    }
-                }));
-                return deferred.promise;
-            }
-            loadModules(deviceId, mobileService) {
-                var deferred = this.$q.defer();
-                var apiUrl = "sensors?deviceId=" + deviceId;
-                mobileService.invokeApi(apiUrl, {
-                    body: null,
-                    method: "post"
-                }, ((error, success) => {
-                    if (error) {
-                        // do nothing
-                        console.log("Error calling /sensors to load the sensor settings: " + error);
                         deferred.reject();
                     }
                     else {
@@ -625,6 +587,15 @@ var Submerged;
         class DeviceModel {
         }
         Models.DeviceModel = DeviceModel;
+    })(Models = Submerged.Models || (Submerged.Models = {}));
+})(Submerged || (Submerged = {}));
+var Submerged;
+(function (Submerged) {
+    var Models;
+    (function (Models) {
+        class DeviceProperties {
+        }
+        Models.DeviceProperties = DeviceProperties;
     })(Models = Submerged.Models || (Submerged.Models = {}));
 })(Submerged || (Submerged = {}));
 var Submerged;
@@ -766,6 +737,7 @@ var Submerged;
                 this.pickedDate = new Date();
                 this.loadedTabData = -1;
                 this.selectedTabIndex = 0;
+                this.deviceId = shared.settings.getDeviceId();
                 this.loadSensors();
                 $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
                     this.getData();
@@ -787,7 +759,7 @@ var Submerged;
                 }
             }
             loadSensors() {
-                var apiUrl = "sensors?deviceId=" + this.shared.deviceInfo.deviceId;
+                var apiUrl = "sensors?deviceId=" + this.deviceId;
                 this.mobileService.invokeApi(apiUrl, {
                     body: null,
                     method: "post"
@@ -799,7 +771,7 @@ var Submerged;
                     else {
                         var sensors = success.result;
                         this.processSensors(sensors); // process the last known data for display
-                        this.shared.settings.sensors = sensors;
+                        this.shared.settings.subscription.sensors = sensors;
                         this.shared.save();
                     }
                 }).bind(this));
@@ -873,7 +845,7 @@ var Submerged;
                 var date = this.pickedDate;
                 var selectedTab = this.selectedTabName();
                 // toISOString already converts the date 
-                var resourceUri = "data/" + selectedTab + "?deviceId=" + this.shared.deviceInfo.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
+                var resourceUri = "data/" + selectedTab + "?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
                 console.log("Requesting data from back-end API");
                 this.mobileService.invokeApi(resourceUri, {
                     body: null,
@@ -913,7 +885,8 @@ var Submerged;
                 this.mobileService = mobileService;
                 this.$mdToast = $mdToast;
                 this.$state = $state;
-                var apiUrl = "control/relays?deviceId=" + this.shared.deviceInfo.deviceId;
+                this.deviceId = shared.settings.getDeviceId();
+                var apiUrl = "control/relays?deviceId=" + this.deviceId;
                 this.mobileService.invokeApi(apiUrl, {
                     body: null,
                     method: "post"
@@ -935,7 +908,7 @@ var Submerged;
             }
             ;
             toggle(relayNumber, relayState) {
-                var apiUrl = "control/setrelay?deviceId=" + this.shared.deviceInfo.deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
+                var apiUrl = "control/setrelay?deviceId=" + this.deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
                 this.mobileService.invokeApi(apiUrl, {
                     body: null,
                     method: "post"
@@ -1013,13 +986,14 @@ var Submerged;
                         sensor: item
                     });
                 };
+                this.deviceId = shared.settings.getDeviceId();
                 // get the settings stored in local storage; when empty refresh from cloud
                 var settings = shared.settings;
-                if (settings.sensors == null || settings.sensors.length == 0) {
+                if (settings.subscription.sensors == null || settings.subscription.sensors.length == 0) {
                     this.loadSensors();
                 }
                 else {
-                    this.processSensors(settings.sensors);
+                    this.processSensors(settings.subscription.sensors);
                 }
                 $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
                     this.loadData();
@@ -1050,7 +1024,7 @@ var Submerged;
             }
             ;
             loadSensors() {
-                var apiUrl = "sensors?deviceId=" + this.shared.deviceInfo.deviceId;
+                var apiUrl = "sensors?deviceId=" + this.deviceId;
                 this.mobileService.invokeApi(apiUrl, {
                     body: null,
                     method: "post"
@@ -1062,7 +1036,7 @@ var Submerged;
                     else {
                         var sensors = success.result;
                         this.processSensors(sensors); // process the last known data for display
-                        this.shared.settings.sensors = sensors;
+                        this.shared.settings.subscription.sensors = sensors;
                         this.shared.save();
                     }
                 }).bind(this));
@@ -1086,7 +1060,7 @@ var Submerged;
             }
             loadLastThreeHours() {
                 var date = new Date();
-                var url = "data/threehours?deviceId=" + this.shared.deviceInfo.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
+                var url = "data/threehours?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + date.getTimezoneOffset();
                 this.mobileService.invokeApi(url, {
                     body: null,
                     method: "post"
@@ -1102,7 +1076,7 @@ var Submerged;
             }
             loadLatestTelemetry() {
                 // get the latest available data record to show untill it's updated
-                this.mobileService.invokeApi("data/latest?deviceId=" + this.shared.deviceInfo.deviceId, {
+                this.mobileService.invokeApi("data/latest?deviceId=" + this.deviceId, {
                     body: null,
                     method: "post"
                 }, function (error, success) {
@@ -1191,7 +1165,7 @@ var Submerged;
             loadModuleData() {
                 this.loading = true;
                 // get the latest available data record to show untill it's updated
-                this.mobileService.invokeApi("modules?deviceId=" + this.shared.deviceInfo.deviceId, {
+                this.mobileService.invokeApi("modules?deviceId=" + this.deviceId, {
                     body: null,
                     method: "post"
                 }, function (error, success) {
@@ -1540,6 +1514,7 @@ var Submerged;
                 }).bind(this), this.errorHandler);
             }
             errorHandler(err) {
+                navigator.splashscreen.hide();
                 console.log("Error occurred during login procedure: " + err);
             }
             ensureLogin() {
@@ -1600,7 +1575,8 @@ var Submerged;
                 this.loading = true;
                 this.saving = false;
                 this.indexedRules = [];
-                var apiUrl = "sensors?deviceId=" + shared.deviceInfo.deviceId;
+                this.deviceId = shared.settings.getDeviceId();
+                var apiUrl = "sensors?deviceId=" + this.deviceId;
                 mobileService.invokeApi(apiUrl, {
                     body: null,
                     method: "post"
@@ -1641,11 +1617,11 @@ var Submerged;
             }
             save() {
                 this.saving = true;
-                this.shared.settings.sensors = this.sensors;
+                this.shared.settings.subscription.sensors = this.sensors;
                 this.shared.save();
-                var apiUrl = "sensors/save?deviceId=" + this.shared.deviceInfo.deviceId;
+                var apiUrl = "sensors/save?deviceId=" + this.deviceId;
                 this.mobileService.invokeApi(apiUrl, {
-                    body: this.shared.settings.sensors,
+                    body: this.shared.settings.subscription.sensors,
                     method: "post"
                 }, ((error, success) => {
                     this.saving = false;

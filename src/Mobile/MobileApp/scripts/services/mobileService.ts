@@ -33,7 +33,7 @@ namespace Submerged.Services {
         private folder: string;                     // initialized during init()
 
         constructor(private shared: IShared, private fileService: IFileService, private $q: ng.IQService, private jwtHelper: ng.jwt.IJwtHelper) {
-            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.shared.apiInfo.apiUrl);
+            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.shared.settings.apiInfo.apiUrl);
             this.init();
         }
 
@@ -170,7 +170,7 @@ namespace Submerged.Services {
 
             this.pushRegistration = window.PushNotification.init({
                 android: {
-                    senderID: this.shared.apiInfo.gcmSenderID
+                    senderID: this.shared.settings.apiInfo.gcmSenderID
                 }
             });
 

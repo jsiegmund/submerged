@@ -14,17 +14,6 @@ angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "n
 
             //document.addEventListener("backbutton", onBackButton, false);
             document.addEventListener("resume", onResume, false);
-
-            navigator.globalization.getDatePattern(globalizationSuccess, globalizationError);
-        }
-
-        function globalizationSuccess(pattern) {
-            shared.globalizationInfo.utc_offset = pattern.utc_offset;
-            shared.globalizationInfo.dst_offset = pattern.dst_offset;
-        }
-
-        function globalizationError(globalizationError) {
-            console.log("Globalization error: " + globalizationError.message);
         }
 
         /* Hijack Android Back Button (You Can Set Different Functions for Each View by Checking the $state.current) */
