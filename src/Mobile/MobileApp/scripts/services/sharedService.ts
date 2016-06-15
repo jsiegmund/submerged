@@ -42,8 +42,8 @@ namespace Submerged.Services {
     export interface IShared {
         settings: ISettings;
 
-        init(): void;
         save(): void;
+        init(mobileService: IMobileService): ng.IPromise<{}>;
         loadSettings(mobileService: IMobileService): ng.IPromise<ISettings>;
         loadSettingsFromCloud(mobileService: IMobileService): ng.IPromise<ISettings>;
     }
@@ -73,13 +73,12 @@ namespace Submerged.Services {
             globalizationInfoObj.dst_offset = 0;
             globalizationInfoObj.utc_offset = 0;
             this.settings.globalizationInfo = globalizationInfoObj;
-
-            navigator.globalization.getDatePattern(this.globalizationSuccess, this.globalizationError);
         }
 
         globalizationSuccess(pattern) {
-            this.globalizationInfo.utc_offset = pattern.utc_offset;
-            this.globalizationInfo.dst_offset = pattern.dst_offset;
+            console.log(`setting globalization info to utc_offset: ${pattern.utc_offset}.`);
+            this.settings.globalizationInfo.utc_offset = pattern.utc_offset;
+            this.settings.globalizationInfo.dst_offset = pattern.dst_offset;
         }
 
         globalizationError(globalizationError) {
@@ -87,8 +86,9 @@ namespace Submerged.Services {
         }
 
 
-        public init(): void {
-
+        public init(mobileService: IMobileService): ng.IPromise<{}> {
+            navigator.globalization.getDatePattern(this.globalizationSuccess.bind(this), this.globalizationError);
+            return this.loadSettingsFromCloud(mobileService);
         }
 
         public save(): void {

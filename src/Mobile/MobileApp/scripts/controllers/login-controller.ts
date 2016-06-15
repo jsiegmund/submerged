@@ -33,7 +33,7 @@
 
         loadSettings(): ng.IPromise<{}> {
             console.log("logincontroller.loadSettings");
-            return this.shared.loadSettingsFromCloud(this.mobileService);
+            return this.shared.init(this.mobileService);
         }
 
         redirect(): void {
