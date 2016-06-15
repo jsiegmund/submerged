@@ -109,9 +109,9 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 blobModels =
                     blobModels.Where(
                         t => (t != null) &&
-                             t.Timestamp.HasValue)
+                             t.EventEnqueuedUTCTime.HasValue)
                               .OrderByDescending(
-                        t => t.Timestamp.Value);
+                        t => t.EventEnqueuedUTCTime.Value);
 
                 if (preFilterCount == 0)
                 {
@@ -137,7 +137,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// <param name="deviceId">
         /// The ID of the Device for which telemetry should be returned.
         /// </param>
-        /// <param name="minTime">
+        /// <param name="minTimeUTC">
         /// The minimum time of record of the telemetry that should be returned.
         /// </param>
         /// <returns>
@@ -146,7 +146,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetryModel>> LoadLatestDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTime)
+            DateTime minTimeUTC)
         {
             IEnumerable<DeviceTelemetryModel> result = new DeviceTelemetryModel[0];
 
@@ -167,7 +167,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             null);
                     });
 
-            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t));
+            // select all the blobs, extract the datetime from the name and then filter 
+            // based on the provided period
+            blobs = blobs
+                        .Select(b => new Tuple<DateTime?, IListBlobItem>(BlobStorageHelper.ExtractBlobItemDate(b), b))
+                        .Where(b => b.Item1.HasValue && b.Item1.Value >= minTimeUTC.Date)
+                        .OrderByDescending(b => b.Item1)
+                        .Select(b => b.Item2);
 
             CloudBlockBlob blockBlob;
             IEnumerable<DeviceTelemetryModel> blobModels;
@@ -198,8 +204,8 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                     blobModels.Where(
                         t =>
                             (t != null) &&
-                            t.Timestamp.HasValue &&
-                            t.Timestamp.Value >= minTime);
+                            t.EventEnqueuedUTCTime.HasValue &&
+                            t.EventEnqueuedUTCTime.Value >= minTimeUTC);
 
                 if (preFilterCount == 0)
                 {
@@ -228,7 +234,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// <param name="deviceId">
         /// The ID of the Device for which telemetry should be returned.
         /// </param>
-        /// <param name="minTime">
+        /// <param name="minTimeUTC">
         /// The minimum time of record of the telemetry that should be returned.
         /// </param>
         /// <returns>
@@ -237,8 +243,8 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTime, 
-            DateTime maxTime)
+            DateTime minTimeUTC, 
+            DateTime maxTimeUTC)
         {
             IEnumerable<DeviceTelemetryModel> result = new DeviceTelemetryModel[0];
 
@@ -259,9 +265,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             null);
                     });
 
-            // remove all the blobs that were made before the minTime we're looking for, they 
-            // wont contain relevant data 
-            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t));
+            // select all the blobs, extract the datetime from the name and then filter 
+            // based on the provided period
+            blobs = blobs
+                        .Select(b => new Tuple<DateTime?, IListBlobItem>(BlobStorageHelper.ExtractBlobItemDate(b), b))
+                        .Where(b => b.Item1.HasValue && b.Item1.Value <= maxTimeUTC.Date && b.Item1.Value >= minTimeUTC.Date)
+                        .OrderByDescending(b => b.Item1)
+                        .Select(b => b.Item2);
 
             CloudBlockBlob blockBlob;
             IEnumerable<DeviceTelemetryModel> blobModels;
@@ -270,16 +280,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 if ((blockBlob = blob as CloudBlockBlob) == null)
                 {
                     continue;
-                }
-
-                // Translate LastModified to local time zone.  DateTimeOffsets 
-                // don't do this automatically.  This is for equivalent behavior 
-                // with parsed DateTimes.
-                if ((blockBlob.Properties != null) &&
-                    blockBlob.Properties.LastModified.HasValue &&
-                    (blockBlob.Properties.LastModified.Value < minTime))
-                {
-                    break;
                 }
 
                 try
@@ -302,9 +302,9 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                     blobModels.Where(
                         t =>
                             (t != null) &&
-                            t.Timestamp.HasValue &&
-                            t.Timestamp.Value >= minTime && 
-                            t.Timestamp.Value <= maxTime);
+                            t.EventEnqueuedUTCTime.HasValue &&
+                            t.EventEnqueuedUTCTime.Value >= minTimeUTC && 
+                            t.EventEnqueuedUTCTime.Value <= maxTimeUTC);
 
                 if (preFilterCount == 0)
                 {
@@ -412,7 +412,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             DateTimeStyles.AllowWhiteSpaces,
                             out date))
                     {
-                        model.Timestamp = date;
+                        model.EventEnqueuedUTCTime = date;
                     }
 
                     models.Add(model);
@@ -443,7 +443,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// The ID of the Device for which a telemetry summary model should be 
         /// returned.
         /// </param>
-        /// <param name="minTime">
+        /// <param name="minTimeUTC">
         /// If provided the the minimum time stamp of the summary data that should 
         /// be loaded.
         /// </param>
@@ -451,9 +451,9 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// The most recent DeviceTelemetrySummaryModel for the Device, 
         /// specified by deviceId.
         /// </returns>
-        public async Task<DeviceTelemetrySummaryModel> LoadLatestDeviceTelemetrySummaryAsync(
+        public async Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime? minTime)
+            DateTime minTimeUTC)
         {
             DeviceTelemetrySummaryModel summaryModel = null;
 
@@ -476,7 +476,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             null);
                     });
 
-            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t));
+            // select all the blobs, extract the datetime from the name and then filter 
+            // based on the provided period
+            blobs = blobs
+                        .Select(b => new Tuple<DateTime?, IListBlobItem>(BlobStorageHelper.ExtractBlobItemDate(b), b))
+                        .Where(b => b.Item1.HasValue && b.Item1.Value >= minTimeUTC.Date)
+                        .OrderByDescending(b => b.Item1)
+                        .Select(b => b.Item2);
 
             IEnumerable<DeviceTelemetrySummaryModel> blobModels;
             CloudBlockBlob blockBlob;
@@ -486,17 +492,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 if ((blockBlob = blob as CloudBlockBlob) == null)
                 {
                     continue;
-                }
-
-                // Translate LastModified to local time zone.  DateTimeOffsets 
-                // don't do this automatically.  This is for equivalent behavior 
-                // with parsed DateTimes.
-                if (minTime.HasValue &&
-                    (blockBlob.Properties != null) &&
-                    blockBlob.Properties.LastModified.HasValue &&
-                    (blockBlob.Properties.LastModified.Value < minTime.Value))
-                {
-                    break;
                 }
 
                 try
@@ -537,7 +532,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// The ID of the Device for which a telemetry summary model should be 
         /// returned.
         /// </param>
-        /// <param name="minTime">
+        /// <param name="minTimeUTC">
         /// If provided the the minimum time stamp of the summary data that should 
         /// be loaded.
         /// </param>
@@ -547,8 +542,8 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetrySummaryModel>> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime minTime,
-            DateTime maxTime)
+            DateTime minTimeUTC,
+            DateTime maxTimeUTC)
         {
             CloudBlobContainer container =
                 await BlobStorageHelper.BuildBlobContainerAsync(
@@ -569,7 +564,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             null);
                     });
 
-            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t));
+            // select all the blobs, extract the datetime from the name and then filter 
+            // based on the provided period
+            blobs = blobs
+                        .Select(b => new Tuple<DateTime?, IListBlobItem>(BlobStorageHelper.ExtractBlobItemDate(b), b))
+                        .Where(b => b.Item1.HasValue && b.Item1.Value <= maxTimeUTC.Date && b.Item1.Value >= minTimeUTC.Date)
+                        .OrderByDescending(b => b.Item1)
+                        .Select(b => b.Item2);
 
             IEnumerable<DeviceTelemetrySummaryModel> blobModels;
             List<DeviceTelemetrySummaryModel> result = new List<DeviceTelemetrySummaryModel>();
@@ -579,18 +580,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             {
                 if ((blockBlob = blob as CloudBlockBlob) == null)
                 {
-                    continue;
-                }
-
-                // Translate LastModified to local time zone.  DateTimeOffsets 
-                // don't do this automatically.  This is for equivalent behavior 
-                // with parsed DateTimes.
-                if ((blockBlob.Properties != null) &&
-                    blockBlob.Properties.LastModified.HasValue &&
-                    (blockBlob.Properties.LastModified.Value < minTime ||
-                     blockBlob.Properties.LastModified.Value > maxTime))
-                {
-                    // when the datetime range is outside of the scope; continue to the next blob
                     continue;
                 }
 
@@ -611,7 +600,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 // filter the models based on the given datetime range
                 blobModels = blobModels.Where(t => t != null &&
                                                    t.OutTime != null &&
-                                                   t.OutTime >= minTime && t.OutTime <= maxTime);
+                                                   t.OutTime >= minTimeUTC && t.OutTime <= maxTimeUTC);
 
                 if (!string.IsNullOrEmpty(deviceId))
                 {
@@ -666,6 +655,26 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                         model.AverageTemp1 = number;
                     }
 
+                    if (strdict.TryGetValue("minimumtemperature1", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MinimumTemp1 = number;
+                    }
+
+                    if (strdict.TryGetValue("maxtemperature1", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MaximumTemp1 = number;
+                    }
+
                     if (strdict.TryGetValue("averagetemperature2", out str) &&
                        double.TryParse(
                             str,
@@ -676,6 +685,26 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                         model.AverageTemp2 = number;
                     }
 
+                    if (strdict.TryGetValue("minimumtemperature2", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MinimumTemp2 = number;
+                    }
+
+                    if (strdict.TryGetValue("maxtemperature2", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MaximumTemp2 = number;
+                    }
+
                     if (strdict.TryGetValue("averageph", out str) &&
                        double.TryParse(
                             str,
@@ -683,7 +712,28 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             CultureInfo.InvariantCulture,
                             out number))
                     {
-                        model.AveragePh = number;
+                        model.AveragePH = number;
+                    }
+
+
+                    if (strdict.TryGetValue("minimumph", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MinimumPH = number;
+                    }
+
+                    if (strdict.TryGetValue("maxph", out str) &&
+                       double.TryParse(
+                            str,
+                            NumberStyles.Float,
+                            CultureInfo.InvariantCulture,
+                            out number))
+                    {
+                        model.MaximumPH = number;
                     }
 
                     if (strdict.TryGetValue("outtime", out str) &&

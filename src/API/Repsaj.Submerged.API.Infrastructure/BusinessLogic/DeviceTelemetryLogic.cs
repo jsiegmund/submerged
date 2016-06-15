@@ -53,13 +53,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetryAsync(deviceId, start, end);
 
             // validate the returned items are correct 
-            if (telemetryData.Max(t => t.Timestamp) > end || 
-                telemetryData.Min(t => t.Timestamp) < start)
+            if (telemetryData.Max(t => t.EventEnqueuedUTCTime) > end || 
+                telemetryData.Min(t => t.EventEnqueuedUTCTime) < start)
                 throw new ArgumentException("Returned data range is invalid");
 
             var data = from t in telemetryData
-                       orderby t.Timestamp.Value
-                       group t by t.Timestamp.Value.AddMinutes(timezoneOffset * -1).Minute into g
+                       orderby t.EventEnqueuedUTCTime.Value
+                       group t by t.EventEnqueuedUTCTime.Value.AddMinutes(timezoneOffset * -1).Minute into g
                        select new GroupedTelemetryModel
                        {
                            Key = g.Key,
@@ -113,8 +113,8 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetryAsync(deviceId, windowUTCStart, windowUTCEnd);
 
             // validate the returned items are correct 
-            if (telemetryData.Max(t => t.Timestamp) > windowUTCEnd ||
-                telemetryData.Min(t => t.Timestamp) < windowUTCStart)
+            if (telemetryData.Max(t => t.EventEnqueuedUTCTime) > windowUTCEnd ||
+                telemetryData.Min(t => t.EventEnqueuedUTCTime) < windowUTCStart)
                 throw new ArgumentException("Returned data range is invalid");
 
             // project the data to find half-hour segments 
@@ -122,7 +122,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 pH = d.pH,
                 Temperature1 = d.Temperature1,
                 Temperature2 = d.Temperature2,
-                Segment = ProjectHalfHourSegments(windowUTCStart, d.Timestamp.Value)
+                Segment = ProjectHalfHourSegments(windowUTCStart, d.EventEnqueuedUTCTime.Value)
             });
 
             var data = from t in projectedData
@@ -163,7 +163,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                            Key = g.Key,
                            Temperature1 = g.Average(d => d.AverageTemp1),
                            Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePh)
+                           pH = g.Average(d => d.AveragePH)
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, 0, 24);
@@ -196,7 +196,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                            Key = g.Key,
                            Temperature1 = g.Average(d => d.AverageTemp1),
                            Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePh)
+                           pH = g.Average(d => d.AveragePH)
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, monday.Day, 7);
@@ -234,7 +234,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                            Key = g.Key,
                            Temperature1 = g.Average(d => d.AverageTemp1),
                            Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePh)
+                           pH = g.Average(d => d.AveragePH)
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, 1, daysInMonth);
@@ -272,7 +272,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         /// Telemetry for the Device specified by deviceId, inclusively since 
         /// minTime.
         /// </returns>
-        public async Task<IEnumerable<DeviceTelemetryModel>> LoadLatestDeviceTelemetryAsync(
+        public async Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
             DateTime minTime, 
             int offset)
@@ -295,9 +295,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         /// The most recent DeviceTElemetrySummaryModel for the Device, 
         /// specified by deviceId.
         /// </returns>
-        public async Task<DeviceTelemetrySummaryModel> LoadLatestDeviceTelemetrySummaryAsync(string deviceId, DateTime? minTime, int offset)
+        public async Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(string deviceId, DateTime minTime, int offset)
         {
-            return await _deviceTelemetryRepository.LoadLatestDeviceTelemetrySummaryAsync(deviceId, minTime);
+            return await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, minTime);
         }
 
         /// <summary>

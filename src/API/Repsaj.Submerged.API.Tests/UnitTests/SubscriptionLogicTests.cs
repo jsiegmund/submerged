@@ -23,7 +23,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
     public class SubscriptionLogicTests
     {
         [TestMethod]
-        public async Task CanCreateSubscriptionAsync()
+        public async Task Create_Subscription_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -34,7 +34,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(SubscriptionValidationException))]
-        public async Task CannotCreateDuplicateSubscriptionAsync()
+        public async Task Create_Subscription_DuplicateException()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -46,7 +46,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanGetSubscriptionAsync()
+        public async Task Get_Subscription_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -56,7 +56,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateSubscriptionAsync()
+        public async Task Update_Subscription_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -71,7 +71,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanAddTankToSubscription()
+        public async Task Add_Tank_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -86,7 +86,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateTankInSubscription()
+        public async Task Update_Tank_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -100,7 +100,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanAddDeviceToSubscription()
+        public async Task Add_Device_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -116,7 +116,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateDeviceAsync()
+        public async Task Update_Device_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -130,7 +130,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateLatestTelemetryData()
+        public async Task Update_LatestTelemetryData_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -144,7 +144,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanGetDeviceAsync()
+        public async Task Get_Device_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -157,7 +157,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanAddModule()
+        public async Task Add_Module_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -173,7 +173,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateModule()
+        public async Task Update_Module_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -192,7 +192,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanGetModulesAsync()
+        public async Task Get_ModulesForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -205,7 +205,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanGetSensorsAsync()
+        public async Task Get_SensorsForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -218,7 +218,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanAddSensorAsync()
+        public async Task Add_Sensor_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -233,7 +233,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateSensorAsync()
+        public async Task Update_Sensor_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -250,7 +250,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanGetRelaysAsync()
+        public async Task Get_RelaysForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -262,7 +262,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             }
         }
         [TestMethod]
-        public async Task CanAddRelayAsync()
+        public async Task Add_Relay_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -276,7 +276,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateRelayAsync()
+        public async Task Update_Relay_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -298,7 +298,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateRelayStateAsync()
+        public async Task Update_RelayState_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {

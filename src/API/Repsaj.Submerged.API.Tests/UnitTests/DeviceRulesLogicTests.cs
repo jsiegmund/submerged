@@ -16,7 +16,7 @@ namespace Repsaj.Submerged.APITests
     public class DeviceRulesRepositoryTests
     {
         [TestMethod]
-        public async Task CanSaveNewDeviceRuleAsync()
+        public async Task Save_NewDeviceRule_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -43,7 +43,7 @@ namespace Repsaj.Submerged.APITests
         }
 
         [TestMethod]
-        public async Task CanSaveExistingDeviceRuleAsync()
+        public async Task Save_ExistingDeviceRule_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -90,7 +90,7 @@ namespace Repsaj.Submerged.APITests
         }
 
         [TestMethod]
-        public async Task CanGetAllRulesAsync()
+        public async Task Get_AllDeviceRules_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -100,7 +100,7 @@ namespace Repsaj.Submerged.APITests
         }
 
         [TestMethod]
-        public async Task CanGetDeviceRulesAsync()
+        public async Task Get_DeviceRulesForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -110,7 +110,7 @@ namespace Repsaj.Submerged.APITests
         }
 
         [TestMethod]
-        public async Task CanRemoveAllRulesForDeviceAsync()
+        public async Task Remove_RulesForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {

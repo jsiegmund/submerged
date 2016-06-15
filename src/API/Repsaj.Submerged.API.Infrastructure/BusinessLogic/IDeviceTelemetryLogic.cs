@@ -12,7 +12,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         Task<DeviceTelemetryModel> LoadLatestDeviceTelemetryAsync(
             string deviceId);
 
-        Task<IEnumerable<DeviceTelemetryModel>> LoadLatestDeviceTelemetryAsync(
+        Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
             DateTime minTime,
             int offset);
@@ -22,9 +22,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             DateTime loadUntil,
             int timezoneOffset);
 
-        Task<DeviceTelemetrySummaryModel> LoadLatestDeviceTelemetrySummaryAsync(
+        Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime? minTime,
+            DateTime minTime,
             int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerHourAsync(

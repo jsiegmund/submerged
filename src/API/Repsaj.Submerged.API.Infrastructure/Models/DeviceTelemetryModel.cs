@@ -14,6 +14,6 @@ namespace Repsaj.Submerged.Infrastructure.Models
         public bool? LeakDetected { get; set; }
         public string LeakSensors { get; set; }
         public string DeviceId { get; set; }
-        public DateTime? Timestamp { get; set; }
+        public DateTime? EventEnqueuedUTCTime { get; set; }
     }
 }

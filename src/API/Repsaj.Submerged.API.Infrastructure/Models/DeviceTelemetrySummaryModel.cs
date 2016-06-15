@@ -12,7 +12,13 @@ namespace Repsaj.Submerged.Infrastructure.Models
         public DateTime? OutTime { get; set; }
         public DateTime? Timestamp { get; set; }
         public double? AverageTemp1 { get; set; }
+        public double? MinimumTemp1 { get; set; }
+        public double? MaximumTemp1 { get; set; }
         public double? AverageTemp2 { get; set; }
-        public double? AveragePh { get; set; }
+        public double? MinimumTemp2 { get; set; }
+        public double? MaximumTemp2 { get; set; }
+        public double? AveragePH { get; set; }
+        public double? MinimumPH { get; set; }
+        public double? MaximumPH { get; set; }
     }
 }

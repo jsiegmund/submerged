@@ -14,7 +14,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         int offset = (int)Math.Round(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes) * -1;
 
         [TestMethod]
-        public void CanLoadDeviceTelemetryReportDataLastThreeHoursAsync()
+        public void Load_DeviceTelemetryReportDataLastThreeHoursAsync()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -27,7 +27,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public void CanLoadDeviceSummaryDataPerHour()
+        public void Load_DeviceSummaryDataPerHour()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -40,7 +40,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public void CanLoadDeviceSummaryDataPerDay()
+        public void Load_DeviceSummaryDataPerDay()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -53,7 +53,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public void CanLoadDeviceSummaryDataPerWeek()
+        public void Load_DeviceSummaryDataPerWeek()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -65,7 +65,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public void CanLoadDeviceSummaryDataPerMonth()
+        public void Load_DeviceSummaryDataPerMonth()
         {
             using (var autoMock = AutoMock.GetLoose())
             {

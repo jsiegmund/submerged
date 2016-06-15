@@ -15,7 +15,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
     public class DeviceLogicTests
     {
         [TestMethod]
-        public void CanSendCommand()
+        public void Send_Command_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
@@ -34,7 +34,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
-        public async Task CanUpdateDeviceAsync()
+        public async Task Update_Device_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {

@@ -79,7 +79,11 @@ namespace Repsaj.Submerged.Common.Helpers
 
             if ((blockBlob = blobItem as CloudBlockBlob) != null)
             {
-                blobProperties = blockBlob.Properties;
+                // blobs are stored in the following structure: 
+                // devicetelemetry-summary/2016/06/13/105221353_ca1126c3e9624d63a2b5aad75cd1a1e2_1.csv
+                // we will use the folder structure to construct the date to which this blob belongs
+                string[] nameparts = blockBlob.Name.Split('/');
+                return new DateTime(int.Parse(nameparts[1]), int.Parse(nameparts[2]), int.Parse(nameparts[3]));
             }
             else if ((pageBlob = blobItem as CloudPageBlob) != null)
             {
