@@ -321,7 +321,7 @@ namespace Submerged.Controllers {
                 var liveHubProxy = jQuery.connection.liveHub;
 
                 liveHubProxy.client.sendLiveData = ((data) => {
-                    this.processData(data);
+                    this.processTelemetry(data);
                 }).bind(this);
 
                 jQuery.connection.hub.start()
