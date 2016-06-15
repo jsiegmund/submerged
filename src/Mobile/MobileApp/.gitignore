@@ -261,3 +261,7 @@ paket-files/
 [Pp]lugins/wp8.json
 [Pp]lugins/remote_ios.json
 /[Pp]latforms/
+
+# Compiled Typescript Target
+www/scripts/appBundle.js
+www/scripts/appBundle.js.map
