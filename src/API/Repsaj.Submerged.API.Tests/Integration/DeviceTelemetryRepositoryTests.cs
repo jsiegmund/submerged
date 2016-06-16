@@ -10,12 +10,10 @@ using System.Linq;
 namespace Repsaj.Submerged.API.Tests.Integration
 {
     [TestClass]
-    public class DeviceTelemetryTests
+    public class DeviceTelemetryRepositoryTests
     {
         private IContainer _autofacContainer;
-
-        DateTime _testDateLocal = DateTime.Parse("2016-06-15T16:52:56.4170000Z");
-        DateTime _testDateUTC;
+        DateTimeOffset _testDateUTC = DateTimeOffset.Parse("2016-06-15T16:52:56.4170000Z");
 
 
         [TestInitialize]
@@ -32,12 +30,10 @@ namespace Repsaj.Submerged.API.Tests.Integration
             // build the container and assign it to our test class for use by the individual test methods
             var container = builder.Build();
             _autofacContainer = container;
-
-            _testDateUTC = _testDateLocal.ToUniversalTime();
         }
 
         [TestMethod]
-        public async Task Integration_LoadLatestDeviceTelemetryAsync()
+        public async Task Integration_Repository_LoadLatestDeviceTelemetryAsync()
         {
             IDeviceTelemetryRepository repository = _autofacContainer.Resolve<IDeviceTelemetryRepository>();
             var result = await repository.LoadLatestDeviceTelemetryAsync(TestConfigHelper.DeviceId);
@@ -52,7 +48,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         }
 
         [TestMethod]
-        public async Task Integration_LoadLatestDeviceTelemetrySummaryAsync()
+        public async Task Integration_Repository_LoadLatestDeviceTelemetrySummaryAsync()
         {
             IDeviceTelemetryRepository repository = _autofacContainer.Resolve<IDeviceTelemetryRepository>();
             var result = await repository.LoadDeviceTelemetrySummaryAsync(TestConfigHelper.DeviceId, _testDateUTC);
@@ -71,10 +67,10 @@ namespace Repsaj.Submerged.API.Tests.Integration
         }
 
         [TestMethod]
-        public async Task Integration_LoadDeviceTelemetryAsync()
+        public async Task Integration_Repository_LoadDeviceTelemetryAsync()
         {
-            DateTime startUTC = _testDateUTC.AddDays(-1);
-            DateTime endUTC = _testDateUTC;
+            DateTimeOffset startUTC = _testDateUTC.AddDays(-1);
+            DateTimeOffset endUTC = _testDateUTC;
 
             IDeviceTelemetryRepository repository = _autofacContainer.Resolve<IDeviceTelemetryRepository>();
             var result = await repository.LoadDeviceTelemetryAsync(TestConfigHelper.DeviceId, startUTC, endUTC);
@@ -90,10 +86,10 @@ namespace Repsaj.Submerged.API.Tests.Integration
         }
 
         [TestMethod]
-        public async Task Integration_LoadDeviceTelemetrySummaryAsync()
+        public async Task Integration_Repository_LoadDeviceTelemetrySummaryAsync()
         {
-            DateTime startUTC = _testDateUTC.AddDays(-1);
-            DateTime endUTC = _testDateUTC;
+            DateTimeOffset startUTC = _testDateUTC.AddDays(-1);
+            DateTimeOffset endUTC = _testDateUTC;
 
             IDeviceTelemetryRepository repository = _autofacContainer.Resolve<IDeviceTelemetryRepository>();
             var result = await repository.LoadDeviceTelemetrySummaryAsync(TestConfigHelper.DeviceId, startUTC, endUTC);
@@ -106,6 +102,18 @@ namespace Repsaj.Submerged.API.Tests.Integration
 
             Assert.IsTrue(firstRecord.OutTime >= startUTC);
             Assert.IsTrue(lastRecord.OutTime <= endUTC);
+        }
+
+        [TestMethod]
+        public async Task Integration_Repository_LoadDeviceTelemetrySummaryThreeHours()
+        {
+            DateTimeOffset windowUTCStart = _testDateUTC.AddHours(-3);
+            DateTimeOffset windowUTCEnd = _testDateUTC;
+
+            IDeviceTelemetryRepository repository = _autofacContainer.Resolve<IDeviceTelemetryRepository>();
+            var result = await repository.LoadDeviceTelemetryAsync(TestConfigHelper.DeviceId, windowUTCStart, windowUTCEnd);
+
+            Assert.AreEqual(result.Count(), 180);
         }
     }
 }

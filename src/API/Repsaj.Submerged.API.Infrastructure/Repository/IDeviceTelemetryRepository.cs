@@ -14,21 +14,21 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
         Task<IEnumerable<DeviceTelemetryModel>> LoadLatestDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTimeUTC);
+            DateTimeOffset minTimeUTC);
 
 
         Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTimeUTC,
-            DateTime maxTimeUTC);
+            DateTimeOffset minTimeUTC,
+            DateTimeOffset maxTimeUTC);
 
         Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime minTimeUTC);
+            DateTimeOffset minTimeUTC);
 
         Task<IEnumerable<DeviceTelemetrySummaryModel>> LoadDeviceTelemetrySummaryAsync(
              string deviceId,
-            DateTime minTimeUTC,
-            DateTime maxTimeUTC);
+            DateTimeOffset minTimeUTC,
+            DateTimeOffset maxTimeUTC);
     }
 }

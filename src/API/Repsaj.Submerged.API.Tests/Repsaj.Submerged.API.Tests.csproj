@@ -116,13 +116,15 @@
   <ItemGroup>
     <Compile Include="Helpers\TestConfigHelper.cs" />
     <Compile Include="Helpers\TestInjectors.cs" />
-    <Compile Include="Integration\DeviceTelemetryTests.cs" />
+    <Compile Include="Integration\DeviceTelemetryRepositoryTests.cs" />
+    <Compile Include="Integration\DeviceTelemetryLogicTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTests\SubscriptionLogicTests.cs" />
     <Compile Include="UnitTests\DeviceRulesLogicTests.cs" />
     <Compile Include="Integration\DocDbTests.cs" />
     <Compile Include="UnitTests\DeviceLogicTests.cs" />
     <Compile Include="UnitTests\DeviceTelemetryLogicTests.cs" />
+    <Compile Include="UnitTests\HelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

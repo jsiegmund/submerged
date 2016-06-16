@@ -31,13 +31,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             _deviceTelemetryRepository = deviceTelemetryRepository;
         }
 
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerHourAsync(string deviceId, DateTime loadUntilUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerHourAsync(string deviceId, DateTimeOffset loadUntilUTC, int timeOffsetSeconds)
         {
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
 
-            DateTime startUTC = loadUntilUTC.AddHours(-1);
-            DateTime endUTC = loadUntilUTC;
+            DateTimeOffset startUTC = loadUntilUTC.AddHours(-1);
+            DateTimeOffset endUTC = loadUntilUTC;
 
             List<string> labels = new List<string>();
 
@@ -59,7 +59,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             var data = from t in telemetryData
                        orderby t.EventEnqueuedUTCTime.Value
-                       group t by t.EventEnqueuedUTCTime.Value.AddSeconds(timeOffsetSeconds * -1).Minute into g
+                       group t by t.EventEnqueuedUTCTime.Value.AddSeconds(timeOffsetSeconds).Minute into g
                        select new GroupedTelemetryModel
                        {
                            Key = g.Key,
@@ -74,40 +74,23 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return model;
         }
 
-        private int ProjectHalfHourSegments(DateTime start, DateTime value)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataLastThreeHoursAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
         {
-            TimeSpan elapsed = value - start;
-            int hours = (int)Math.Floor(elapsed.TotalHours);
-            int remainingMinutes = (int)(elapsed.TotalMinutes - (hours * 60));     
-            int result = 0;
-
-            // each hour counts for two half hours
-            result += hours * 2;
-
-            // if there are any remaining minutes, add one (< 30) or two (> 30) half hours
-            if (remainingMinutes > 0)
-                result += remainingMinutes < 30 ? 1 : 2;
-
-            return result;
-        }
-
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataLastThreeHoursAsync(string deviceId, DateTime dateUTC, int timeOffsetSeconds)
-        {
-            DateTime localDate = dateUTC.AddSeconds(timeOffsetSeconds * -1);
+            DateTimeOffset localDate = dateUTC.AddSeconds(timeOffsetSeconds);
 
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
             model.DataLabels = new string[] {
-                localDate.AddHours(-3).ToShortTimeString(),
-                localDate.AddHours(-2.5).ToShortTimeString(),
-                localDate.AddHours(-2).ToShortTimeString(),
-                localDate.AddHours(-1.5).ToShortTimeString(),
-                localDate.AddHours(-1).ToShortTimeString(),
-                localDate.AddHours(-0.5).ToShortTimeString(),
+                localDate.AddHours(-3).DateTime.ToShortTimeString(),
+                localDate.AddHours(-2.5).DateTime.ToShortTimeString(),
+                localDate.AddHours(-2).DateTime.ToShortTimeString(),
+                localDate.AddHours(-1.5).DateTime.ToShortTimeString(),
+                localDate.AddHours(-1).DateTime.ToShortTimeString(),
+                localDate.AddHours(-0.5).DateTime.ToShortTimeString(),
             };
 
-            DateTime windowUTCStart = dateUTC.AddHours(-3);
-            DateTime windowUTCEnd = dateUTC;
+            DateTimeOffset windowUTCStart = dateUTC.AddHours(-3);
+            DateTimeOffset windowUTCEnd = dateUTC;
 
             // fetch the data from the repository, startin on minTime and adding one day
             IEnumerable<DeviceTelemetryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetryAsync(deviceId, windowUTCStart, windowUTCEnd);
@@ -122,7 +105,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 pH = d.pH,
                 Temperature1 = d.Temperature1,
                 Temperature2 = d.Temperature2,
-                Segment = ProjectHalfHourSegments(windowUTCStart, d.EventEnqueuedUTCTime.Value)
+                Segment = MiscHelper.ProjectHalfHourSegments(windowUTCStart.DateTime, d.EventEnqueuedUTCTime.Value)
             });
 
             var data = from t in projectedData
@@ -142,14 +125,14 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return model;
         }
 
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerDayAsync(string deviceId, DateTime dateUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerDayAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
         {
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
             model.DataLabels = new string[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23" };
 
             // calculate the day in the users timezone 
-            DateTime localDate = dateUTC.AddSeconds(timeOffsetSeconds * -1).Date;
+            DateTime localDate = dateUTC.AddSeconds(timeOffsetSeconds).Date;
             DateTime windowUTCStart = localDate.AddSeconds(timeOffsetSeconds);
             DateTime windowUTCEnd = windowUTCStart.AddDays(1);
 
@@ -157,7 +140,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, windowUTCStart, windowUTCEnd);
 
             var data = from t in telemetryData
-                       group t by t.OutTime.Value.AddSeconds(timeOffsetSeconds * -1).Hour into g
+                       group t by t.OutTime.Value.AddSeconds(timeOffsetSeconds).Hour into g
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
@@ -172,7 +155,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return model;
         }
     
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerWeekAsync(string deviceId, DateTime minTimeUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerWeekAsync(string deviceId, DateTimeOffset minTimeUTC, int timeOffsetSeconds)
         {
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
@@ -190,7 +173,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, monday, sunday);
 
             var data = from t in telemetryData
-                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds * -1).Day into g
+                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds).Day into g
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
@@ -206,7 +189,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         }
 
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerMonthAsync(string deviceId, DateTime dateUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerMonthAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
         {
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
@@ -228,7 +211,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, start, end);
 
             var data = from t in telemetryData
-                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds * -1).Day into g
+                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds).Day into g
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
@@ -274,7 +257,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTimeUTC, 
+            DateTimeOffset minTimeUTC, 
             int timeOffsetSeconds)
         {
             return await _deviceTelemetryRepository.LoadLatestDeviceTelemetryAsync(deviceId, minTimeUTC);
@@ -295,7 +278,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         /// The most recent DeviceTElemetrySummaryModel for the Device, 
         /// specified by deviceId.
         /// </returns>
-        public async Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(string deviceId, DateTime minTimeUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(string deviceId, DateTimeOffset minTimeUTC, int timeOffsetSeconds)
         {
             return await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, minTimeUTC);
         }

@@ -14,37 +14,37 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTime,
+            DateTimeOffset minTime,
             int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataLastThreeHoursAsync(
             string deviceId,
-            DateTime loadUntil,
+            DateTimeOffset loadUntil,
             int timezoneOffset);
 
         Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime minTime,
+            DateTimeOffset minTime,
             int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerHourAsync(
             string deviceId,
-            DateTime minTime,
+            DateTimeOffset minTime,
             int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerDayAsync(
            string deviceId,
-           DateTime minTime,
+           DateTimeOffset minTime,
            int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerWeekAsync(
            string deviceId,
-           DateTime minTime,
+           DateTimeOffset minTime,
            int offset);
 
         Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerMonthAsync(
            string deviceId,
-           DateTime minTime,
+           DateTimeOffset minTime,
            int offset);
 
 

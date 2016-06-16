@@ -54,5 +54,18 @@ namespace Repsaj.Submerged.Common.Helpers
 
             return tempList.ToArray();
         }
+
+        public static int ProjectHalfHourSegments(DateTime start, DateTime value)
+        {
+            TimeSpan elapsed = value - start;
+            double halfHours = 0;
+
+            // count the full number of hours and multiply that by 2
+            halfHours += Math.Floor(elapsed.TotalHours) * 2;
+            // add another half hour when there's more than 30 minutes left
+            halfHours += elapsed.Minutes >= 30 ? 1 : 0;
+
+            return (int)halfHours;
+        }
     }
 }

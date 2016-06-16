@@ -146,7 +146,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetryModel>> LoadLatestDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTimeUTC)
+            DateTimeOffset minTimeUTC)
         {
             IEnumerable<DeviceTelemetryModel> result = new DeviceTelemetryModel[0];
 
@@ -243,8 +243,8 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetryModel>> LoadDeviceTelemetryAsync(
             string deviceId,
-            DateTime minTimeUTC, 
-            DateTime maxTimeUTC)
+            DateTimeOffset minTimeUTC,
+            DateTimeOffset maxTimeUTC)
         {
             IEnumerable<DeviceTelemetryModel> result = new DeviceTelemetryModel[0];
 
@@ -453,7 +453,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<DeviceTelemetrySummaryModel> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime minTimeUTC)
+            DateTimeOffset minTimeUTC)
         {
             DeviceTelemetrySummaryModel summaryModel = null;
 
@@ -542,8 +542,8 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// </returns>
         public async Task<IEnumerable<DeviceTelemetrySummaryModel>> LoadDeviceTelemetrySummaryAsync(
             string deviceId,
-            DateTime minTimeUTC,
-            DateTime maxTimeUTC)
+            DateTimeOffset minTimeUTC,
+            DateTimeOffset maxTimeUTC)
         {
             CloudBlobContainer container =
                 await BlobStorageHelper.BuildBlobContainerAsync(
