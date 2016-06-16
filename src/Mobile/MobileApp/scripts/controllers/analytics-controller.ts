@@ -27,7 +27,7 @@
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService) {
 
             this.deviceId = shared.settings.getDeviceId();
-            this.timezoneOffset = shared.settings.globalizationInfo.server_offset;
+            this.timezoneOffset = shared.settings.globalizationInfo.server_offset_seconds;
             this.loadSensors();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {

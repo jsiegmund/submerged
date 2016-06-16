@@ -41,7 +41,7 @@ namespace Submerged.Controllers {
         timeoutId: any;
 
         deviceId: string
-        timezoneOffset: number;
+        timezoneOffsetSeconds: number;
 
         static $inject = ['shared', 'mobileService', 'signalRService', '$state', '$scope', '$timeout', '$sce'];
 
@@ -51,7 +51,7 @@ namespace Submerged.Controllers {
             private $sce: ng.ISCEService) {
 
             this.deviceId = shared.settings.getDeviceId();
-            this.timezoneOffset = shared.settings.globalizationInfo.server_offset;
+            this.timezoneOffsetSeconds = shared.settings.globalizationInfo.server_offset_seconds;
 
             // get the settings stored in local storage; when empty refresh from cloud
             var settings = shared.settings;
@@ -136,7 +136,7 @@ namespace Submerged.Controllers {
 
         loadLastThreeHours(): void {
             var date = new Date();
-            var url = "data/threehours?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffset;
+            var url = "data/threehours?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
 
              this.mobileService.invokeApi(url, {
                 body: null,

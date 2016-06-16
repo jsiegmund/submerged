@@ -12,12 +12,12 @@ namespace Submerged.Services {
     export class GlobalizationInfo {
         utc_offset: number;
         dst_offset: number;
-        server_offset: number;
+        server_offset_seconds: number;
 
         constructor() {
             this.dst_offset = 0;
             this.utc_offset = 0;
-            this.server_offset = 0;
+            this.server_offset_seconds = 0;
         }
     }
 
@@ -52,15 +52,13 @@ namespace Submerged.Services {
         save(): void;
         init(mobileService: IMobileService): ng.IPromise<{}>;
         loadSettings(mobileService: IMobileService): ng.IPromise<ISettings>;
-        loadSettingsFromCloud(mobileService: IMobileService): ng.IPromise<ISettings>;
+        loadSubscriptionFromCloud(mobileService: IMobileService): ng.IPromise<ISettings>;
     }
 
     export class Shared implements IShared {
 
         settings: ISettings;
-        apiInfo: ApiInfo;
-        globalizationInfo: GlobalizationInfo;
-        file: string = "settings.json";
+        file: string = "subscription.json";
 
         static $inject = ['fileService', '$q' ];
 
@@ -80,68 +78,86 @@ namespace Submerged.Services {
             this.settings.globalizationInfo = globalizationInfoObj;
         }
 
-        globalizationSuccess(pattern) {
-            console.log(`setting globalization info to utc_offset: ${pattern.utc_offset}.`);
-            this.settings.globalizationInfo.utc_offset = pattern.utc_offset;
-            this.settings.globalizationInfo.dst_offset = pattern.dst_offset;
-            this.settings.globalizationInfo.server_offset = pattern.utc_offset + pattern.dst_offset;
-        }
-
-        globalizationError(globalizationError) {
-            console.log("Globalization error: " + globalizationError.message);
-        }
-
-
         public init(mobileService: IMobileService): ng.IPromise<{}> {
-            navigator.globalization.getDatePattern(this.globalizationSuccess.bind(this), this.globalizationError);
-            return this.loadSettingsFromCloud(mobileService);
+            var globalizationPromise = this.loadGlobalizationSettings();
+            var settingsPromise = this.loadSubscriptionFromCloud(mobileService);
+
+            var deferred = this.$q.defer<ISettings>();
+
+            // wait before everything has loaded before returning the actual settings object
+            this.$q.all([globalizationPromise, settingsPromise]).then(function (result) {
+                deferred.resolve(result.values[1]);
+            }, (error) => {
+                console.log("Failed initializing shared settings: " + error);
+                deferred.reject(error);
+            });
+
+            return deferred.promise;
         }
 
         public save(): void {
             var folder = window.cordova.file.applicationStorageDirectory;
-            this.fileService.storeJsonFile(this.file, folder, this.settings);
+            this.fileService.storeJsonFile(this.file, folder, this.settings.subscription);
         }
 
-        private setSettings(settings: ISettings, save: boolean) {
+        private setSubscription(subscription: Models.SubscriptionModel, save: boolean) {
             console.log("setSettings");
-            this.settings = new Settings();
-            angular.copy(settings, this.settings);
+
+            this.settings.subscription = new Models.SubscriptionModel();
+            angular.copy(subscription, this.settings.subscription);
 
             if (save)
                 this.save();
         }
 
-        public loadSettingsFromCloud(mobileService: IMobileService): ng.IPromise<ISettings> {
-            console.log("loadSettingsFromCloud");
+        private loadGlobalizationSettings(): ng.IPromise<void> {
+            var deferred = this.$q.defer<void>();
+
+            navigator.globalization.getDatePattern((pattern) => {
+                console.log(`setting globalization info to utc_offset: ${pattern.utc_offset}.`);
+                this.settings.globalizationInfo.utc_offset = pattern.utc_offset;
+                this.settings.globalizationInfo.dst_offset = pattern.dst_offset;
+                this.settings.globalizationInfo.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
+                deferred.resolve();
+            }, (err) => {
+                console.log("Globalization error: " + err.message);
+                deferred.reject();
+            });
+
+            return deferred.promise;
+        }
+
+        public loadSubscriptionFromCloud(mobileService: IMobileService): ng.IPromise<ISettings> {
+            console.log("loadSubscriptionFromCloud");
 
             var deferred = this.$q.defer<ISettings>();
 
-            this.loadFromCloud(mobileService).then(((settings: ISettings) => {
-                this.setSettings(settings, true);
-                deferred.resolve(settings);
-            }))
+            this.loadFromCloud(mobileService).then((subscription: Models.SubscriptionModel) => {
+                this.setSubscription(subscription, true);
+                deferred.resolve(this.settings);
+            });
 
             return deferred.promise;
         }
 
         public loadSettings(mobileService: IMobileService): ng.IPromise<ISettings> {
-            return this.loadFromFile().then(((settings: ISettings) => {
-                this.setSettings(settings, false);
-                return settings;
+            return this.loadFromFile().then(((subscription: Models.SubscriptionModel) => {
+                this.setSubscription(subscription, false);
+                return this.settings;
             }), ((reason: any) => {
-                    return this.loadSettingsFromCloud(mobileService);
+                return this.loadSubscriptionFromCloud(mobileService);
             }));
         }
 
-        private loadFromFile(): ng.IPromise<ISettings> {
-            var deferred = this.$q.defer<ISettings>();
+        private loadFromFile(): ng.IPromise<Models.SubscriptionModel> {
+            var deferred = this.$q.defer<Models.SubscriptionModel>();
             var folder = window.cordova.file.applicationStorageDirectory;
 
             console.log("Initializing settings from storage.");            
-            this.fileService.getJsonFile<Settings>(this.file, folder).then(
-                function (storedSettings) {
-                    if (storedSettings != null) {
-                         deferred.resolve(storedSettings);
+            this.fileService.getJsonFile<Models.SubscriptionModel>(this.file, folder).then(
+                function (subscription) {
+                    if (subscription != null) {
+                        deferred.resolve(subscription);
                     } else {
                         deferred.reject();
                     }
@@ -154,16 +170,12 @@ namespace Submerged.Services {
             return deferred.promise;
         }
 
-        private loadFromCloud(mobileService: IMobileService): ng.IPromise<ISettings> {
-            var deferred = this.$q.defer<ISettings>();
+        private loadFromCloud(mobileService: IMobileService): ng.IPromise<Models.SubscriptionModel> {
+            var deferred = this.$q.defer<Models.SubscriptionModel>();
 
             this.loadSubscription(mobileService).then(function(subscription) {
-
                 // build a new settings object and save the subscription in it
-                var settings: ISettings = new Settings();
-                settings.subscription = subscription;
-
-                deferred.resolve(settings);
+                deferred.resolve(subscription);
 
             }, function (err) {
                 deferred.reject();
