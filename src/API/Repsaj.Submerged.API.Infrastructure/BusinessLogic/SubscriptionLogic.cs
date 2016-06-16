@@ -224,6 +224,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return await UpdateSubscriptionAsync(subscription, owner);
         }
 
+        public async Task SendDeviceConfigurationMessage(string deviceId)
+        {
+            DeviceModel device = await GetDeviceAsync(deviceId, "", true);
+            await SendDeviceConfigurationMessage(device);
+        }
+
         private async Task SendDeviceConfigurationMessage(DeviceModel device)
         {
             DeviceCommandModel command = DeviceCommandModel.BuildDeviceCommand(DeviceCommandTypes.UPDATE_INFO);

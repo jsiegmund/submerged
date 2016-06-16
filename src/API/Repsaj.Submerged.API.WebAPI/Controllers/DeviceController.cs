@@ -33,5 +33,18 @@ namespace Repsaj.Submerged.API.Controllers
             await _subscriptionLogic.UpdateDeviceFromDeviceInfoPacketAsync(deviceInfo);
             return Ok();
         }
+
+        [Route("updaterequest")]
+        [HttpPost]
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IHttpActionResult> UpdateRequest([FromBody]dynamic updateRequest)
+        {
+            if (updateRequest == null || updateRequest.deviceId == null)
+                return BadRequest("The request didn't contain a valid deviceId");
+
+            await _subscriptionLogic.SendDeviceConfigurationMessage((string)updateRequest.deviceId);
+            return Ok();
+        }
     }
 }
