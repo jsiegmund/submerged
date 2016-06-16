@@ -32,11 +32,29 @@
             Value="#F5F5F5"/>
     </Style>
 
+    <Style TargetType="TextBlock"
+           x:Key="submergedMessagebox">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="15"/>
+    </Style>
+
+    <Style TargetType="Border"
+        x:Key="submergedMessageboxBorder">
+        <Setter Property="Background" Value="#616161"/>
+    </Style>
+           
     <!-- ***************** -->
     <!-- ** Tile Styles ** -->
     <!-- ***************** -->
     <!-- Tile Border Highlight Color -->
     <Color x:Key="submergedTileBorderHighlightColor">Black</Color>
+    <!-- Tile Background Color -->
+    <Style TargetType="Grid"
+           x:Key="submergedTileBackgroundColor">
+        <Setter Property="Background" Value="#616161"/>
+    </Style>
     <!-- Tile Border -->
     <Style TargetType="Border"
          x:Key="submergedTileBorderStyle">

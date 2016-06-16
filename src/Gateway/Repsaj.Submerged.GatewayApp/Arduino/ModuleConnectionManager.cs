@@ -14,13 +14,11 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
 {
     public class ModuleConnectionManager : IModuleConnectionManager
     {
-        IConfigurationRepository _configurationRepository;
         IModuleConnectionFactory _moduleConnectionFactory;
 
         Dictionary<string, ModuleConnection> _modules = new Dictionary<string, ModuleConnection>();
-        IEnumerable<Module> _moduleConfig;
-
         Dictionary<string, ModuleConnectionStatus> _moduleStatuses = new Dictionary<string, ModuleConnectionStatus>();
+
         public event IModuleStatusChanged ModuleConnecting;
         public event IModuleStatusChanged ModuleConnected;
         public event IModuleStatusChanged ModuleDisconnected;
@@ -29,11 +27,9 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         public bool AllModulesInitialized { get; private set; }
 
 
-        public ModuleConnectionManager(IConfigurationRepository configurationRepository, IModuleConnectionFactory moduleConnectionFactory)
+        public ModuleConnectionManager(IModuleConnectionFactory moduleConnectionFactory)
         {
-            _configurationRepository = configurationRepository;
             _moduleConnectionFactory = moduleConnectionFactory;
-
             AllModulesInitialized = false;
         }
 
@@ -42,16 +38,15 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             await _moduleConnectionFactory.Init();
         }
 
-        public async Task ConnectModules()
+        public void InitializeModules(IEnumerable<Module> modules)
         {
-            // TODO: fetch the module configuration from Azure (now hardcoded)
-            var device = await _configurationRepository.GetDeviceModel();
-            _moduleConfig = device.Modules;
-            //MinimalEventSource.Log.LogInfo($"Found {_moduleConfig.Count()} module(s) to initialize.");
-
             // Initialize all of the Arduino connections
-            foreach (Module module in _moduleConfig)
+            foreach (Module module in modules)
             {
+                // skip the module when we already have it
+                if (_modules.ContainsKey(module.Name))
+                    continue;
+
                 try
                 {
                     //MinimalEventSource.Log.LogInfo($"Requesting module {module.Name} from factory. Bluetooth id: {module.ConnectionString}");
@@ -152,14 +147,14 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         {
             Dictionary<string, string> statuses = new Dictionary<string, string>();
 
-            foreach (var moduleConfig in _moduleConfig)
+            foreach (var moduleConfig in _moduleStatuses)
             {
-                var module = _modules.Values.SingleOrDefault(m => m.ModuleName == moduleConfig.Name);
+                var module = _modules.Values.SingleOrDefault(m => m.ModuleName == moduleConfig.Key);
 
                 if (module != null)
                     statuses.Add(module.ModuleName, module.StatusAsText);
                 else
-                    statuses.Add(moduleConfig.Name, "Error");
+                    statuses.Add(moduleConfig.Key, "Error");
             }
 
             return statuses;

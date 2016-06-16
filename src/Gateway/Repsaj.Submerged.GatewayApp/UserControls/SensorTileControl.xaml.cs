@@ -36,7 +36,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
 
         // Using a DependencyProperty as the backing store for TileText.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TileSensorNameProperty =
-            DependencyProperty.Register("SensorName", typeof(string), typeof(SensorTileControl), null);
+            DependencyProperty.Register(nameof(SensorName), typeof(string), typeof(SensorTileControl), null);
         #endregion
 
         #region Reading Property
@@ -47,7 +47,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         }
 
         public static readonly DependencyProperty TileReadingProperty =
-            DependencyProperty.Register("Reading", typeof(string), typeof(SensorTileControl), null);
+            DependencyProperty.Register(nameof(Reading), typeof(string), typeof(SensorTileControl), null);
         #endregion
 
         #region ImageUri Property
@@ -59,7 +59,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
 
         // Using a DependencyProperty as the backing store for TileImageUri.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TileImageUriProperty =
-            DependencyProperty.Register("ImageUri", typeof(Uri), typeof(SensorTileControl), null);
+            DependencyProperty.Register(nameof(ImageUri), typeof(Uri), typeof(SensorTileControl), null);
         #endregion
 
 

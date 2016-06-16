@@ -9,5 +9,6 @@ namespace RemoteArduino.Commands
     interface ICommandProcessorFactory
     {
         ICommandProcessor FindCommandProcessor(DeserializableCommand command);
+        ICommandProcessor FindCommandProcessor(string commandName);
     }
 }

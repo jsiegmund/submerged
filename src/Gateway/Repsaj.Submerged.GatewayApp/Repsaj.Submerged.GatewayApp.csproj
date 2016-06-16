@@ -133,6 +133,12 @@
     <Compile Include="Models\SensorModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Arduino\SensorModuleConnection.cs" />
+    <Compile Include="UserControls\ModuleRowControl.xaml.cs">
+      <DependentUpon>ModuleRowControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\RelayRowControl.xaml.cs">
+      <DependentUpon>RelayRowControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\SensorTileControl.xaml.cs">
       <DependentUpon>SensorTileControl.xaml</DependentUpon>
     </Compile>
@@ -167,6 +173,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Resources\TileStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\ModuleRowControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\RelayRowControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -23,9 +23,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
     {
         public event Action<IEnumerable<Sensor>> SensorDataChanged;
         public event Action<IEnumerable<Module>> ModuleDataChanged;
+        public event Action<IEnumerable<Relay>> RelayDataChanged;
 
         ICommandProcessorFactory _commandProcessorFactory;
-        IModuleConnectionManager _arduinoConnectionManager;
+        IModuleConnectionManager _moduleConnectionManager;
         IConfigurationRepository _configurationRepository;
         IAzureConnection _azureConnection;
 
@@ -43,36 +44,63 @@ namespace Repsaj.Submerged.GatewayApp.Device
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
             IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext)
         {
-            _commandProcessorFactory = commandProcessor;
-            _arduinoConnectionManager = moduleConnectionManager;
+            _moduleConnectionManager = moduleConnectionManager;
             _configurationRepository = configurationRepository;
             _synchronizationContext = synchronizationContext;
+            _commandProcessorFactory = commandProcessor;
         }
 
         public async Task Init()
         {
-            await _arduinoConnectionManager.Init();
+            // attach the device info updated event to a device info command processor (when found)
+            DeviceInfoCommandProcessor processor = (DeviceInfoCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.UPDATE_INFO);
+            processor.DeviceModelChanged += Processor_DeviceModelChanged;
 
-            _connectionInfo = await _configurationRepository.GetConnectionInformationModel();
-            _deviceModel = await _configurationRepository.GetDeviceModel();
+            await _moduleConnectionManager.Init();
 
-            PopulateDeviceComponents();
-
-            _arduinoConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
-            _arduinoConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
-            _arduinoConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
-            _arduinoConnectionManager.ModuleConnecting += _arduinoConnectionManager_ModuleStatusChanged;
-
-            Task moduleTask = Task.Run(() => _arduinoConnectionManager.ConnectModules());
             Task azureTask = Task.Run(() => InitializeAzure());
 
-            Task.WaitAll(moduleTask, azureTask);
+            _deviceModel = await _configurationRepository.GetDeviceModel();
+
+            if (_deviceModel == null)
+            {
+                // device should now request for the device model to be pushed from the back-end
+                azureTask.Wait();
+                await RequestDeviceUpdate();
+            }
+            else
+            {
+                PopulateDeviceComponents();
+
+                _moduleConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
+                _moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
+                _moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
+                _moduleConnectionManager.ModuleConnecting += _arduinoConnectionManager_ModuleStatusChanged;
+
+                Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules));
+
+                Task.WaitAll(moduleTask, azureTask);
+            }
+        }
+
+        private void Processor_DeviceModelChanged(DeviceModel deviceModel)
+        {
+            Init(deviceModel);
+        }
+
+        public void Init(DeviceModel deviceModel)
+        {
+            _deviceModel = deviceModel;
+
+            PopulateDeviceComponents();
+            _moduleConnectionManager.InitializeModules(_deviceModel.Modules);
         }
 
         private void PopulateDeviceComponents()
         {
             SensorDataChanged?.Invoke(_deviceModel.Sensors);
             ModuleDataChanged?.Invoke(_deviceModel.Modules);
+            RelayDataChanged?.Invoke(_deviceModel.Relays);
         }
 
         #region Timer
@@ -102,11 +130,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
         }
         #endregion
 
-        private void NotifyPropertyChanged(string info)
-        {
-            
-        }
-
         #region Status Updates
         private void UpdateSensorData(JObject data)
         {
@@ -133,7 +156,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void UpdateModuleData()
         {
-            Dictionary<string, string> statuses = _arduinoConnectionManager.GetModuleStatuses();
+            Dictionary<string, string> statuses = _moduleConnectionManager.GetModuleStatuses();
 
             foreach (KeyValuePair<string, string> kvp in statuses)
             {
@@ -151,8 +174,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
 
         #region Azure 
-        private void InitializeAzure()
+        private async Task InitializeAzure()
         {
+            // Fetch the configuration information from the config file
+            _connectionInfo = await _configurationRepository.GetConnectionInformationModel();
+
             // Create an AzureConnection class to connect to Azure
             _azureConnection = new AzureConnection(_connectionInfo.IoTHubHostname, _connectionInfo.DeviceId, _connectionInfo.DeviceKey);
             _azureConnection.CommandReceived += _azureConnection_CommandReceived;
@@ -179,7 +205,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async Task SendDeviceData()
         {
-            Dictionary<string, string> statuses = _arduinoConnectionManager.GetModuleStatuses();
+            Dictionary<string, string> statuses = _moduleConnectionManager.GetModuleStatuses();
             dynamic data = DeviceFactory.GetDevice(_connectionInfo.DeviceId, _connectionInfo.DeviceKey, statuses);
 
             try
@@ -195,12 +221,21 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 NewLogLine?.Invoke(ex.ToString());
             }
         }
+
+        private async Task RequestDeviceUpdate()
+        {
+            JObject requestObject = new JObject();
+            requestObject.Add(DeviceModelConstants.OBJECT_TYPE, DeviceMessageObjectTypes.UPDATE_REQUEST);
+            requestObject.Add(DevicePropertiesConstants.DEVICE_ID, _connectionInfo.DeviceId);
+
+            await _azureConnection.SendDeviceToCloudMessagesAsync(requestObject);
+        }    
         #endregion
 
         #region Arduino / Module Connections
         private void RequestArduinoData()
         {
-            JObject data = _arduinoConnectionManager.GetAvailableData();
+            JObject data = _moduleConnectionManager.GetAvailableData();
 
             if (data != null)
             {
@@ -246,10 +281,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         public void Dispose()
         {
-            if (_arduinoConnectionManager != null)
+            if (_moduleConnectionManager != null)
             {
-                _arduinoConnectionManager.Dispose();
-                _arduinoConnectionManager = null;
+                _moduleConnectionManager.Dispose();
+                _moduleConnectionManager = null;
             }
 
             StopTimer();

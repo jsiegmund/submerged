@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -13,8 +14,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Device
     {
         public static JObject MakeTelemetryObject(JObject data, string deviceId)
         {
-            data.Add("objectType", "Telemetry");
-            data.Add("deviceId", deviceId);
+            data.Add(DeviceModelConstants.OBJECT_TYPE, DeviceMessageObjectTypes.TELEMETRY);
+            data.Add(DevicePropertiesConstants.DEVICE_ID, deviceId);
 
             return data;
         }

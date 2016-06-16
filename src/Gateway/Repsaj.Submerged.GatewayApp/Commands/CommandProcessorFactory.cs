@@ -19,7 +19,12 @@ namespace RemoteArduino.Commands
 
         public ICommandProcessor FindCommandProcessor(DeserializableCommand command)
         {
-            switch (command.CommandName)
+            return FindCommandProcessor(command.CommandName);
+        }
+
+        public ICommandProcessor FindCommandProcessor(string commandName)
+        {
+            switch (commandName)
             {
                 case "SwitchRelay":
                     return _switchRelayProcessor;
@@ -28,6 +33,7 @@ namespace RemoteArduino.Commands
                 default:
                     return null;
             }
+
         }
     }
 }

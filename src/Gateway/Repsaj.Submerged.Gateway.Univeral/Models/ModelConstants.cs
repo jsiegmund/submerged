@@ -17,4 +17,10 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public static readonly string TEMPERATURE = "temperature";
         public static readonly string PH = "pH";
     }
+
+    public static class CommandNames
+    {
+        public static readonly string UPDATE_INFO = "UpdateInfo";
+        public static readonly string SWITCH_RELAY = "SwitchRelay";
+    }
 }

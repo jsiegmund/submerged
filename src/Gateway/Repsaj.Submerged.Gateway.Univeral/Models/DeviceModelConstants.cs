@@ -58,4 +58,10 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public const string NAME = "Name";
         public const string STATUS = "Status";
     }
+
+    public static class DeviceMessageObjectTypes
+    {
+        public const string TELEMETRY = "Telemetry";
+        public const string UPDATE_REQUEST = "UpdateRequest";
+    }
 }

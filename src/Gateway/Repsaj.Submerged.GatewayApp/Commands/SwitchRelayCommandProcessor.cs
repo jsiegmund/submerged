@@ -1,6 +1,7 @@
 ﻿using RemoteArduino.Hardware;
 using Repsaj.Submerged.GatewayApp;
 using Repsaj.Submerged.GatewayApp.Arduino;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -13,8 +14,7 @@ namespace RemoteArduino.Commands
     public class SwitchRelayCommandProcessor : ICommandProcessor
     {
         IGPIOController _gpioController;
-        IModuleConnectionFactory _moduleConnectionFactory;
-        private const string SWITCH_RELAY = "SwitchRelay";
+        IModuleConnectionFactory _moduleConnectionFactory;        
 
         public SwitchRelayCommandProcessor(IGPIOController gpioController, IModuleConnectionFactory connectionFactory)
         {
@@ -22,9 +22,11 @@ namespace RemoteArduino.Commands
             this._moduleConnectionFactory = connectionFactory;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<CommandProcessingResult> ProcessCommand(DeserializableCommand command)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            if (command.CommandName == SWITCH_RELAY)
+            if (command.CommandName == CommandNames.SWITCH_RELAY)
             {
                 try
                 {

@@ -63,12 +63,20 @@ namespace Repsaj.Submerged.GatewayApp
             Submerged = new MainModel();
 
 
-            //DeviceConfigurationModel configModel = new DeviceConfigurationModel()
-            //{
-            //    DeviceId = Statics.DeviceID,
-            //    DeviceKey = Statics.DeviceKey,
-            //    IoTHubHostname = Statics.IoTHostName
-            //};
+            ConnectionInformationModel model = new ConnectionInformationModel()
+            {
+                IoTHubHostname = "repsaj-neptune-iothub.azure-devices.net",
+                DeviceId = "repsaj-neptune-win10pi",
+                DeviceKey = "p+fkLZ1Vc+uB0YW6YjjE6PZ7KA2bshLRaL9rl4tfajQ=",
+            };
+            IConfigurationRepository configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
+            configRepository.SaveConnectionInformationModel(model);
+
+            this.Loaded += MainPage_Loaded;
+        }
+
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
             Init();
         }
 
@@ -76,17 +84,29 @@ namespace Repsaj.Submerged.GatewayApp
 
         private async void Init()
         {
+            IConfigurationRepository configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
+            var configInfo = await configRepository.GetConnectionInformationModel();
 
-            //var _iconImageUrl = "ms-appx:///Icons/Sensor_Temperature.png";
-            //var uri = new Uri(_iconImageUrl);
-            //var file = await Windows.Storage.StorageFile.GetFileFromApplicationUriAsync(uri);
-            //var test = new BitmapImage();
-
-            _deviceManager = _autofacContainer.Resolve<IDeviceManager>();
-            _deviceManager.NewLogLine += UpdateLog;
-            _deviceManager.SensorDataChanged += _deviceManager_SensorDataChanged;
-            _deviceManager.ModuleDataChanged += _deviceManager_ModuleDataChanged;
-            await _deviceManager.Init();
+            // upon first boot; the configuration will not have been set yet
+            if (configInfo == null)
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    string instruction = "Your device was not configured to connect to the Submerged back-end. Please read the documentation " +
+                                         "and upload a valid json configuration file with connection parameters. Restart the submerged app and " +
+                                         "this message should disappear!";
+                    messageBoxText.Text = instruction;
+                    messageBox.Visibility = Visibility.Visible;
+                });
+            }
+            else
+            {
+                _deviceManager = _autofacContainer.Resolve<IDeviceManager>();
+                _deviceManager.NewLogLine += UpdateLog;
+                _deviceManager.SensorDataChanged += _deviceManager_SensorDataChanged;
+                _deviceManager.ModuleDataChanged += _deviceManager_ModuleDataChanged;
+                await _deviceManager.Init();
+            }
         }
 
         public async void _deviceManager_ModuleDataChanged(IEnumerable<Universal.Models.Module> modules)

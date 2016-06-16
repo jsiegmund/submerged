@@ -11,7 +11,7 @@
     d:DesignWidth="120">
 
     <Border x:Name="borMain">
-        <Grid Background="#616161">
+        <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="30" />

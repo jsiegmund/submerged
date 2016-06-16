@@ -22,11 +22,19 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 
         public async Task<ConnectionInformationModel> GetConnectionInformationModel()
         {
-            dynamic stored = await _storageRepository.GetStoredObject(FILE_CONNECTION);
-
-            if (stored != null)
+            try
             {
-                return ((JObject)stored).ToObject<ConnectionInformationModel>();
+                dynamic stored = await _storageRepository.GetStoredObject(FILE_CONNECTION);
+
+                if (stored != null)
+                {
+                    return ((JObject)stored).ToObject<ConnectionInformationModel>();
+                }
+
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                // ignore file not found exceptions, just return null
             }
 
             return null;

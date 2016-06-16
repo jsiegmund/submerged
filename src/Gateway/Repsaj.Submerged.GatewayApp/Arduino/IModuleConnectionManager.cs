@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Models;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         event IModuleStatusChanged ModuleDisconnected;
 
         Dictionary<string, string> GetModuleStatuses();
-        Task ConnectModules();
+        void InitializeModules(IEnumerable<Module> modules);
         JObject GetAvailableData();
         //IEnumerable<ModuleStatusModel> GetModuleStatusModels();
 

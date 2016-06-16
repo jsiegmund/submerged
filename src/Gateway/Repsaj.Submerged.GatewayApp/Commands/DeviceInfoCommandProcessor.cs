@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using RemoteArduino.Commands;
+using Repsaj.Submerged.GatewayApp.Device;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
 using System;
@@ -12,7 +13,7 @@ namespace RemoteArduino.Commands
 {
     class DeviceInfoCommandProcessor : ICommandProcessor
     {
-        private const string UPDATE_INFO = "UpdateInfo";
+        public event Action<DeviceModel> DeviceModelChanged;
         private readonly IConfigurationRepository _configRepository;
 
         public DeviceInfoCommandProcessor(IConfigurationRepository configurationRepository)
@@ -22,7 +23,7 @@ namespace RemoteArduino.Commands
 
         public async Task<CommandProcessingResult> ProcessCommand(DeserializableCommand command)
         {
-            if (command.CommandName == UPDATE_INFO)
+            if (command.CommandName == CommandNames.UPDATE_INFO)
             {
                 try
                 {
@@ -30,20 +31,7 @@ namespace RemoteArduino.Commands
                     DeviceModel deviceModel = deviceObject.ToObject<DeviceModel>();
                     await _configRepository.SaveDeviceModel(deviceModel);
 
-                    //JArray modulesArray = device.Modules;
-                    //List<ModuleConfigurationModel> modules = new List<ModuleConfigurationModel>();
-
-                    //foreach (JObject moduleObj in modulesArray)
-                    //{
-                    //    ModuleConfigurationModel model = new ModuleConfigurationModel();
-
-                    //    model.ConnectionString = (string)moduleObj["ConnectionString"];
-                    //    model.ModuleType = (string)moduleObj["ModuleType"];
-                    //    model.Name = (string)moduleObj["Name"];
-
-                    //    modules.Add(model);
-                    //}
-
+                    DeviceModelChanged?.Invoke(deviceModel);
 
                     return CommandProcessingResult.Success;
                 }

@@ -17,5 +17,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
         event Action<IEnumerable<Module>> ModuleDataChanged;
 
         Task Init();
+        void Init(DeviceModel deviceModel);
     }
 }

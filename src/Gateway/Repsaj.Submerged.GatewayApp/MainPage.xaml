@@ -12,71 +12,88 @@
 
     <Grid Background="#212121">
         <Grid.RowDefinitions>
-            <RowDefinition Height="100" />
+            <RowDefinition Height="80" />
             <RowDefinition Height="300" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" x:Name="textBlock_Title" Margin="10,10" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Submerged IoT Gateway" VerticalAlignment="Top" Style="{StaticResource submergedHeader}"/>
-        <Image x:Name="image" Height="90" VerticalAlignment="Top" Margin="0,10,20,0" Source="/Icons/submerged_logo.png" HorizontalAlignment="Right" Width="90"/>
+        <TextBlock Grid.Row="0" x:Name="textBlock_Title" Margin="10" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Submerged IoT Gateway" VerticalAlignment="Top" Style="{StaticResource submergedHeader}"/>
+        <TextBlock Grid.Row="0" x:Name="textBlock_Sensors_Copy" HorizontalAlignment="Right" TextWrapping="Wrap" Text="Cloud Connection" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}" Margin="0,10,219,0"/>
         <Grid Grid.Row="1" Width="Auto" Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
-            <StackPanel x:Name="SensorsPanel" Grid.Column="0">
-                <TextBlock Grid.Row="0" x:Name="textBlock_Sensors" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Sensor Readings" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Sensors" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Sensors}">
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}"/>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
-            <StackPanel x:Name="RelayPanel" Grid.Column="1">
-                <TextBlock x:Name="textBlock_Relays" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Relay status" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Relays" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Relays}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" Style="{StaticResource submergedSubheader}" />
-                                <TextBlock Text=" : " TextTrimming="None" Style="{StaticResource submergedSubheader}"/>
-                                <TextBlock Text="{Binding Status}" Style="{StaticResource submergedSubheader}" />
-                            </UniversalWrapPanel:UniversalWrapPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
-            <StackPanel x:Name="ModulePanel" Grid.Column="2">
-                <TextBlock x:Name="textBlock_Modules" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Modules" VerticalAlignment="Top" FontWeight="Normal" Style="{StaticResource submergedSubheader}"/>
-                <ListView x:Name="listView_Modules" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Modules}">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" Style="{StaticResource submergedText}" />
-                                <TextBlock Text=" : " TextTrimming="None" Style="{StaticResource submergedText}"/>
-                                <TextBlock Text="{Binding Status}" Style="{StaticResource submergedText}" />
-                            </UniversalWrapPanel:UniversalWrapPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </StackPanel>
+            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="textBlock_Sensors" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Sensors" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
+            <ListView x:Name="listView_Sensors" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Sensors}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0,0,10,10"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniversalWrapPanel:UniversalWrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <TextBlock x:Name="textBlock_Relays" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Relays" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
+            <ListView x:Name="listView_Relays" Grid.Row="1" Grid.Column="1" Width="Auto" ItemsSource="{x:Bind Submerged.Relays}" HorizontalContentAlignment="Stretch">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0,0,10,10"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Submerged:RelayRowControl RelayName="{Binding Name}" RelayState="{Binding State}" HorizontalAlignment="Stretch"/>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <TextBlock x:Name="textBlock_Modules" Grid.Row="0" Grid.Column="2" Margin="0,0,10,10"  HorizontalAlignment="Left" TextWrapping="Wrap" Text="Modules" VerticalAlignment="Top" FontWeight="Normal" Style="{StaticResource submergedSubheader}"/>
+            <ListView x:Name="listView_Modules" Grid.Row="1" Grid.Column="2" Width="Auto" ItemsSource="{x:Bind Submerged.Modules}" HorizontalContentAlignment="Stretch">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0,0,10,10"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Submerged:ModuleRowControl ModuleName="{Binding Name}" ModuleState="{Binding Status}" HorizontalAlignment="Stretch" />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
         </Grid>
-        <Grid Grid.Row="2" Padding="10" Height="Auto">
+        <Grid Grid.Row="2" Padding="10" Height="Auto" Width="Auto">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" x:Name="textBlock_Sensors_Copy" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Cloud Connection" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-            <TextBlock Grid.Row="1" x:Name="tbLogHeading" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Log" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-            <TextBox Grid.Row="2" x:Name="tbLog" TextWrapping="Wrap" Text="" IsTapEnabled="False" IsRightTapEnabled="False" IsHoldingEnabled="False" IsDoubleTapEnabled="False" IsReadOnly="True"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" x:Name="tbLogHeading" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Log" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
+            <TextBox Grid.Row="1" Grid.Column="0" x:Name="tbLog" TextWrapping="Wrap" Text="" IsTapEnabled="False" IsRightTapEnabled="False" IsHoldingEnabled="False" IsDoubleTapEnabled="False" IsReadOnly="True"/>
+            <Image x:Name="image" Grid.Row="1" Grid.Column="1" Height="90" VerticalAlignment="Bottom" Margin="0,0,0,0" Source="/Icons/submerged_logo.png" HorizontalAlignment="Right" Width="90"/>
         </Grid>
+        <Border x:Name="messageBox" Style="{StaticResource submergedMessageboxBorder}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="100,0" Width="Auto" Height="100" Grid.RowSpan="3" Visibility="Collapsed">
+            <TextBlock x:Name="messageBoxText"  TextWrapping="Wrap" Text="TextBlock"  Style="{StaticResource submergedMessagebox}" />
+        </Border>
     </Grid>
 </Page>

@@ -89,6 +89,7 @@ namespace Repsaj.Submerged.GatewayApp
                 }
                 catch (Exception ex)
                 {
+                    Debug.WriteLine("Failure occurred whilst waiting for a cloud to device message: " + ex);
                     // when something happens in the transport; reboot the client
                     _deviceClient = DeviceClient.CreateFromConnectionString(_deviceConnectionString);
                 }
@@ -104,7 +105,7 @@ namespace Repsaj.Submerged.GatewayApp
                 }
                 catch (Exception ex)
                 {
-
+                    Debug.WriteLine("Could not process the command received: " + ex);
                 }
 
             }
