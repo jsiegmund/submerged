@@ -81,7 +81,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string owner, bool skipValidation = false)
         {
-            return await _subscriptionRepository.UpdateSubscriptionAsync(subscription, owner);
+            return await _subscriptionRepository.UpdateSubscriptionAsync(subscription, owner, skipValidation);
         }
 
         private bool ValidateSubscriptionId(SubscriptionModel subscription, List<string> validationErrors)

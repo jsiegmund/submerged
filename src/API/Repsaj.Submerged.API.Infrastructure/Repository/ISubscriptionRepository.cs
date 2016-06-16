@@ -30,13 +30,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// <returns></returns>
         Task<SubscriptionModel> GetSubscriptionAsync(string subscriptionUser);
 
-        Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool? skipValidation = false);
+        Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool skipValidation = false);
 
         /// <summary>
         /// Updates a subscription asynchronously.
         /// </summary>
         /// <param name="subscription">The subscription.</param>
         /// <returns></returns>
-        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser);
+        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser, bool skipValidation = false);
     }
 }

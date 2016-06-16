@@ -83,14 +83,14 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             return result.FirstOrDefault();
         }      
         
-        public async Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool? skipValidation = false)
+        public async Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool skipValidation = false)
         {
             Dictionary<string, Object> queryParams = new Dictionary<string, Object>();
             queryParams.Add("@deviceId", deviceId);
 
             IEnumerable<SubscriptionModel> queryResult;
 
-            if (skipValidation.HasValue && skipValidation.Value == true)
+            if (skipValidation)
             {
                 queryResult = await _docDbOperations.Query<SubscriptionModel>("SELECT VALUE root FROM root JOIN device IN root.Devices WHERE (device.DeviceProperties.DeviceID = @deviceId)", queryParams);
             }
@@ -106,7 +106,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             return queryResult.FirstOrDefault();
         }
 
-        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser)
+        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser, bool skipValidation = false)
         {
             dynamic exisingSubscription = await GetSubscriptionAsync(subscription.SubscriptionProperties.User);
 
@@ -116,7 +116,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             }
 
             // ensure the subscription being updated belongs to the passed in user
-            if (subscription.SubscriptionProperties.User != subscriptionUser)
+            if (!skipValidation && subscription.SubscriptionProperties.User != subscriptionUser)
                 throw new SubscriptionValidationException(Strings.ValidationWrongUser);
 
             SubscriptionSchemaHelper.UpdateUpdatedTime(subscription);
