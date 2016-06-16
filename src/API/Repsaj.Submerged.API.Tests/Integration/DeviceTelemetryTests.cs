@@ -58,16 +58,16 @@ namespace Repsaj.Submerged.API.Tests.Integration
             var result = await repository.LoadDeviceTelemetrySummaryAsync(TestConfigHelper.DeviceId, _testDateUTC);
 
             Assert.AreEqual(result.DeviceId, TestConfigHelper.DeviceId);
-            Assert.AreEqual(result.AverageTemp1, 25.486111111111111);
-            Assert.AreEqual(result.MinimumTemp1, 25.25);
+            Assert.AreEqual(result.AverageTemp1, 25.5);
+            Assert.AreEqual(result.MinimumTemp1, 25.5);
             Assert.AreEqual(result.MaximumTemp1, 25.5);
-            Assert.AreEqual(result.AverageTemp2, 19.847222222222225);
-            Assert.AreEqual(result.MinimumTemp2, 19.5);
-            Assert.AreEqual(result.MaximumTemp2, 20.5);
-            Assert.AreEqual(result.AveragePH, 7.0832388888888937);
-            Assert.AreEqual(result.MinimumPH, 7.0621666666666663);
-            Assert.AreEqual(result.MaximumPH, 7.1055);
-            Assert.AreEqual(result.OutTime, DateTime.Parse("2016-06-15T08:00:00.0000000Z"));
+            Assert.AreEqual(result.AverageTemp2, 21.318055555555556);
+            Assert.AreEqual(result.MinimumTemp2, 21);
+            Assert.AreEqual(result.MaximumTemp2, 21.5);
+            Assert.AreEqual(result.AveragePH, 6.7491722222222217);
+            Assert.AreEqual(result.MinimumPH, 6.7146666666666661);
+            Assert.AreEqual(result.MaximumPH, 6.7834999999999992);
+            Assert.AreEqual(result.OutTime, DateTime.Parse("2016-06-15T17:00:00.0000000Z"));
         }
 
         [TestMethod]
