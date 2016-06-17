@@ -13,6 +13,8 @@ namespace Repsaj.Submerged.GatewayApp
     interface IAzureConnection
     {
         event ICommandReceived CommandReceived;
+        event Action Connected;
+        event Action Disconnected;
 
         Task<string> SendDeviceToCloudMessagesAsync(JObject eventData);
     }

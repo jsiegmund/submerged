@@ -24,6 +24,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
         public event Action<IEnumerable<Sensor>> SensorDataChanged;
         public event Action<IEnumerable<Module>> ModuleDataChanged;
         public event Action<IEnumerable<Relay>> RelayDataChanged;
+        public event Action AzureConnected;
+        public event Action AzureDisconnected;
 
         ICommandProcessorFactory _commandProcessorFactory;
         IModuleConnectionManager _moduleConnectionManager;
@@ -182,7 +184,19 @@ namespace Repsaj.Submerged.GatewayApp.Device
             // Create an AzureConnection class to connect to Azure
             _azureConnection = new AzureConnection(_connectionInfo.IoTHubHostname, _connectionInfo.DeviceId, _connectionInfo.DeviceKey);
             _azureConnection.CommandReceived += _azureConnection_CommandReceived;
+            _azureConnection.Connected += _azureConnection_Connected;
+            _azureConnection.Disconnected += _azureConnection_Disconnected;
             Debug.WriteLine("Azure connection initialized.");
+        }
+
+        private void _azureConnection_Disconnected()
+        {
+            this.AzureDisconnected?.Invoke();
+        }
+
+        private void _azureConnection_Connected()
+        {
+            this.AzureConnected?.Invoke();
         }
 
         private async Task SendTelemetryAsync(JObject data)

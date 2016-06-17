@@ -17,14 +17,18 @@ namespace Repsaj.Submerged.GatewayApp
     class AzureConnection : IAzureConnection
     {
         public event ICommandReceived CommandReceived;
+        public event Action Connected;
+        public event Action Disconnected;
 
         string _deviceConnectionString;
         JsonSerializerSettings _settings;
         DeviceClient _deviceClient;
 
+        bool _connected = false;
+
         public AzureConnection(string IoTHubHostname, string deviceId, string deviceKey)
         {
-            string deviceConnectionString = $"HostName={IoTHubHostname};DeviceId={deviceId};SharedAccessKey={deviceKey}";
+            string deviceConnectionString = $"HostName={IoTHubHostname};DeviceId={deviceId};SharedAccessKey={deviceKey}";          
 
             // Initialize the device client object which is used to connect to Azure IoT hub
             // Create the IoT Hub Device Client instance
@@ -39,6 +43,24 @@ namespace Repsaj.Submerged.GatewayApp
 
             // start listening for Cloud 2 Device messages 
             ReceiveC2dAsync();
+        }
+
+        private void SetDisconnected()
+        {
+            if (_connected)
+            {
+                _connected = false;
+                Disconnected?.Invoke();
+            }
+        }
+
+        private void SetConnected()
+        {
+            if (!_connected)
+            {
+                _connected = true;
+                Connected?.Invoke();
+            }
         }
 
         /// <summary>
@@ -69,10 +91,13 @@ namespace Repsaj.Submerged.GatewayApp
                 Debug.WriteLine("{0} > Sending IoT hub message: {1}", DateTime.UtcNow, jsonObject);
                 await _deviceClient.SendEventAsync(message);
 
+                SetConnected();
+
                 return jsonObject;
             }
             catch (Exception ex)
             {
+                SetDisconnected();
                 throw new Exception(String.Format("Failed sending message ({0}) to Azure: {1}", jsonObject, ex.ToString()));
             }
         }
@@ -92,6 +117,7 @@ namespace Repsaj.Submerged.GatewayApp
                     Debug.WriteLine("Failure occurred whilst waiting for a cloud to device message: " + ex);
                     // when something happens in the transport; reboot the client
                     _deviceClient = DeviceClient.CreateFromConnectionString(_deviceConnectionString);
+                    SetDisconnected();
                 }
 
                 if (receivedMessage == null) continue;
@@ -102,10 +128,12 @@ namespace Repsaj.Submerged.GatewayApp
                     await CommandReceived(command);
 
                     await _deviceClient.CompleteAsync(receivedMessage);
+                    SetConnected();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Could not process the command received: " + ex);
+                    SetDisconnected();
                 }
 
             }

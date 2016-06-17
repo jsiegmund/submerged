@@ -6,15 +6,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="50"
+    d:DesignHeight="80"
     d:DesignWidth="120">
 
-    <Border x:Name="borMain" Height="50">
+    <Border x:Name="borMain" Height="60">
         <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
             <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding ModuleName}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding ModuleStatus}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding ModuleState}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
         </Grid>
     </Border>
 </UserControl>

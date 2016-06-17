@@ -16,10 +16,16 @@ namespace Repsaj.Submerged.GatewayApp.Models
             get { return This.Name; }
             set { SetProperty(This.Name, value, () => This.Name = value); }
         }
+
         public bool State
         {
             get { return This.State; }
             set { SetProperty(This.State, value, () => This.State = value); }
+        }
+
+        public string RelayStateAsText
+        {
+            get { return this.State ? "ON" : "OFF"; }
         }
     }
 }

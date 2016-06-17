@@ -105,8 +105,47 @@ namespace Repsaj.Submerged.GatewayApp
                 _deviceManager.NewLogLine += UpdateLog;
                 _deviceManager.SensorDataChanged += _deviceManager_SensorDataChanged;
                 _deviceManager.ModuleDataChanged += _deviceManager_ModuleDataChanged;
+                _deviceManager.RelayDataChanged += _deviceManager_RelayDataChanged;
+                _deviceManager.AzureConnected += _deviceManager_AzureConnected;
+                _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
                 await _deviceManager.Init();
             }
+        }
+
+        private async void _deviceManager_AzureDisconnected()
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Download-48.png", UriKind.Absolute));
+            });
+        }
+
+        private async void _deviceManager_AzureConnected()
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Upload-48.png", UriKind.Absolute));
+            });
+        }
+
+        private async void _deviceManager_RelayDataChanged(IEnumerable<Relay> relays)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                foreach (var relay in relays)
+                {
+                    var model = Submerged.Relays.SingleOrDefault(s => s.Name == relay.Name);
+
+                    if (model == null)
+                    {
+                        Submerged.Relays.Add(new RelayModel(relay));
+                    }
+                    else
+                    {
+                        model.State = relay.State;
+                    }
+                }
+            });
         }
 
         public async void _deviceManager_ModuleDataChanged(IEnumerable<Universal.Models.Module> modules)

@@ -45,7 +45,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, "", true);
 
             if (subscription == null || 
-                ! String.Equals(deviceId, userId, StringComparison.InvariantCultureIgnoreCase))
+                ! String.Equals(subscription.SubscriptionProperties.User, userId, StringComparison.InvariantCultureIgnoreCase))
                 throw new SubscriptionValidationException(Strings.ValidationWrongUser);
 
             return true;

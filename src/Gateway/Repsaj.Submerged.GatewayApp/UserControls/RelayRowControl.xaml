@@ -14,7 +14,7 @@
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
             <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding RelayName}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding RelayStateAsText}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding RelayState}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
         </Grid>
     </Border>
 </UserControl>

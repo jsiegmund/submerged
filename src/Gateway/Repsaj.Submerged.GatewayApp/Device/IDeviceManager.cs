@@ -15,6 +15,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
         event UpdateLog NewLogLine;
         event Action<IEnumerable<Sensor>> SensorDataChanged;
         event Action<IEnumerable<Module>> ModuleDataChanged;
+        event Action<IEnumerable<Relay>> RelayDataChanged;
+        event Action AzureConnected;
+        event Action AzureDisconnected;
 
         Task Init();
         void Init(DeviceModel deviceModel);

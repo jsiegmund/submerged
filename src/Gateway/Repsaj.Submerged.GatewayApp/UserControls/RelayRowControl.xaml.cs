@@ -38,21 +38,14 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         #endregion
 
         #region RelayState Property
-        public bool RelayState
+        public string RelayState
         {
-            get { return (bool)GetValue(TileRelayStateProperty); }
+            get { return (string)GetValue(TileRelayStateProperty); }
             set { SetValue(TileRelayStateProperty, value); }
         }
 
         public static readonly DependencyProperty TileRelayStateProperty =
-            DependencyProperty.Register(nameof(RelayState), typeof(bool), typeof(RelayRowControl), null);
-        #endregion
-
-        #region RelayStateAsText Property
-        public string RelayStateAsText
-        {
-            get { return RelayState ? "ON" : "OFF"; }
-        }
+            DependencyProperty.Register(nameof(RelayState), typeof(string), typeof(RelayRowControl), null);
         #endregion
     }
 }

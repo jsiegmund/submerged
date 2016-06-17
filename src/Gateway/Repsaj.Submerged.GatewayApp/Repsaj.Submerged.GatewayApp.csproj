@@ -151,6 +151,8 @@
     <None Include="RemoteArduino_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Icons\Cloud-Download-48.png" />
+    <Content Include="Icons\Cloud-Upload-48.png" />
     <Content Include="Icons\Sensor_Gauge.png" />
     <Content Include="Icons\Sensor_Temperature.png" />
     <Content Include="Icons\submerged_logo.png" />
