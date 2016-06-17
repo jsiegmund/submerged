@@ -37,6 +37,7 @@ using Repsaj.Submerged.GatewayApp.Device;
 using Autofac.Core;
 using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
+using System.Collections.ObjectModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -61,16 +62,6 @@ namespace Repsaj.Submerged.GatewayApp
             InitializeAutofac();
 
             Submerged = new MainModel();
-
-
-            ConnectionInformationModel model = new ConnectionInformationModel()
-            {
-                IoTHubHostname = "repsaj-neptune-iothub.azure-devices.net",
-                DeviceId = "repsaj-neptune-win10pi",
-                DeviceKey = "p+fkLZ1Vc+uB0YW6YjjE6PZ7KA2bshLRaL9rl4tfajQ=",
-            };
-            IConfigurationRepository configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
-            configRepository.SaveConnectionInformationModel(model);
 
             this.Loaded += MainPage_Loaded;
         }
@@ -132,19 +123,23 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                Collection<RelayModel> relayCollection = Submerged.Relays;
+
                 foreach (var relay in relays)
                 {
-                    var model = Submerged.Relays.SingleOrDefault(s => s.Name == relay.Name);
+                    var model = relayCollection.SingleOrDefault(s => s.Name == relay.Name);
 
                     if (model == null)
                     {
-                        Submerged.Relays.Add(new RelayModel(relay));
+                        relayCollection.Add(new RelayModel(relay));
                     }
                     else
                     {
                         model.State = relay.State;
                     }
                 }
+
+                Submerged.Relays = new ObservableCollection<RelayModel>(relayCollection.OrderBy(r => r.OrderNumber));
             });
         }
 
@@ -152,19 +147,23 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                Collection<ModuleModel> moduleCollection = Submerged.Modules;
+
                 foreach (var module in modules)
                 {
-                    var model = Submerged.Modules.SingleOrDefault(s => s.Name == module.Name);
+                    var model = moduleCollection.SingleOrDefault(s => s.Name == module.Name);
 
                     if (model == null)
                     {
-                        Submerged.Modules.Add(new ModuleModel(module));
+                        moduleCollection.Add(new ModuleModel(module));
                     }
                     else
                     {
                         model.Status = module.Status;
                     }
                 }
+
+                Submerged.Modules = new ObservableCollection<ModuleModel>(moduleCollection.OrderBy(r => r.DisplayOrder));
             });
         }
 
@@ -172,19 +171,23 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
+                Collection<SensorModel> sensorCollection = Submerged.Sensors;
+
                 foreach (var sensor in sensors)
                 {
-                    var model = Submerged.Sensors.SingleOrDefault(s => s.Name == sensor.Name);
+                    var model = sensorCollection.SingleOrDefault(s => s.Name == sensor.Name);
 
                     if (model == null)
                     {
-                        Submerged.Sensors.Add(new SensorModel(sensor));
+                        sensorCollection.Add(new SensorModel(sensor));
                     }
                     else
                     {
                         model.Reading = sensor.Reading;
                     }
                 }
+
+                Submerged.Sensors = new ObservableCollection<SensorModel>(sensorCollection.OrderBy(s => s.OrderNumber));
             });
         }
 

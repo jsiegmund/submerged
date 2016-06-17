@@ -51,6 +51,12 @@ namespace Repsaj.Submerged.GatewayApp.Models
             get { return _iconImageUrl; }
         }
 
+        public int? OrderNumber
+        {
+            get { return This.OrderNumber; }
+            set { SetProperty(This.OrderNumber, value, () => This.OrderNumber = value); }
+        }
+
         public string ReadingAsText
         {
             get

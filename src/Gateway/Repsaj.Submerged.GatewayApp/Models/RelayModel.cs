@@ -23,6 +23,12 @@ namespace Repsaj.Submerged.GatewayApp.Models
             set { SetProperty(This.State, value, () => This.State = value); }
         }
 
+        public int? OrderNumber
+        {
+            get { return This.OrderNumber; }
+            set { SetProperty(This.OrderNumber, value, () => This.OrderNumber = value); }
+        }
+
         public string RelayStateAsText
         {
             get { return this.State ? "ON" : "OFF"; }

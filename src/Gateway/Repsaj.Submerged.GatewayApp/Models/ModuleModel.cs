@@ -21,5 +21,11 @@ namespace Repsaj.Submerged.GatewayApp.Models
             get { return This.Status; }
             set { SetProperty(This.Status, value, () => This.Status = value); }
         }
+
+        public int? DisplayOrder
+        {
+            get { return This.DisplayOrder; }
+            set { SetProperty(This.DisplayOrder, value, () => This.DisplayOrder = value); }
+        }
     }
 }

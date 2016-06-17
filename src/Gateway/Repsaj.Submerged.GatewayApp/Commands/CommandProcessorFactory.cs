@@ -33,7 +33,6 @@ namespace RemoteArduino.Commands
                 default:
                     return null;
             }
-
         }
     }
 }

@@ -14,7 +14,8 @@ namespace RemoteArduino.Commands
     public class SwitchRelayCommandProcessor : ICommandProcessor
     {
         IGPIOController _gpioController;
-        IModuleConnectionFactory _moduleConnectionFactory;        
+        IModuleConnectionFactory _moduleConnectionFactory;
+        public event Action<int, bool> RelaySwitched;
 
         public SwitchRelayCommandProcessor(IGPIOController gpioController, IModuleConnectionFactory connectionFactory)
         {
@@ -42,6 +43,12 @@ namespace RemoteArduino.Commands
                         return CommandProcessingResult.CannotComplete;
 
                     CabinetModuleConnection connection = (CabinetModuleConnection)_moduleConnectionFactory.GetModuleConnection(moduleName);
+
+                    // if the module could not be found or is not connected, return cannot complete
+                    if (connection == null || connection.ModuleStatus != ModuleConnectionStatus.Connected)
+                        return CommandProcessingResult.CannotComplete;
+
+                    // execute the command, switch the relay
                     connection.SwitchRelay(relayNumber.Value, relayState.Value);
                 }
                 catch (Exception)

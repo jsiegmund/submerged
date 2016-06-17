@@ -55,8 +55,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
         public async Task Init()
         {
             // attach the device info updated event to a device info command processor (when found)
-            DeviceInfoCommandProcessor processor = (DeviceInfoCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.UPDATE_INFO);
-            processor.DeviceModelChanged += Processor_DeviceModelChanged;
+            DeviceInfoCommandProcessor deviceInfoProcessor = (DeviceInfoCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.UPDATE_INFO);
+            deviceInfoProcessor.DeviceModelChanged += DeviceInfoProcessor_DeviceModelChanged;
+
+            SwitchRelayCommandProcessor switchRelayProcessor = (SwitchRelayCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.SWITCH_RELAY);
+            switchRelayProcessor.RelaySwitched += SwitchRelayProcessor_RelaySwitched;
 
             await _moduleConnectionManager.Init();
 
@@ -85,7 +88,12 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private void Processor_DeviceModelChanged(DeviceModel deviceModel)
+        private void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
+        {
+            UpdateRelayData(relayNumber, relayState);
+        }
+
+        private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
         {
             Init(deviceModel);
         }
@@ -151,9 +159,15 @@ namespace Repsaj.Submerged.GatewayApp.Device
             SensorDataChanged?.Invoke(_deviceModel.Sensors);
         }
 
-        private void UpdateRelayData()
+        private void UpdateRelayData(int relayNumber, bool relayState)
         {
+            Relay relay = _deviceModel.Relays.SingleOrDefault(r => r.RelayNumber == relayNumber);
 
+            if (relay != null)
+            {
+                relay.State = relayState;
+                RelayDataChanged?.Invoke(_deviceModel.Relays);
+            }
         }
 
         private void UpdateModuleData()
