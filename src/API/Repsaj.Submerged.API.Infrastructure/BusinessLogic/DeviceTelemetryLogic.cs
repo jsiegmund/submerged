@@ -81,12 +81,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
             model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
             model.DataLabels = new string[] {
-                localDate.AddHours(-3).DateTime.ToShortTimeString(),
-                localDate.AddHours(-2.5).DateTime.ToShortTimeString(),
-                localDate.AddHours(-2).DateTime.ToShortTimeString(),
-                localDate.AddHours(-1.5).DateTime.ToShortTimeString(),
-                localDate.AddHours(-1).DateTime.ToShortTimeString(),
-                localDate.AddHours(-0.5).DateTime.ToShortTimeString(),
+                localDate.AddHours(-3).ToString("HH:mm"),
+                localDate.AddHours(-2.5).ToString("HH:mm"),
+                localDate.AddHours(-2).ToString("HH:mm"),
+                localDate.AddHours(-1.5).ToString("HH:mm"),
+                localDate.AddHours(-1).ToString("HH:mm"),
+                localDate.AddHours(-0.5).ToString("HH:mm"),
             };
 
             DateTimeOffset windowUTCStart = dateUTC.AddHours(-3);

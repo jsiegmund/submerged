@@ -39,8 +39,8 @@ namespace Repsaj.Submerged.API.Tests.Integration
         [TestMethod]
         public async Task Integration_Logic_LoadLatestDeviceTelemetry()
         {
-            IDeviceTelemetryLogic repository = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
-            var result = await repository.LoadLatestDeviceTelemetryAsync(TestConfigHelper.DeviceId);
+            IDeviceTelemetryLogic deviceTelemetryLogic = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
+            var result = await deviceTelemetryLogic.LoadLatestDeviceTelemetryAsync(TestConfigHelper.DeviceId);
 
             Assert.AreEqual(result.DeviceId, TestConfigHelper.DeviceId);
             Assert.IsNull(result.LeakDetected);
@@ -54,8 +54,8 @@ namespace Repsaj.Submerged.API.Tests.Integration
         [TestMethod]
         public async Task Integration_Logic_LoadDeviceTelemetryReportDataLastThreeHours()
         {
-            IDeviceTelemetryLogic repository = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
-            var result = await repository.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, _testDateUTC.DateTime, _timeOffsetSeconds);
+            IDeviceTelemetryLogic deviceTelemetryLogic = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
+            var result = await deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, _testDateUTC.DateTime, _timeOffsetSeconds);
 
             string[] dataLabels = result.DataLabels.ToArray();
             Assert.AreEqual(dataLabels[0], "15:52");
