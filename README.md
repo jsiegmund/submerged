@@ -32,7 +32,7 @@ Here's roughly what each component does:
 
 # How do I use it?
 
-At the moment, the sources are here for you to use under the Apache 2.0 License. The solution, with some personal alterations, is based on the remote monitoring example provided by the Azure IoT team. To run the entire solution, you'll need both the hardware (which I will detail below) as well as an Azure subscription to run the back-end. The goal is to make this service multi-tenant and available to anyone who wants to use it. In that case you only have to arrange the hardware, but at the moment the project isn't there yet.
+At the moment, the sources are here for you to use under the Apache 2.0 License. The solution, with some personal alterations, is based on the remote monitoring example provided by the Azure IoT team. To run the entire solution, you'll need both the hardware ([here](hardware.md)) as well as an Azure subscription to run the back-end. The goal is to make this service multi-tenant and available to anyone who wants to use it. In that case you only have to arrange the hardware, but at the moment the project isn't there yet.
 
 More information on how I built this and how you configure the back-end parts can be found in this blog series: <http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/>.
 
@@ -44,15 +44,19 @@ Yes, please! I'm very much looking for enthusiasts who'd like to help build this
 * Implement additional sensors / modules
 * Implement some of the missing features, such as the intelligent journal
 * Build a web based entry point for management / extensive resporting / etc
-* Make proper unit tests / implement mocks
+* Implement additional unit tests
 * Any other awesome additions I didn't think of
-* There could probably be a little additional documentation, do check out the blog series for that too
+* There could probably be a little additional documentation, do check out the [blog series](http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/) for that too
 
-I'm aware that there's plenty of room for improvement, but one must start out somewhere, right?
+So please get in touch if you want to contribute in any way! :)
 
 # What do I get?
 
 Pictures say more than a thousands words!
 
+Screendumps of the mobile app:
 <img src="http://www.repsaj.nl/Uploads/submerged/submerged_live.png" alt="Screenshot Live" width="400"/>
 <img src="http://www.repsaj.nl/Uploads/submerged/submerged_relays.png" alt="Screenshot Relays" width="400"/>
+
+Screendump of the gateway dashboard:
+<img src="http://www.repsaj.nl/Uploads/submerged/submerged_dashboard.png" alt="Screenshot Dashboard" width="800"/>
