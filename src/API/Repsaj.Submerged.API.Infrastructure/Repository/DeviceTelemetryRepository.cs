@@ -412,7 +412,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             DateTimeStyles.AllowWhiteSpaces,
                             out date))
                     {
-                        model.EventEnqueuedUTCTime = date.DateTime;
+                        model.EventEnqueuedUTCTime = date;
                     }
 
                     models.Add(model);

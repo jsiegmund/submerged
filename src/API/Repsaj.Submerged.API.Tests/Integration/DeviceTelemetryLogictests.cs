@@ -132,7 +132,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
                 else
                     Assert.AreEqual((double)expected_avgTemp2[i], (double)values_temp2[i], 0.0001d, $"Failure on avgTemp2 item {i}");
             }
-                
+
             for (int i = 0; i < expected_avgPH.Count(); i++)
             {
                 if (expected_avgPH[i] == null)
@@ -140,7 +140,22 @@ namespace Repsaj.Submerged.API.Tests.Integration
                 else
                     Assert.AreEqual((double)expected_avgPH[i], (double)values_pH[i], 0.0001d, $"Failure on avgPH item {i}");
             }
-                
+        }
+
+        [TestMethod]
+        public async Task Integration_Logic_LoadDeviceTelemetryReportDataPerHourAsync()
+        {
+            IDeviceTelemetryLogic deviceTelemetryLogic = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
+            var result = await deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(TestConfigHelper.DeviceId, _testDateUTC, _timeOffsetSeconds);
+
+            double?[] values_temp1 = result.DataSeries.First().ToArray();
+            double?[] values_temp2 = result.DataSeries.Skip(1).First().ToArray();
+            double?[] values_pH = result.DataSeries.Skip(2).First().ToArray();
+
+            Assert.AreEqual(60, result.DataLabels.Count());
+            Assert.AreEqual(60, values_temp1.Count());
+            Assert.AreEqual(60, values_temp2.Count());
+            Assert.AreEqual(60, values_pH.Count());
         }
     }
 }

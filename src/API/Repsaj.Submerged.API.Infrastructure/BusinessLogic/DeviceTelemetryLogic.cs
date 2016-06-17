@@ -41,7 +41,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             List<string> labels = new List<string>();
 
-            for (int i = startUTC.Minute; labels.Count() < 60; i++)
+            for (int i = startUTC.AddSeconds(timeOffsetSeconds).Minute + 1; labels.Count() < 60; i++)
             {
                 int hour = i % 60;
                 labels.Add(hour.ToString().PadLeft(2, '0'));
@@ -105,7 +105,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 pH = d.pH,
                 Temperature1 = d.Temperature1,
                 Temperature2 = d.Temperature2,
-                Segment = MiscHelper.ProjectHalfHourSegments(windowUTCStart.DateTime, d.EventEnqueuedUTCTime.Value)
+                Segment = MiscHelper.ProjectHalfHourSegments(windowUTCStart.UtcDateTime, d.EventEnqueuedUTCTime.Value.UtcDateTime)
             });
 
             var data = from t in projectedData
