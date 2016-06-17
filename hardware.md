@@ -31,6 +31,7 @@ If you want to start using submerged, you'll need some hardware. Below is a list
 * 2x DS18B20 OneWire temperature sensor
 * 1x Atlas EZO pH circuit ([link](https://www.atlas-scientific.com/product_pages/circuits/ezo_ph.html]))
 * Optional (but recommended): 1x Atlas circuit carrier
+* pH Probe. The Atlas circuit is compatible with any standard pH probe.
 * 1x HC-06 bluetooth shield
 * 3x 4.7k resistor
 
