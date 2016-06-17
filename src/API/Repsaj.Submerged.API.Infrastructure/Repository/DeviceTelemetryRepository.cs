@@ -304,7 +304,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             (t != null) &&
                             t.EventEnqueuedUTCTime.HasValue &&
                             t.EventEnqueuedUTCTime.Value >= minTimeUTC && 
-                            t.EventEnqueuedUTCTime.Value <= maxTimeUTC);
+                            t.EventEnqueuedUTCTime.Value < maxTimeUTC);
 
                 if (preFilterCount == 0)
                 {
@@ -404,15 +404,15 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                         model.LeakSensors = str;
                     }
 
-                    DateTime date;
+                    DateTimeOffset date;
                     if (strdict.TryGetValue("eventenqueuedutctime", out str) &&
-                        DateTime.TryParse(
+                        DateTimeOffset.TryParse(
                             str,
                             CultureInfo.InvariantCulture,
                             DateTimeStyles.AllowWhiteSpaces,
                             out date))
                     {
-                        model.EventEnqueuedUTCTime = date;
+                        model.EventEnqueuedUTCTime = date.DateTime;
                     }
 
                     models.Add(model);
@@ -600,7 +600,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 // filter the models based on the given datetime range
                 blobModels = blobModels.Where(t => t != null &&
                                                    t.OutTime != null &&
-                                                   t.OutTime >= minTimeUTC && t.OutTime <= maxTimeUTC);
+                                                   t.OutTime >= minTimeUTC && t.OutTime < maxTimeUTC);
 
                 if (!string.IsNullOrEmpty(deviceId))
                 {
@@ -633,7 +633,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
                 IEnumerable<StrDict> strdicts = ParsingHelper.ParseCsv(reader).ToDictionaries();
                 DeviceTelemetrySummaryModel model;
-                DateTime datetime;
+                DateTimeOffset datetime;
                 double number;
                 string str;
                 foreach (StrDict strdict in strdicts)
@@ -737,7 +737,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                     }
 
                     if (strdict.TryGetValue("outtime", out str) &&
-                       DateTime.TryParse(
+                       DateTimeOffset.TryParse(
                             str,
                             out datetime))
                     {

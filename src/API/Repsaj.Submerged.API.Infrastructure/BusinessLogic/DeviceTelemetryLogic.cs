@@ -132,9 +132,11 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             model.DataLabels = new string[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23" };
 
             // calculate the day in the users timezone 
-            DateTime localDate = dateUTC.AddSeconds(timeOffsetSeconds).Date;
-            DateTime windowUTCStart = localDate.AddSeconds(timeOffsetSeconds);
-            DateTime windowUTCEnd = windowUTCStart.AddDays(1);
+            DateTimeOffset localDate = dateUTC.AddSeconds(timeOffsetSeconds).UtcDateTime.Date;
+
+            // now shift the UTC window to compensate for the offset between UTC and local time
+            DateTimeOffset windowUTCStart = localDate.AddSeconds(timeOffsetSeconds * -1);
+            DateTimeOffset windowUTCEnd = windowUTCStart.AddDays(1);
 
             // fetch the data from the repository, startin on minTime and adding one day
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, windowUTCStart, windowUTCEnd);
