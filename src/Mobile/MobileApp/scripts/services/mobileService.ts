@@ -41,7 +41,7 @@ namespace Submerged.Services {
             console.log("Initializing mobileService for communication with Azure");
             this.folder = window.cordova.file.applicationStorageDirectory;
 
-            console.log("Initializing user data from storage.");
+            console.log(`Initializing user data from storage @ ${this.folder}.`);
             this.fileService.getJsonFile<any>(this.file, this.folder).then(function (contents) {
                 if (contents != null) {
                     console.log("Found stored auth token info, applying it to service client.");

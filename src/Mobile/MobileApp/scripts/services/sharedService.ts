@@ -153,7 +153,7 @@ namespace Submerged.Services {
             var deferred = this.$q.defer<Models.SubscriptionModel>();
             var folder = window.cordova.file.applicationStorageDirectory;
 
-            console.log("Initializing settings from storage.");            
+            console.log(`Initializing settings from storage @ ${folder}.`);            
             this.fileService.getJsonFile<Models.SubscriptionModel>(this.file, folder).then(
                 function (subscription) {
                     if (subscription != null) {
