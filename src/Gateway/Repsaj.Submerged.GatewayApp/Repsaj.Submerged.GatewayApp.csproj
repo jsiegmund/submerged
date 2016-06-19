@@ -124,6 +124,7 @@
     <Compile Include="Hardware\HardwareException.cs" />
     <Compile Include="Hardware\IGPIOController.cs" />
     <Compile Include="IAzureConnection.cs" />
+    <Compile Include="IsNullToVisibilityConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

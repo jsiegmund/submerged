@@ -16,7 +16,8 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
     {
         IModuleConnectionFactory _moduleConnectionFactory;
 
-        Dictionary<string, ModuleConnection> _modules = new Dictionary<string, ModuleConnection>();
+        IEnumerable<Module> _modules;
+        Dictionary<string, ModuleConnection> _moduleConnections = new Dictionary<string, ModuleConnection>();
         Dictionary<string, ModuleConnectionStatus> _moduleStatuses = new Dictionary<string, ModuleConnectionStatus>();
 
         public event IModuleStatusChanged ModuleConnecting;
@@ -40,11 +41,13 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
 
         public void InitializeModules(IEnumerable<Module> modules)
         {
+            _modules = modules;
+
             // Initialize all of the Arduino connections
             foreach (Module module in modules)
             {
                 // skip the module when we already have it
-                if (_modules.ContainsKey(module.Name))
+                if (_moduleConnections.ContainsKey(module.Name))
                     continue;
 
                 try
@@ -57,9 +60,9 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
                     {
                         connection.ModuleStatusChanged += Connection_ModuleStatusChanged;
 
-                        _modules.Add(module.Name, connection);
+                        _moduleConnections.Add(module.Name, connection);
                         _moduleStatuses[connection.ModuleName] = connection.ModuleStatus;
-                     }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -97,7 +100,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             {
                 // check to see whether there are any modules left initializing
                 if (AllModulesInitialized == false && 
-                    !_modules.Any(s => s.Value.ModuleStatus == ModuleConnectionStatus.Initializing))
+                    !_moduleConnections.Any(s => s.Value.ModuleStatus == ModuleConnectionStatus.Initializing))
                 {
                     AllModulesInitialized = true;
                     ModulesInitialized?.Invoke();
@@ -107,11 +110,11 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
 
         public void Dispose()
         {
-            while (_modules.Count > 0)
+            while (_moduleConnections.Count > 0)
             {
-                KeyValuePair<string, ModuleConnection> moduleKvp = _modules.First();
+                KeyValuePair<string, ModuleConnection> moduleKvp = _moduleConnections.First();
                 moduleKvp.Value.Dispose();
-                _modules.Remove(moduleKvp.Key);
+                _moduleConnections.Remove(moduleKvp.Key);
             }
         }
 
@@ -120,7 +123,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             JObject data = new JObject();
 
             bool dataPresent = false;
-            IEnumerable<ModuleConnection> connectedModules = _modules.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
+            IEnumerable<ModuleConnection> connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
 
             // loop all of the available modules, request their data and merge it into our data object
             foreach (var module in connectedModules)
@@ -147,14 +150,12 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         {
             Dictionary<string, string> statuses = new Dictionary<string, string>();
 
-            foreach (var moduleConfig in _moduleStatuses)
+            foreach (var module in _modules)
             {
-                var module = _modules.Values.SingleOrDefault(m => m.ModuleName == moduleConfig.Key);
-
-                if (module != null)
-                    statuses.Add(module.ModuleName, module.StatusAsText);
+                if (_moduleConnections.ContainsKey(module.Name))
+                    statuses.Add(module.Name, _moduleConnections[module.Name].StatusAsText);
                 else
-                    statuses.Add(moduleConfig.Key, "Error");
+                    statuses.Add(module.Name, "Error");
             }
 
             return statuses;

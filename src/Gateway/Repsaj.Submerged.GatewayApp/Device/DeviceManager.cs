@@ -52,6 +52,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         public async Task Init()
         {
+            NewLogLine?.Invoke("Performing initialization of the Gateway device, please wait.");
+
             // attach the device info updated event to a device info command processor (when found)
             DeviceInfoCommandProcessor deviceInfoProcessor = (DeviceInfoCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.UPDATE_INFO);
             deviceInfoProcessor.DeviceModelChanged += DeviceInfoProcessor_DeviceModelChanged;
@@ -70,6 +72,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 // device should now request for the device model to be pushed from the back-end
                 azureTask.Wait();
                 await RequestDeviceUpdate();
+
+                NewLogLine?.Invoke("Devicemodel is missing, requesting from the cloud.");
             }
             else
             {
@@ -83,21 +87,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules));
 
                 Task.WaitAll(moduleTask, azureTask);
+                NewLogLine?.Invoke("Device initialization completed!");
             }
-        }
-
-        private async void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
-        {
-            // update the relay 
-            UpdateRelayData(relayNumber, relayState);
-
-            // when successful; save the altered device model to store state
-            await _configurationRepository.SaveDeviceModel(this._deviceModel);
-        }
-
-        private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
-        {
-            Init(deviceModel);
         }
 
         public void Init(DeviceModel deviceModel)
@@ -111,9 +102,25 @@ namespace Repsaj.Submerged.GatewayApp.Device
         private void PopulateDeviceComponents()
         {
             SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
-            ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
+            //ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
             RelayDataChanged?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
         }
+
+        #region Command Processor Callbacks
+        private async void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
+        {
+            // update the relay 
+            UpdateRelayData(relayNumber, relayState);
+
+            // when successful; save the altered device model to store state
+            await _configurationRepository.SaveDeviceModel(this._deviceModel);
+        }
+
+        private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
+        {
+            Init(deviceModel);
+        }
+        #endregion
 
         #region Timer
         private void StartTimer()
@@ -145,6 +152,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
         #region Status Updates
         private void UpdateSensorData(JObject data)
         {
+            List<string> processedSensors = new List<string>();
+
             foreach (var sensorData in data)
             {
                 JToken valueToken = sensorData.Value;
@@ -153,7 +162,18 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 var sensorItem = _deviceModel.Sensors.SingleOrDefault(s => s.Name == sensorData.Key);
 
                 if (sensorItem != null)
+                {
                     sensorItem.Reading = value.Value;
+                    processedSensors.Add(sensorItem.Name);
+                }
+            }
+
+            // if connections have been lost, sensor data might be missing
+            // find the sensors for which there was no data processed and set the reading to null
+            var missingSensors = _deviceModel.Sensors.Where(s => !processedSensors.Contains(s.Name));
+            foreach (var sensor in missingSensors)
+            {
+                sensor.Reading = null;
             }
 
             SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
@@ -185,7 +205,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
             ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(m => m.DisplayOrder));
         }
         #endregion
-
 
         #region Azure 
         private async Task InitializeAzure()
@@ -278,7 +297,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async Task _azureConnection_CommandReceived(DeserializableCommand command)
         {
-            NewLogLine?.Invoke("Received cloud 2 device message: " + command.CommandName);
+            NewLogLine?.Invoke(String.Format("Received cloud 2 device message: {0} @ {1:G}", command.CommandName, DateTime.UtcNow));
             ICommandProcessor processor = _commandProcessorFactory.FindCommandProcessor(command);
 
             if (processor != null)
@@ -295,6 +314,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async void _arduinoConnectionManager_ModulesInitialized()
         {
+            NewLogLine?.Invoke("All modules have been intialized.");
+
+            UpdateModuleData();
             await SendDeviceData();
             StartTimer();
         }

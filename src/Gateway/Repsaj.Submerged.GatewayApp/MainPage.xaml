@@ -5,10 +5,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:UniversalWrapPanel="using:Gregstoll"   
+    xmlns:GatewayApp="using:Repsaj.Submerged.GatewayApp"
     xmlns:Submerged="using:Repsaj.Submerged.GatewayApp.UserControls"
     xmlns:viewModels="using:Repsaj.Submerged.GatewayApp.Models"
     x:Class="Repsaj.Submerged.GatewayApp.MainPage"   
     mc:Ignorable="d" Width="1024" Height="600">
+
+    <Page.Resources>
+        <GatewayApp:IsNullToVisibilityConverter x:Key="IsNullToVisibilityConverter" />
+    </Page.Resources>
 
     <Grid Background="#212121">
         <Grid.RowDefinitions>
@@ -44,7 +49,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}"/>
+                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" Visibility="{Binding Reading, Converter={StaticResource IsNullToVisibilityConverter}}"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
