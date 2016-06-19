@@ -99,8 +99,6 @@ namespace Repsaj.Submerged.GatewayApp
                 _deviceManager.AzureConnected += _deviceManager_AzureConnected;
                 _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
                 await _deviceManager.Init();
-
-                await _deviceManager.RequestDeviceUpdate();
             }
         }
 

@@ -154,8 +154,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
                 if (sensorItem != null)
                     sensorItem.Reading = value.Value;
-                else
-                    Debug.WriteLine($"Could not find a sensor named {sensorData.Key}");
             }
 
             SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
@@ -182,8 +180,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
                 if (moduleItem != null)
                     moduleItem.Status = kvp.Value;
-                else
-                    Debug.WriteLine($"Could not find a module named {kvp.Key}");
             }
 
             ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(m => m.DisplayOrder));
