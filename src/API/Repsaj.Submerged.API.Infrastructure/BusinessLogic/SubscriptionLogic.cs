@@ -417,10 +417,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
 
-            SensorModel existingSensor = device.Sensors.FirstOrDefault(s => String.Equals(s.Name, sensor.Name));
-
-            if (existingSensor != null)
+            if (device.Sensors.Exists(s => String.Equals(s.Name, sensor.Name)))
                 throw new SubscriptionValidationException(Strings.ValidationSensorExists);
+            if (! device.Modules.Exists(m => String.Equals(m.Name, sensor.Module)))
+                throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
 
             device.Sensors.Add(sensor);
 

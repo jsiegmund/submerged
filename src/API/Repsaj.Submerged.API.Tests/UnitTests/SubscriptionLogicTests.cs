@@ -222,10 +222,13 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         {
             using (var autoMock = AutoMock.GetLoose())
             {
-                TestInjectors.InjectMockedSubscription(autoMock, true);
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                device.Modules.Add(module);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
 
-                SensorModel sensor = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE);
+                SensorModel sensor = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -238,7 +241,10 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                SensorModel sensor = SensorModel.BuildSensor("Test Sensor", "Display Name", SensorTypes.TEMPERATURE);
+
+                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                device.Modules.Add(module);
+                SensorModel sensor = SensorModel.BuildSensor("Test Sensor", "Display Name", SensorTypes.TEMPERATURE, module.Name);
                 device.Sensors.Add(sensor);
 
                 TestInjectors.InjectMockedSubscription(autoMock, device);

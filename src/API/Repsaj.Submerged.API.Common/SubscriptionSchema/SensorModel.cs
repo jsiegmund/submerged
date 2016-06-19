@@ -18,8 +18,9 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public bool MinThresholdEnabled { get; set; }
         public bool MaxThresholdEnabled { get; set; }
         public string SensorType { get; set; }
+        public string Module { get; set; }
 
-        public static SensorModel BuildSensor(string name, string displayName, string sensorType)
+        public static SensorModel BuildSensor(string name, string displayName, string sensorType, string moduleName)
         {
             // maybe switch this for an enum, at least solve it differently
             if (sensorType != SensorTypes.TEMPERATURE && sensorType != SensorTypes.PH)
@@ -28,7 +29,8 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
             SensorModel sensor = new SensorModel()
             {
                 Name = name,
-                DisplayName = displayName
+                DisplayName = displayName,
+                Module = moduleName
             };
 
             return sensor;
