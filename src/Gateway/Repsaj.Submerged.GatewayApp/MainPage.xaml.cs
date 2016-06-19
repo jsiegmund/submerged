@@ -37,7 +37,6 @@ using Repsaj.Submerged.GatewayApp.Device;
 using Autofac.Core;
 using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
-using System.Collections.ObjectModel;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -100,6 +99,8 @@ namespace Repsaj.Submerged.GatewayApp
                 _deviceManager.AzureConnected += _deviceManager_AzureConnected;
                 _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
                 await _deviceManager.Init();
+
+                await _deviceManager.RequestDeviceUpdate();
             }
         }
 
@@ -123,23 +124,19 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Collection<RelayModel> relayCollection = Submerged.Relays;
-
                 foreach (var relay in relays)
                 {
-                    var model = relayCollection.SingleOrDefault(s => s.Name == relay.Name);
+                    var model = Submerged.Relays.SingleOrDefault(s => s.Name == relay.Name);
 
                     if (model == null)
                     {
-                        relayCollection.Add(new RelayModel(relay));
+                        Submerged.Relays.Add(new RelayModel(relay));
                     }
                     else
                     {
                         model.State = relay.State;
                     }
                 }
-
-                Submerged.Relays = new ObservableCollection<RelayModel>(relayCollection.OrderBy(r => r.OrderNumber));
             });
         }
 
@@ -147,23 +144,19 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Collection<ModuleModel> moduleCollection = Submerged.Modules;
-
                 foreach (var module in modules)
                 {
-                    var model = moduleCollection.SingleOrDefault(s => s.Name == module.Name);
+                    var model = Submerged.Modules.SingleOrDefault(s => s.Name == module.Name);
 
                     if (model == null)
                     {
-                        moduleCollection.Add(new ModuleModel(module));
+                        Submerged.Modules.Add(new ModuleModel(module));
                     }
                     else
                     {
                         model.Status = module.Status;
                     }
                 }
-
-                Submerged.Modules = new ObservableCollection<ModuleModel>(moduleCollection.OrderBy(r => r.DisplayOrder));
             });
         }
 
@@ -171,23 +164,19 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Collection<SensorModel> sensorCollection = Submerged.Sensors;
-
                 foreach (var sensor in sensors)
                 {
-                    var model = sensorCollection.SingleOrDefault(s => s.Name == sensor.Name);
+                    var model = Submerged.Sensors.SingleOrDefault(s => s.Name == sensor.Name);
 
                     if (model == null)
                     {
-                        sensorCollection.Add(new SensorModel(sensor));
+                        Submerged.Sensors.Add(new SensorModel(sensor));
                     }
                     else
                     {
                         model.Reading = sensor.Reading;
                     }
                 }
-
-                Submerged.Sensors = new ObservableCollection<SensorModel>(sensorCollection.OrderBy(s => s.OrderNumber));
             });
         }
 
@@ -214,12 +203,14 @@ namespace Repsaj.Submerged.GatewayApp
             // register all implementations
             builder.RegisterType<StorageRepository>().As<IStorageRepository>();
             builder.RegisterType<ConfigurationRepository>().As<IConfigurationRepository>();
-            builder.RegisterType<GPIOController>().As<IGPIOController>();
-            builder.RegisterType<CommandProcessorFactory>().As<ICommandProcessorFactory>();
-            builder.RegisterType<ModuleConnectionManager>().As<IModuleConnectionManager>();
-            builder.RegisterType<ModuleConnectionFactory>().As<IModuleConnectionFactory>();
 
-            builder.RegisterType<DeviceManager>().As<IDeviceManager>()
+            // register single instances
+            builder.RegisterType<GPIOController>().As<IGPIOController>().SingleInstance();
+            builder.RegisterType<CommandProcessorFactory>().As<ICommandProcessorFactory>().SingleInstance();
+            builder.RegisterType<ModuleConnectionManager>().As<IModuleConnectionManager>().SingleInstance();
+            builder.RegisterType<ModuleConnectionFactory>().As<IModuleConnectionFactory>().SingleInstance();
+
+            builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance()
                    .WithParameter(new ResolvedParameter(
                         (pi, ctx) => pi.ParameterType == typeof(SynchronizationContext),
                         (pi, ctx) => SynchronizationContext.Current));

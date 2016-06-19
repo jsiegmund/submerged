@@ -10,7 +10,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 {
     public delegate void UpdateLog(string log);
 
-    public interface IDeviceManager : IDisposable, INotifyPropertyChanged
+    public interface IDeviceManager : IDisposable
     {
         event UpdateLog NewLogLine;
         event Action<IEnumerable<Sensor>> SensorDataChanged;
@@ -21,5 +21,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         Task Init();
         void Init(DeviceModel deviceModel);
+        Task RequestDeviceUpdate();
     }
 }

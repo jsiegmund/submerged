@@ -536,9 +536,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
 
-            RelayModel existingRelay = device.Relays.FirstOrDefault(s => s.RelayNumber == relay.RelayNumber);
+            // verify the module selected exists
+            if (!device.Modules.Exists(m => m.Name == relay.Module))
+                throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
 
-            if (existingRelay != null)
+            // verify the relay doesn't exist already 
+            if (device.Relays.Exists(r => r.RelayNumber == relay.RelayNumber) || 
+                device.Relays.Exists(r => r.Name == relay.Name))
                 throw new SubscriptionValidationException(Strings.ValidationRelayExists);
 
             device.Relays.Add(relay);

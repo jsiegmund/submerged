@@ -266,8 +266,12 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         {
             using (var autoMock = AutoMock.GetLoose())
             {
-                TestInjectors.InjectMockedSubscription(autoMock, true);
-                RelayModel relay1 = RelayModel.BuildModel(1, "Pump");
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                device.Modules.Add(module);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
+
+                RelayModel relay1 = RelayModel.BuildModel(1, "Pump", module.Name);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 var relay = await subscriptionLogic.AddRelayAsync(relay1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);

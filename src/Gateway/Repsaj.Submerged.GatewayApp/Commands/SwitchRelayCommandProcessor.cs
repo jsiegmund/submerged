@@ -50,6 +50,9 @@ namespace RemoteArduino.Commands
 
                     // execute the command, switch the relay
                     connection.SwitchRelay(relayNumber.Value, relayState.Value);
+
+                    // fire an event which notifies the device manager of the relay switch 
+                    RelaySwitched(relayNumber.Value, relayState.Value);
                 }
                 catch (Exception)
                 {

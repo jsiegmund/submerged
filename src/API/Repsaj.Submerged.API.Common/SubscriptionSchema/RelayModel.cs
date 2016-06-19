@@ -12,13 +12,15 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public string Name { get; set; }
         public Boolean State { get; set; }
         public int? OrderNumber { get; set; }
+        public string Module { get; set; }
 
-        public static RelayModel BuildModel(int relayNumber, string name)
+        public static RelayModel BuildModel(int relayNumber, string name, string moduleName)
         {
             RelayModel relay = new RelayModel();
             relay.RelayNumber = relayNumber;
             relay.Name = name;
             relay.State = true;
+            relay.Module = moduleName;
             return relay;
         }
     }

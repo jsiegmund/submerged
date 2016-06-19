@@ -55,7 +55,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         public async Task Integration_Logic_LoadDeviceTelemetryReportDataLastThreeHours()
         {
             IDeviceTelemetryLogic deviceTelemetryLogic = _autofacContainer.Resolve<IDeviceTelemetryLogic>();
-            var result = await deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, _testDateUTC.DateTime, _timeOffsetSeconds);
+            var result = await deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, _testDateUTC, _timeOffsetSeconds);
 
             string[] dataLabels = result.DataLabels.ToArray();
             Assert.AreEqual("15:52", dataLabels[0]);

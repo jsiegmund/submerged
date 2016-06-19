@@ -42,7 +42,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
         public object Reading
         {
             get { return _reading; }
-            set { SetProperty(this._reading, value, () => this._reading = value); RaisePropertyChanged("ReadingAsText"); }
+            set { SetProperty(this._reading, value, () => this._reading = value); RaisePropertyChanged(nameof(ReadingAsText)); }
         }
 
         private string _iconImageUrl;

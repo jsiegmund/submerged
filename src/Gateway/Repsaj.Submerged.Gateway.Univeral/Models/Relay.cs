@@ -12,14 +12,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public string Name { get; set; }
         public Boolean State { get; set; }
         public int? OrderNumber { get; set; }
-
-        public static Relay BuildModel(int relayNumber, string name)
-        {
-            Relay relay = new Relay();
-            relay.RelayNumber = relayNumber;
-            relay.Name = name;
-            relay.State = true;
-            return relay;
-        }
+        public string Module { get; set; }
     }
 }

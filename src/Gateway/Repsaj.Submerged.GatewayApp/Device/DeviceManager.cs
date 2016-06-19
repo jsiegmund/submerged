@@ -26,6 +26,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         public event Action<IEnumerable<Relay>> RelayDataChanged;
         public event Action AzureConnected;
         public event Action AzureDisconnected;
+        public event UpdateLog NewLogLine;
 
         ICommandProcessorFactory _commandProcessorFactory;
         IModuleConnectionManager _moduleConnectionManager;
@@ -39,9 +40,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
         SynchronizationContext _synchronizationContext;
 
         int requestCounter = 0;
-
-        public event UpdateLog NewLogLine;
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
             IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext)
@@ -88,9 +86,13 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
+        private async void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
         {
+            // update the relay 
             UpdateRelayData(relayNumber, relayState);
+
+            // when successful; save the altered device model to store state
+            await _configurationRepository.SaveDeviceModel(this._deviceModel);
         }
 
         private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
@@ -108,9 +110,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void PopulateDeviceComponents()
         {
-            SensorDataChanged?.Invoke(_deviceModel.Sensors);
-            ModuleDataChanged?.Invoke(_deviceModel.Modules);
-            RelayDataChanged?.Invoke(_deviceModel.Relays);
+            SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
+            ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
+            RelayDataChanged?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
         }
 
         #region Timer
@@ -156,7 +158,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
                     Debug.WriteLine($"Could not find a sensor named {sensorData.Key}");
             }
 
-            SensorDataChanged?.Invoke(_deviceModel.Sensors);
+            SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
         }
 
         private void UpdateRelayData(int relayNumber, bool relayState)
@@ -166,7 +168,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (relay != null)
             {
                 relay.State = relayState;
-                RelayDataChanged?.Invoke(_deviceModel.Relays);
+                RelayDataChanged?.Invoke(_deviceModel.Relays.OrderBy(r => r.OrderNumber));
             }
         }
 
@@ -184,7 +186,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
                     Debug.WriteLine($"Could not find a module named {kvp.Key}");
             }
 
-            ModuleDataChanged?.Invoke(_deviceModel.Modules);
+            ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(m => m.DisplayOrder));
         }
         #endregion
 
@@ -250,7 +252,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private async Task RequestDeviceUpdate()
+        public async Task RequestDeviceUpdate()
         {
             JObject requestObject = new JObject();
             requestObject.Add(DeviceModelConstants.OBJECT_TYPE, DeviceMessageObjectTypes.UPDATE_REQUEST);
@@ -280,7 +282,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async Task _azureConnection_CommandReceived(DeserializableCommand command)
         {
-            NewLogLine?.Invoke("Received cloud 2 device message: " + command);
+            NewLogLine?.Invoke("Received cloud 2 device message: " + command.CommandName);
             ICommandProcessor processor = _commandProcessorFactory.FindCommandProcessor(command);
 
             if (processor != null)

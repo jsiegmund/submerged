@@ -20,7 +20,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
         public bool State
         {
             get { return This.State; }
-            set { SetProperty(This.State, value, () => This.State = value); }
+            set { SetProperty(This.State, value, () => This.State = value); this.RaisePropertyChanged(nameof(RelayStateAsText)); }
         }
 
         public int? OrderNumber
