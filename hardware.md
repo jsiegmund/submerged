@@ -51,4 +51,11 @@ You'll need some cable, connectors and maybe casings for your electronics, since
 * A USB power hub to power the Pi, LCD and Arduino's. Of course you can also use seperate adapters for everything but then you'll need a power strip which costs about as much and takes up more space.
 * Some USB cables to connect everyting.
 
+### Future modules
+
+For the future, I'm considering the following additional modules:
+
+* Automatic feeding system 
+* Automated water changes
+* LED lighting control
 You can find the fritzing diagrams for the two modules in the repository ([here](https://github.com/jsiegmund/submerged/tree/master/src/Fritzing)). These will help you with wiring everything.
