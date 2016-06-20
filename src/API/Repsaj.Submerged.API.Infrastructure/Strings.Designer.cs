@@ -88,11 +88,29 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The device is already in maintenance mode..
+        /// </summary>
+        internal static string DeviceAlreadyInMaintenanceMessage {
+            get {
+                return ResourceManager.GetString("DeviceAlreadyInMaintenanceMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device {0} is already registered..
         /// </summary>
         internal static string DeviceAlreadyRegisteredExceptionMessage {
             get {
                 return ResourceManager.GetString("DeviceAlreadyRegisteredExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This device is currently not in maintenance mode..
+        /// </summary>
+        internal static string DeviceNotInMaintenanceMessage {
+            get {
+                return ResourceManager.GetString("DeviceNotInMaintenanceMessage", resourceCulture);
             }
         }
         

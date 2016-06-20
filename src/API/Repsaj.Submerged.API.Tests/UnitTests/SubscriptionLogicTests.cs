@@ -76,7 +76,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock);
-               
+
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
 
                 TankModel tank = TankModel.BuildTank(TestConfigHelper.TankName, "This is a test description");
@@ -327,5 +327,33 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 await subscriptionLogic.UpdateRelayStateAsync(1, true, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
             }
         }
+
+        [TestMethod]
+        public async Task Update_MaintenanceMode_Success()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                RelayModel relay = new RelayModel()
+                {
+                    OrderNumber = 1,
+                    RelayNumber = 1,
+                    State = true,
+                    Name = "Test Module",
+                    ToggleForMaintenance = true
+                };
+                device.Relays.Add(relay);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
+
+                Assert.AreEqual(false, device.DeviceProperties.IsInMaintenance);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                device = await subscriptionLogic.SetMaintenance(TestConfigHelper.DeviceId, true, TestConfigHelper.SubscriptionUser);
+
+                Assert.AreEqual(true, device.DeviceProperties.IsInMaintenance);
+                Assert.AreEqual(false, device.Relays.First().State);
+            }
+        }
     }
 }
+    

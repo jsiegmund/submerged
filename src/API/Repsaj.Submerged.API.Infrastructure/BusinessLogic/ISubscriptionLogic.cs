@@ -32,8 +32,8 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         Task DeleteModuleAsync(ModuleModel module, string deviceId, string owner);
 
 
-        Task<dynamic> GetLatestTelemetryData(string deviceId, string owner);
-        Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData, string owner, bool skipValidation = false);
+        //Task<dynamic> GetLatestTelemetryData(string deviceId, string owner);
+        //Task UpdateLatestTelemetryData(string deviceId, dynamic deviceData, string owner, bool skipValidation = false);
 
 
         Task<IEnumerable<SensorModel>> GetSensorsAsync(string deviceId, string owner);
@@ -50,7 +50,8 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
 
         Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device);
-        Task<bool> ValidateDeviceOwnerAsync(string deviceId, string userId);
+        Task<bool> ValidateDeviceOwnerAsync(string deviceId, string owner);
         Task SendDeviceConfigurationMessage(string deviceId);
+        Task<DeviceModel> SetMaintenance(string deviceId, bool inMaintenance, string owner);
     }
 }

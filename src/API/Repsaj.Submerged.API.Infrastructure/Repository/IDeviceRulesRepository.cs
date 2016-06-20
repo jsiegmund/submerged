@@ -15,5 +15,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         Task<DeviceRule> GetDeviceRuleAsync(string deviceId, string ruleId);
         Task<TableStorageResponse<DeviceRule>> SaveDeviceRuleAsync(DeviceRule updatedRule);
         Task<TableStorageResponse<DeviceRule>> DeleteDeviceRuleAsync(DeviceRule ruleToDelete);
+        Task OverrideRulesForDevice(string deviceId, bool enabled);
     }
 }

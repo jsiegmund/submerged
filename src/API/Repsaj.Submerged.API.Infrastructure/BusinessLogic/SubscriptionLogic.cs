@@ -23,15 +23,18 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         private readonly IIotHubRepository _iotHubRepository;
         private readonly IDeviceRulesLogic _deviceRulesLogic;
         private readonly ISecurityKeyGenerator _securityKeyGenerator;
+        private readonly IDeviceLogic _deviceLogic;
 
         public SubscriptionLogic(ISubscriptionRepository subscriptionRepository, IConfigurationProvider configProvider,
-            IIotHubRepository iotHubRepository, IDeviceRulesLogic deviceRulesLogic, ISecurityKeyGenerator securityKeyGenerator)
+            IIotHubRepository iotHubRepository, IDeviceRulesLogic deviceRulesLogic, ISecurityKeyGenerator securityKeyGenerator,
+            IDeviceLogic deviceLogic)
         {
             _subscriptionRepository = subscriptionRepository;
             _configProvider = configProvider;
             _iotHubRepository = iotHubRepository;
             _deviceRulesLogic = deviceRulesLogic;
             _securityKeyGenerator = securityKeyGenerator;
+            _deviceLogic = deviceLogic;
         }
 
         public async Task<bool> ValidateDeviceOwnerAsync(string deviceId, string userId)
@@ -581,7 +584,16 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (relay == null)
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, relay.RelayNumber));
 
-            relay.State = state;
+            if (relay.State != state)
+            {
+                relay.State = state;
+
+                Dictionary<string, object> commandParams = new Dictionary<string, object>();
+                commandParams.Add("RelayNumber", relayNumber);
+                commandParams.Add("RelayState", state);
+
+                await _deviceLogic.SendCommandAsync(deviceId, DeviceCommandTypes.SWITCH_RELAY, commandParams);
+            }
 
             await UpdateDeviceAsync(device, owner);
 
@@ -602,6 +614,34 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             device.Relays.Remove(existingRelay);
             await UpdateDeviceAsync(device, owner);
+        }
+
+        public async Task<DeviceModel> SetMaintenance(string deviceId, bool inMaintenance, string owner)
+        {
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
+
+            if (device == null)
+                throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
+            if (device.DeviceProperties.IsInMaintenance && inMaintenance)
+                throw new SubscriptionValidationException(Strings.DeviceAlreadyInMaintenanceMessage);
+            if (!device.DeviceProperties.IsInMaintenance && !inMaintenance)
+                throw new SubscriptionValidationException(Strings.DeviceNotInMaintenanceMessage);
+
+
+            // ensure the maintenance bit is set for the rules output (notifications)
+            await _deviceRulesLogic.OverrideDeviceRules(deviceId, inMaintenance);
+
+            // fetch all relays that have been configured to toggle on maintenance and toggle them accordingly
+            var relaysToToggle = device.Relays.Where(r => r.ToggleForMaintenance);
+            foreach (var relay in relaysToToggle)
+            {
+                await UpdateRelayStateAsync(relay.RelayNumber, !relay.State, deviceId, owner);
+            }
+
+            device.DeviceProperties.IsInMaintenance = inMaintenance;
+            await UpdateDeviceAsync(device, owner);
+
+           return device;
         }
     }
 }

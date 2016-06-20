@@ -126,8 +126,14 @@
   <data name="CustomDeviceName" xml:space="preserve">
     <value>Custom Device</value>
   </data>
+  <data name="DeviceAlreadyInMaintenanceMessage" xml:space="preserve">
+    <value>The device is already in maintenance mode.</value>
+  </data>
   <data name="DeviceAlreadyRegisteredExceptionMessage" xml:space="preserve">
     <value>Device {0} is already registered.</value>
+  </data>
+  <data name="DeviceNotInMaintenanceMessage" xml:space="preserve">
+    <value>This device is currently not in maintenance mode.</value>
   </data>
   <data name="DeviceNotRegisteredExceptionMessage" xml:space="preserve">
     <value>Device {0} is not registered.</value>

@@ -125,5 +125,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             return result;
         }
+
+        public async Task OverrideDeviceRules(string deviceId, bool enabled)
+        {
+            await _deviceRulesRepository.OverrideRulesForDevice(deviceId, enabled);
+        }
     }
 }

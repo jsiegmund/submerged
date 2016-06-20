@@ -41,6 +41,26 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             _formatInfo.ShortTimePattern = @"HH-mm";
         }
 
+        public async Task OverrideRulesForDevice(string deviceId, bool enabled)
+        {
+            List<DeviceRuleBlobEntity> blobList = await BuildBlobEntityListFromTableRows();
+            DeviceRuleBlobEntity rule = blobList.SingleOrDefault(i => i.DeviceId == deviceId);
+
+            // when all rules need to be disabled; set all values to null instead of the value
+            // that was saved in table storage
+            if (enabled == false)
+            {
+                rule.pHMax = null;
+                rule.pHMin = null;
+                rule.Temperature1Max = null;
+                rule.Temperature1Min = null;
+                rule.Temperature2Max = null;
+                rule.Temperature2Min = null;
+            }
+
+            await PersistRulesToBlobStorageAsync(blobList);
+        }
+
         /// <summary>
         /// Save a Device Rule to the server. This may be either a new rule or an update to an existing rule. 
         /// </summary>

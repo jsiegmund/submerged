@@ -13,6 +13,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public Boolean State { get; set; }
         public int? OrderNumber { get; set; }
         public string Module { get; set; }
+        public bool ToggleForMaintenance { get; set; }
 
         public static RelayModel BuildModel(int relayNumber, string name, string moduleName)
         {

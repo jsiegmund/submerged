@@ -54,12 +54,12 @@ namespace Repsaj.Submerged.API.Live
                     // broadcast that object to all clients
                     _hubs.Clients.All.sendLiveData(data);
 
-                    JObject dataObject = (JObject)data;
-                    dataObject.Add("timestamp", DateTime.UtcNow);
-                    string deviceId = (string)dataObject.GetValue("deviceId");
+                    //JObject dataObject = (JObject)data;
+                    //dataObject.Add("timestamp", DateTime.UtcNow);
+                    //string deviceId = (string)dataObject.GetValue("deviceId");
 
                     // store the package in documentDb
-                    _subscriptionLogic.UpdateLatestTelemetryData(deviceId, data, "", true);
+                    //_subscriptionLogic.UpdateLatestTelemetryData(deviceId, data, "", true);
                 }
 
             }

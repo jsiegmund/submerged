@@ -15,6 +15,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public int? DisplayOrder { get; set; }
         public string PrimaryKey { get; set; }
         public string SecondaryKey { get; set; }
+        public bool IsInMaintenance { get; set; }
 
 
         public DevicePropertiesModel(string deviceId, bool isSimulated)
@@ -23,6 +24,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
             this.IsSimulatedDevice = isSimulated;
             this.CreatedTime = DateTime.UtcNow;
             this.UpdatedTime = DateTime.UtcNow;
+            this.IsInMaintenance = false;
         }
     }
 }

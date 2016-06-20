@@ -27,13 +27,13 @@ namespace Repsaj.Submerged.API.Controllers
             _subscriptionLogic = subscriptionLogic;
         }
 
-        [Route("relays")]
+        [Route("maintenance/toggle")]
         [HttpPost]
         [HttpGet]
-        public async Task<IHttpActionResult> Relays(string deviceId)
+        public async Task<IHttpActionResult> ToggleMaintenance(string deviceId, bool inMaintenance)
         {
-            var relays = await _subscriptionLogic.GetRelaysAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(relays);
+            await _subscriptionLogic.SetMaintenance(deviceId, inMaintenance, AuthenticationHelper.UserId);
+            return Ok();
         }
 
 
@@ -42,16 +42,6 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> SetRelay(string deviceId, int relayNumber, bool state)
         {
-            Dictionary<string, object> commandParams = new Dictionary<string, object>();
-            commandParams.Add("RelayNumber", relayNumber);
-            commandParams.Add("RelayState", state);
-
-            await _subscriptionLogic.ValidateDeviceOwnerAsync(deviceId, AuthenticationHelper.UserId);
-
-            // send the command to the device
-            await _deviceLogic.SendCommandAsync(deviceId, DeviceCommandTypes.SWITCH_RELAY, commandParams);
-
-            // store the new state of the relay after the command has been sent
             await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId, AuthenticationHelper.UserId);
 
             return Ok();
