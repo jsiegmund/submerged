@@ -27,6 +27,24 @@ namespace Repsaj.Submerged.API.Controllers
             _subscriptionLogic = subscriptionLogic;
         }
 
+        [Route("relays")]
+        [HttpPost]
+        [HttpGet]
+        public async Task<IHttpActionResult> Relays(string deviceId)
+        {
+            var relays = await _subscriptionLogic.GetRelaysAsync(deviceId, AuthenticationHelper.UserId);
+            return Ok(relays);
+        }
+
+        [Route("setrelay")]
+        [HttpPost]
+        [HttpGet]
+        public async Task<IHttpActionResult> SetRelay(string deviceId, int relayNumber, bool state)
+        {
+            await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId, AuthenticationHelper.UserId);
+            return Ok();
+        }
+
         [Route("maintenance/toggle")]
         [HttpPost]
         [HttpGet]
@@ -36,15 +54,5 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok();
         }
 
-
-        [Route("setrelay")]
-        [HttpPost]
-        [HttpGet]
-        public async Task<IHttpActionResult> SetRelay(string deviceId, int relayNumber, bool state)
-        {
-            await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId, AuthenticationHelper.UserId);
-
-            return Ok();
-        }
     }
 }
