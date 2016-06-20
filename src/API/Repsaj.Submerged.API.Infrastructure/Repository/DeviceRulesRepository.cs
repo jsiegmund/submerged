@@ -48,7 +48,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
             // when all rules need to be disabled; set all values to null instead of the value
             // that was saved in table storage
-            if (enabled == false)
+            if (enabled == true)
             {
                 rule.pHMax = null;
                 rule.pHMin = null;
