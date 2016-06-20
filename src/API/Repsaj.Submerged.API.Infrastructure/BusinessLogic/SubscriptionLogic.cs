@@ -632,16 +632,22 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             await _deviceRulesLogic.OverrideDeviceRules(deviceId, inMaintenance);
 
             // fetch all relays that have been configured to toggle on maintenance and toggle them accordingly
-            var relaysToToggle = device.Relays.Where(r => r.ToggleForMaintenance);
-            foreach (var relay in relaysToToggle)
+            var relaysToToggle = device.Relays.Where(r => r.ToggleForMaintenance).Select(r => r.RelayNumber);
+            foreach (int relayNumber in relaysToToggle)
             {
-                await UpdateRelayStateAsync(relay.RelayNumber, !relay.State, deviceId, owner);
+                var relay = device.Relays.Single(r => r.RelayNumber == relayNumber);
+
+                // update our local model (otherwise the update device call later on will undo all changes)
+                bool newState = !relay.State;
+                relay.State = newState;
+
+                // call the update relay to send the device command out
+                await UpdateRelayStateAsync(relay.RelayNumber, newState, deviceId, owner);
             }
 
+            // toggle the maintenance property on the model and save it
             device.DeviceProperties.IsInMaintenance = inMaintenance;
-            await UpdateDeviceAsync(device, owner);
-
-           return device;
+            return await UpdateDeviceAsync(device, owner);
         }
     }
 }
