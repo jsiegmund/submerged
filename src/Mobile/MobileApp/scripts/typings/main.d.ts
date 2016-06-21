@@ -3,7 +3,6 @@
 /// <reference path="main/ambient/angular-material/index.d.ts" />
 /// <reference path="main/ambient/angular-ui-router/index.d.ts" />
 /// <reference path="main/ambient/angular/index.d.ts" />
-/// <reference path="main/ambient/cordova-plugin-ms-adal/index.d.ts" />
 /// <reference path="main/ambient/cordova/index.d.ts" />
 /// <reference path="main/ambient/cordova/plugins/device/index.d.ts" />
 /// <reference path="main/ambient/cordova/plugins/filesystem/index.d.ts" />

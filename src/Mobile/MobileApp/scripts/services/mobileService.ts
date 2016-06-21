@@ -1,14 +1,17 @@
 ﻿declare namespace Microsoft.WindowsAzure {
 
     // MobileServiceClient object based on Microsoft Azure documentation: http://msdn.microsoft.com/en-us/library/windowsazure/jj554219.aspx
+    /*
     interface MobileServiceClient {
         new (applicationUrl: string): MobileServiceClient;
         push: any;
-    }
+    }*/
 
+    /*
     interface User {
         mobileServiceAuthenticationToken: any;
     }
+    */
 }
 
 namespace Submerged.Services {
@@ -214,17 +217,21 @@ namespace Submerged.Services {
 
         unregisterPush(): void {
             console.log("unregistering for push messages");
-            this.mobileServiceClient.push.unregister('gcm', this.registrationId);
+            this.mobileServiceClient.push.unregister(this.registrationId, this.unregisterCallback);
         }
 
-        registrationCallback(): void {
+        unregisterCallback(error, success): void {
+
+        }
+
+        registrationCallback(error, success): void {
             console.log("registrationCallback called.");
         }
 
-        invokeApi(apiName: string, options: {}, callback: IApiCallback): void {
-            this.ensureLoggedIn().then(function () {
+        invokeApi(apiName: string, options: Microsoft.WindowsAzure.InvokeApiOptions, callback: IApiCallback): void {
+            this.ensureLoggedIn().then(() => {
                 this.mobileServiceClient.invokeApi(apiName, options, callback);
-            }.bind(this), function () {
+            }, function () {
                 console.log("Cannot invoke API because login failed.");
             });
         }

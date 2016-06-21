@@ -25,6 +25,8 @@
     "requirejs": "registry:npm/requirejs#2.2.0+20160319062357"
   },
   "globalDependencies": {
+    "azure-mobile-apps": "registry:dt/azure-mobile-apps#2.0.0-beta3+20160316171810",
+    "azuremobileservicesclient": "registry:dt/azuremobileservicesclient#1.0.0+20160425154546",
     "cordova/plugins/inappbrowser": "registry:dt/cordova/plugins/inappbrowser#0.0.0+20160316155526",
     "cordova/plugins/splashscreen": "registry:dt/cordova/plugins/splashscreen#0.0.0+20160316155526"
   }
