@@ -7,5 +7,6 @@
         displayOrder: number;
         primaryKey: string;
         secondaryKey: string;
+        isInMaintenance: boolean;
     }
 }

@@ -17,6 +17,7 @@ namespace Submerged.Services {
 
     export interface IMobileService {
         login(force?: boolean): ng.IPromise<{}>;
+        logout(): ng.IPromise<{}>;
         registerPush(): void;
         unregisterPush(): void;
         invokeApi(apiName: string, options: {}, callback: IApiCallback),
@@ -24,11 +25,10 @@ namespace Submerged.Services {
     }
 
     export class MobileService implements IMobileService {
-        mobileServiceClient: Microsoft.WindowsAzure.MobileServiceClient;
-        pushRegistration: PhonegapPluginPush.PushNotification = null;
-        registrationId: string = null;
+        private mobileServiceClient: Microsoft.WindowsAzure.MobileServiceClient;
+        private pushRegistration: PhonegapPluginPush.PushNotification = null;
+        private registrationId: string = null;
         private loggingInPromise: ng.IPromise<{}>;
-
         private file: string = "authtoken.json";
         private folder: string;                     // initialized during init()
 
@@ -160,6 +160,17 @@ namespace Submerged.Services {
             }
 
             return deferred.promise;
+        }
+
+        logout(): ng.IPromise<{}> {
+            // perform logout from the mobile service client
+            this.mobileServiceClient.logout();
+
+            // set the current user to null
+            this.mobileServiceClient.currentUser = null;
+
+            // override the stored authentication info with null
+            return this.fileService.storeJsonFile(this.file, this.folder, null);
         }
 
         initPushRegistration(): void {

@@ -25,6 +25,8 @@ namespace Submerged.Services {
         subscription: Models.SubscriptionModel;
         apiInfo: ApiInfo;
         globalizationInfo: GlobalizationInfo;
+
+        getDevice(): Models.DeviceModel;
         getDeviceId(): string;
     }
 
@@ -34,6 +36,15 @@ namespace Submerged.Services {
         globalizationInfo: GlobalizationInfo;
 
         constructor() {
+        }
+
+        getDevice(): Models.DeviceModel {
+            if (this.subscription != null &&
+                this.subscription.devices != null &&
+                this.subscription.devices.length > 0)
+                return this.subscription.devices[0];
+            else
+                return null;
         }
 
         getDeviceId(): string {

@@ -2,7 +2,7 @@
 
     export interface IFileService {
         getJsonFile<T>(filename: string, folder: string): ng.IPromise<T>;
-        storeJsonFile(filename: string, folder: string, obj: any): void;
+        storeJsonFile(filename: string, folder: string, obj: any): ng.IPromise<any>;
     }
 
     export class FileService implements IFileService {
@@ -42,12 +42,13 @@
             return deferred.promise;
         }
 
-        storeJsonFile(filename: string, folder: string, obj: any): void {
+        storeJsonFile(filename: string, folder: string, obj: any): ng.IPromise<any> {
             var json_data = JSON.stringify(obj);
             console.log(`Resolving file ${filename} in folder ${folder}`);
+            var deferred = this.$q.defer();
 
-            window.resolveLocalFileSystemURL(folder, function (dir: any) {
-                dir.getFile(filename, { create: true }, function (fileEntry: any) {
+            window.resolveLocalFileSystemURL(folder, function (dir: DirectoryEntry) {
+                dir.getFile(filename, { create: true }, function (fileEntry: FileEntry) {
                     // Create a FileWriter object for our FileEntry (log.txt).
                     fileEntry.createWriter(function (fileWriter: any) {
 
@@ -63,13 +64,16 @@
                         var blob = new Blob([json_data], { type: 'text/plain' });
 
                         fileWriter.write(blob);
+                        deferred.resolve();
 
-                    }, function (err: any) {
+                    }, function (error) {
                         console.log(`Failed saving file ${filename}`);
+                        deferred.reject(error);
                     });
+                }, (error: FileError) => { deferred.reject(error); });
+            }, (error: FileError) => { deferred.reject(error); });
 
-                });
-            });
+            return deferred.promise;
         }
     }
 

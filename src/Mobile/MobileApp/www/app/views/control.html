@@ -7,7 +7,7 @@
         <md-list>
             <md-list-item class="md-1-line" ng-repeat="relay in vm.relays">
                 <p class="md-body-2"><strong>{{relay.name}}</strong></p>
-                <md-switch ng-model="relay.state" ng-change="vm.toggle(relay.relayNumber, relay.state)" class="md-secondary"></md-switch>
+                <md-switch ng-model="relay.state" ng-change="vm.toggle(relay.relayNumber, relay.state)" ng-disabled="vm.disabled" class="md-secondary"></md-switch>
                 <md-divider ng-if="!$last"></md-divider>
             </md-list-item>
         </md-list>
@@ -17,7 +17,7 @@
         <md-list>
             <md-list-item class="md-1-line">
                 <p class="md-body-2"><strong>Maintenance mode</strong></p>
-                <md-switch ng-model="vm.maintenanceMode" class="md-secondary"></md-switch>
+                <md-switch ng-model="vm.maintenanceMode" ng-change="vm.toggleMaintenance()" ng-disabled="vm.disabled" class="md-secondary"></md-switch>
             </md-list-item>
         </md-list>
     </section>

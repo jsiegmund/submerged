@@ -25,6 +25,7 @@
     "requirejs": "registry:npm/requirejs#2.2.0+20160319062357"
   },
   "globalDependencies": {
+    "cordova/plugins/inappbrowser": "registry:dt/cordova/plugins/inappbrowser#0.0.0+20160316155526",
     "cordova/plugins/splashscreen": "registry:dt/cordova/plugins/splashscreen#0.0.0+20160316155526"
   }
 }
