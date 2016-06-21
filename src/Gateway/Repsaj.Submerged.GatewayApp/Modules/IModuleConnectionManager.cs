@@ -8,16 +8,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
+namespace Repsaj.Submerged.GatewayApp.Modules
 {
-    public delegate void IModuleStatusChanged(string moduleName, bool notConnecting);
+    public delegate void ModuleStatusChanged(string moduleName, bool notConnecting);
 
     public interface IModuleConnectionManager : IDisposable
     {
         event Action ModulesInitialized;
-        event IModuleStatusChanged ModuleConnecting;
-        event IModuleStatusChanged ModuleConnected;
-        event IModuleStatusChanged ModuleDisconnected;
+        event ModuleStatusChanged ModuleConnecting;
+        event ModuleStatusChanged ModuleConnected;
+        event ModuleStatusChanged ModuleDisconnected;
 
         Dictionary<string, string> GetModuleStatuses();
         void InitializeModules(IEnumerable<Module> modules);

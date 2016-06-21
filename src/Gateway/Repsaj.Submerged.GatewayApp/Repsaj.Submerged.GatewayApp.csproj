@@ -100,16 +100,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Arduino\IModuleConnectionFactory.cs" />
-    <Compile Include="Arduino\ModuleConnection.cs" />
-    <Compile Include="ArduinoException.cs" />
-    <Compile Include="Arduino\ModuleConnectionManager.cs" />
-    <Compile Include="Arduino\BluetoothAdapter.cs" />
-    <Compile Include="Arduino\ModuleConnectionFactory.cs" />
-    <Compile Include="Arduino\IModuleConnectionManager.cs" />
-    <Compile Include="Arduino\ModuleConnectionStatus.cs" />
-    <Compile Include="AzureConnection.cs" />
-    <Compile Include="Arduino\CabinetModuleConnection.cs" />
+    <Compile Include="Modules\IModuleConnection.cs" />
+    <Compile Include="Modules\IModuleConnectionFactory.cs" />
+    <Compile Include="Modules\ModuleConnectionBase.cs" />
+    <Compile Include="Modules\ModuleConnectionManager.cs" />
+    <Compile Include="Modules\ModuleConnectionFactory.cs" />
+    <Compile Include="Modules\IModuleConnectionManager.cs" />
+    <Compile Include="Modules\ModuleConnectionStatus.cs" />
+    <Compile Include="Device\AzureConnection.cs" />
+    <Compile Include="Modules\Connections\CabinetModuleConnection.cs" />
     <Compile Include="Commands\CommandProcessingResult.cs" />
     <Compile Include="Commands\CommandProcessorFactory.cs" />
     <Compile Include="Commands\ReceivedCommand.cs" />
@@ -117,13 +116,13 @@
     <Compile Include="Commands\ICommandProcessorFactory.cs" />
     <Compile Include="Commands\SwitchRelayCommandProcessor.cs" />
     <Compile Include="Commands\DeviceInfoCommandProcessor.cs" />
-    <Compile Include="DeviceTelemetryModel.cs" />
+    <Compile Include="Models\DeviceTelemetryModel.cs" />
     <Compile Include="Device\DeviceManager.cs" />
     <Compile Include="Device\IDeviceManager.cs" />
     <Compile Include="Hardware\GPIOController.cs" />
     <Compile Include="Hardware\HardwareException.cs" />
     <Compile Include="Hardware\IGPIOController.cs" />
-    <Compile Include="IAzureConnection.cs" />
+    <Compile Include="Device\IAzureConnection.cs" />
     <Compile Include="IsNullToVisibilityConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -132,8 +131,11 @@
     <Compile Include="Models\ModuleModel.cs" />
     <Compile Include="Models\RelayModel.cs" />
     <Compile Include="Models\SensorModel.cs" />
+    <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
+    <Compile Include="Modules\Simulated\SimulatedModuleConnectionBase.cs" />
+    <Compile Include="Modules\Simulated\SimulatedSensorModuleConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Arduino\SensorModuleConnection.cs" />
+    <Compile Include="Modules\Connections\SensorModuleConnection.cs" />
     <Compile Include="UserControls\ModuleRowControl.xaml.cs">
       <DependentUpon>ModuleRowControl.xaml</DependentUpon>
     </Compile>

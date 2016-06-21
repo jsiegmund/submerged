@@ -13,20 +13,19 @@ using System.Diagnostics;
 using Windows.System.Threading;
 using System.Threading;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
-{
-    public abstract class ModuleConnection : IDisposable
+namespace Repsaj.Submerged.GatewayApp.Modules
+{ 
+    public abstract class ModuleConnectionBase : IDisposable, IModuleConnection
     {
-        public delegate void IModuleStatusChanged(string moduleName, ModuleConnectionStatus oldStatus, ModuleConnectionStatus newStatus);
-        public event IModuleStatusChanged ModuleStatusChanged;
+        public event IModuleConnectionStatusChanged ModuleStatusChanged;
 
         internal DeviceInformation _device;
         internal RemoteDevice _arduino;
         internal BluetoothSerial _adapter;
         internal UwpFirmata _firmata;
 
-        abstract internal void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
-        abstract internal dynamic RequestArduinoData();
+        internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
+        public abstract dynamic RequestArduinoData();
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
@@ -42,13 +41,13 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
 
         private ThreadPoolTimer _timer;
 
-        public ModuleConnection(DeviceInformation device, string name)
+        public ModuleConnectionBase(DeviceInformation device, string name)
         {
             this._device = device;
             this.ModuleName = name;
         }
 
-        internal string StatusAsText
+        public string StatusAsText
         {
             get { return Enum.GetName(typeof(ModuleConnectionStatus), this.ModuleStatus); }
         }

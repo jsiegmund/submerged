@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
+namespace Repsaj.Submerged.GatewayApp.Modules
 {
     public enum ModuleConnectionStatus
     {

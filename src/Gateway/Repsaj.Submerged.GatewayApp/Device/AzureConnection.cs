@@ -12,7 +12,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repsaj.Submerged.GatewayApp
+namespace Repsaj.Submerged.GatewayApp.Device
 {
     class AzureConnection : IAzureConnection
     {

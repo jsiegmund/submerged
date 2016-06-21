@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 {
@@ -61,6 +62,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
         public async Task SaveDeviceModel(DeviceModel model)
         {
             await _storageRepository.SaveObjectToStorage(model, FILE_DEVICE);
+        }
+
+        public string GetConnectionInfoPath()
+        {
+            string storagePath = _storageRepository.GetStorageLocationPath();
+            return Path.Combine(storagePath, FILE_CONNECTION);
         }
     }
 }

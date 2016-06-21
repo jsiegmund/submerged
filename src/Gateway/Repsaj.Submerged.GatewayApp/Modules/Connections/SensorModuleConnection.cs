@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.Serial;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
+namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
     struct Measurement
     {
@@ -20,7 +21,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         public double pH;
     }
 
-    class SensorModuleConnection : ModuleConnection
+    class SensorModuleConnection : ModuleConnectionBase
     {
         Queue<Measurement> _measurementQueue = new Queue<Measurement>();
 
@@ -30,7 +31,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         {
             get
             {
-                return "Sensor Module";
+                return ModuleTypeDisplayNames.SENSORS;
             }
         }
 
@@ -40,7 +41,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         EventWaitHandle _waitHandle = new AutoResetEvent(false);
         dynamic _data = null;
 
-        override internal dynamic RequestArduinoData()
+        override public dynamic RequestArduinoData()
         {
             try
             {

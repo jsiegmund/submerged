@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Newtonsoft.Json.Linq;
 using RemoteArduino.Commands;
-using Repsaj.Submerged.GatewayApp.Arduino;
 using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Device;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
@@ -16,6 +15,7 @@ using Windows.System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading;
+using Repsaj.Submerged.GatewayApp.Modules;
 
 namespace Repsaj.Submerged.GatewayApp.Device
 {
@@ -44,10 +44,15 @@ namespace Repsaj.Submerged.GatewayApp.Device
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
             IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext)
         {
-            _moduleConnectionManager = moduleConnectionManager;
             _configurationRepository = configurationRepository;
             _synchronizationContext = synchronizationContext;
             _commandProcessorFactory = commandProcessor;
+
+            _moduleConnectionManager = moduleConnectionManager;
+            _moduleConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
+            _moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
+            _moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
+            _moduleConnectionManager.ModuleConnecting += _arduinoConnectionManager_ModuleStatusChanged;
         }
 
         public async Task Init()
@@ -64,7 +69,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
             await _moduleConnectionManager.Init();
 
             Task azureTask = Task.Run(() => InitializeAzure());
-
             _deviceModel = await _configurationRepository.GetDeviceModel();
 
             if (_deviceModel == null)
@@ -79,15 +83,13 @@ namespace Repsaj.Submerged.GatewayApp.Device
             {
                 PopulateDeviceComponents();
 
-                _moduleConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
-                _moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
-                _moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
-                _moduleConnectionManager.ModuleConnecting += _arduinoConnectionManager_ModuleStatusChanged;
-
                 Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules));
 
                 Task.WaitAll(moduleTask, azureTask);
                 NewLogLine?.Invoke("Device initialization completed!");
+
+                // always send a device update request to ensure we're running with the latest values
+                await RequestDeviceUpdate();
             }
         }
 

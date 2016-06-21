@@ -37,6 +37,7 @@ using Repsaj.Submerged.GatewayApp.Device;
 using Autofac.Core;
 using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
+using Repsaj.Submerged.GatewayApp.Modules;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -82,9 +83,11 @@ namespace Repsaj.Submerged.GatewayApp
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
+                    string storagePath = configRepository.GetConnectionInfoPath();
+
                     string instruction = "Your device was not configured to connect to the Submerged back-end. Please read the documentation " +
-                                         "and upload a valid json configuration file with connection parameters. Restart the submerged app and " +
-                                         "this message should disappear!";
+                                         $"and upload a valid json configuration file with connection parameters. The storage path is: {storagePath}, " +
+                                         "Restart the submerged app and this message should disappear!";
                     messageBoxText.Text = instruction;
                     messageBox.Visibility = Visibility.Visible;
                 });
@@ -98,6 +101,7 @@ namespace Repsaj.Submerged.GatewayApp
                 _deviceManager.RelayDataChanged += _deviceManager_RelayDataChanged;
                 _deviceManager.AzureConnected += _deviceManager_AzureConnected;
                 _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
+
                 await _deviceManager.Init();
             }
         }

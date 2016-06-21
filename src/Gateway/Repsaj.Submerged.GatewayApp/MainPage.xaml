@@ -9,7 +9,7 @@
     xmlns:Submerged="using:Repsaj.Submerged.GatewayApp.UserControls"
     xmlns:viewModels="using:Repsaj.Submerged.GatewayApp.Models"
     x:Class="Repsaj.Submerged.GatewayApp.MainPage"   
-    mc:Ignorable="d" Width="1024" Height="600">
+    mc:Ignorable="d">
 
     <Page.Resources>
         <GatewayApp:IsNullToVisibilityConverter x:Key="IsNullToVisibilityConverter" />

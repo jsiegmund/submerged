@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,15 +11,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
+namespace Repsaj.Submerged.GatewayApp.Modules.Connection
 {
-    public class CabinetModuleConnection : ModuleConnection
+    public class CabinetModuleConnection : ModuleConnectionBase
     {
         public override string ModuleType
         {
             get
             {
-                return "Cabinet Module";
+                return ModuleTypeDisplayNames.CABINET;
             }
         }
 
@@ -90,7 +91,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             }
         }
 
-        override internal dynamic RequestArduinoData()
+        override public dynamic RequestArduinoData()
         {
             if (_adapter.connectionReady())
             {
@@ -105,8 +106,6 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
                 _arduino.pinMode(sensorPin5, Microsoft.Maker.RemoteWiring.PinMode.INPUT);
                 ushort result5 = _arduino.analogRead("A4");
 
-                dynamic data = new System.Dynamic.ExpandoObject();
-
                 bool leakDetected = false;
                 List<string> triggeredSensors = new List<string>();
 
@@ -116,6 +115,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
                 ProcessSensor(result4, "Sensor 4", ref leakDetected, ref triggeredSensors);
                 ProcessSensor(result5, "Sensor 5", ref leakDetected, ref triggeredSensors);
 
+                dynamic data = new System.Dynamic.ExpandoObject();
                 data.leakDetected = leakDetected;
                 data.leakSensors = String.Join(", ", triggeredSensors);
 

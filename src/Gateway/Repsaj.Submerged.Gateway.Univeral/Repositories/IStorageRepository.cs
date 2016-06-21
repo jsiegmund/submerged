@@ -10,5 +10,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
     {
         Task<dynamic> GetStoredObject(string filename);
         Task SaveObjectToStorage(dynamic obj, string filename);
+        string GetStorageLocationPath();
     }
 }

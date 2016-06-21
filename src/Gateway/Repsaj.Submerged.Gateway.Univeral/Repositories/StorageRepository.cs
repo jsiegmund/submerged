@@ -11,6 +11,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 {
     public class StorageRepository : IStorageRepository
     {
+        public string GetStorageLocationPath()
+        {
+            return Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+        }
+
         public async Task<dynamic> GetStoredObject(string filename)
         {
             try

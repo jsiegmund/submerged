@@ -12,6 +12,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public static readonly string CABINET = "CabinetModule";
     }
 
+    public static class ModuleTypeDisplayNames
+    {
+        public static readonly string SENSORS = "Sensor Module";
+        public static readonly string CABINET = "Cabinet Module";
+    }
+
     public static class SensorTypes
     {
         public static readonly string TEMPERATURE = "temperature";

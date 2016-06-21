@@ -10,19 +10,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.GatewayApp.Models;
 
-namespace Repsaj.Submerged.GatewayApp.Arduino
+namespace Repsaj.Submerged.GatewayApp.Modules
 {
     public class ModuleConnectionManager : IModuleConnectionManager
     {
         IModuleConnectionFactory _moduleConnectionFactory;
 
         IEnumerable<Module> _modules;
-        Dictionary<string, ModuleConnection> _moduleConnections = new Dictionary<string, ModuleConnection>();
+        Dictionary<string, IModuleConnection> _moduleConnections = new Dictionary<string, IModuleConnection>();
         Dictionary<string, ModuleConnectionStatus> _moduleStatuses = new Dictionary<string, ModuleConnectionStatus>();
 
-        public event IModuleStatusChanged ModuleConnecting;
-        public event IModuleStatusChanged ModuleConnected;
-        public event IModuleStatusChanged ModuleDisconnected;
+        public event ModuleStatusChanged ModuleConnecting;
+        public event ModuleStatusChanged ModuleConnected;
+        public event ModuleStatusChanged ModuleDisconnected;
         public event Action ModulesInitialized;
 
         public bool AllModulesInitialized { get; private set; }
@@ -50,11 +50,14 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
                 if (_moduleConnections.ContainsKey(module.Name))
                     continue;
 
+                // if there's a new module to initialize; set the 'all initialized' flag to false again
+                AllModulesInitialized = false;
+
                 try
                 {
                     //MinimalEventSource.Log.LogInfo($"Requesting module {module.Name} from factory. Bluetooth id: {module.ConnectionString}");
 
-                    ModuleConnection connection = _moduleConnectionFactory.GetModuleConnection(module);
+                    IModuleConnection connection = _moduleConnectionFactory.GetModuleConnection(module);
 
                     if (connection != null)
                     {
@@ -70,6 +73,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
                 }
             }
         }
+        
 
         private void Connection_ModuleStatusChanged(string moduleName, ModuleConnectionStatus oldStatus, ModuleConnectionStatus newStatus)
         {
@@ -112,7 +116,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
         {
             while (_moduleConnections.Count > 0)
             {
-                KeyValuePair<string, ModuleConnection> moduleKvp = _moduleConnections.First();
+                KeyValuePair<string, IModuleConnection> moduleKvp = _moduleConnections.First();
                 moduleKvp.Value.Dispose();
                 _moduleConnections.Remove(moduleKvp.Key);
             }
@@ -123,7 +127,7 @@ namespace Repsaj.Submerged.GatewayApp.Arduino
             JObject data = new JObject();
 
             bool dataPresent = false;
-            IEnumerable<ModuleConnection> connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
+            IEnumerable<IModuleConnection> connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
 
             // loop all of the available modules, request their data and merge it into our data object
             foreach (var module in connectedModules)

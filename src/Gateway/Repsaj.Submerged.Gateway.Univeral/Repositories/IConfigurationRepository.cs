@@ -17,5 +17,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 
         Task<DeviceModel> GetDeviceModel();
         Task SaveDeviceModel(DeviceModel model);
+
+        string GetConnectionInfoPath();
     }
 }

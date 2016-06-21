@@ -1,6 +1,6 @@
 ﻿using RemoteArduino.Hardware;
 using Repsaj.Submerged.GatewayApp;
-using Repsaj.Submerged.GatewayApp.Arduino;
+using Repsaj.Submerged.GatewayApp.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -42,6 +42,11 @@ namespace RemoteArduino.Commands
                     if (relayNumber == null || relayState == null)
                         return CommandProcessingResult.CannotComplete;
 
+                    // fire an event which notifies the device manager of the relay switch 
+                    // this is done before it's actually switched so the state is still saved even when the 
+                    // module might be disconnected at this point
+                    RelaySwitched(relayNumber.Value, relayState.Value);
+
                     CabinetModuleConnection connection = (CabinetModuleConnection)_moduleConnectionFactory.GetModuleConnection(moduleName);
 
                     // if the module could not be found or is not connected, return cannot complete
@@ -50,9 +55,6 @@ namespace RemoteArduino.Commands
 
                     // execute the command, switch the relay
                     connection.SwitchRelay(relayNumber.Value, relayState.Value);
-
-                    // fire an event which notifies the device manager of the relay switch 
-                    RelaySwitched(relayNumber.Value, relayState.Value);
                 }
                 catch (Exception)
                 {
