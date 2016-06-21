@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 
-namespace Repsaj.Submerged.GatewayApp.Modules.Connection
+namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
     public class CabinetModuleConnection : ModuleConnectionBase
     {

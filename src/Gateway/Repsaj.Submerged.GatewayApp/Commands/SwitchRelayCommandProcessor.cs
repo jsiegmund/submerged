@@ -1,6 +1,7 @@
 ﻿using RemoteArduino.Hardware;
 using Repsaj.Submerged.GatewayApp;
 using Repsaj.Submerged.GatewayApp.Modules;
+using Repsaj.Submerged.GatewayApp.Modules.Connections;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Maker.Serial;
+using Repsaj.Submerged.GatewayApp.Modules.Connections;
 using Repsaj.Submerged.GatewayApp.Modules.Simulated;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using Repsaj.Submerged.GatewayApp.Universal.Models;

@@ -25,7 +25,6 @@ using RemoteArduino.Commands;
 using RemoteArduino.Hardware;
 using Autofac;
 using Windows.UI.Popups;
-using Repsaj.Submerged.GatewayApp.Arduino;
 using System.Dynamic;
 using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
