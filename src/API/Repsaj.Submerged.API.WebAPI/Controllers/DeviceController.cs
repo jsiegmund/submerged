@@ -40,10 +40,10 @@ namespace Repsaj.Submerged.API.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> UpdateRequest([FromBody]dynamic updateRequest)
         {
-            if (updateRequest == null || updateRequest.DeviceId == null)
-                return BadRequest("The request didn't contain a valid deviceId");
+            if (updateRequest == null || updateRequest.DeviceID == null)
+                return BadRequest("The request didn't contain a valid DeviceID");
 
-            await _subscriptionLogic.SendDeviceConfigurationMessage((string)updateRequest.DeviceId);
+            await _subscriptionLogic.SendDeviceConfigurationMessage((string)updateRequest.DeviceID);
             return Ok();
         }
     }

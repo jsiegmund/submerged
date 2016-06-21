@@ -82,7 +82,13 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
             return result.FirstOrDefault();
         }      
-        
+
+        public async Task<DeviceModel> GetDeviceAsync(string deviceId)
+        {
+            SubscriptionModel subscription = await GetSubscriptionByDeviceId(deviceId, "", true);
+            return subscription.Devices.Single(d => d.DeviceProperties.DeviceID == deviceId);
+        }
+
         public async Task<SubscriptionModel> GetSubscriptionByDeviceId(string deviceId, string subscriptionUser, bool skipValidation = false)
         {
             Dictionary<string, Object> queryParams = new Dictionary<string, Object>();

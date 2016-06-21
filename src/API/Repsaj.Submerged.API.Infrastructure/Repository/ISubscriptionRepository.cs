@@ -38,5 +38,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         /// <param name="subscription">The subscription.</param>
         /// <returns></returns>
         Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser, bool skipValidation = false);
+
+        Task<DeviceModel> GetDeviceAsync(string deviceId);
     }
 }

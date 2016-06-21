@@ -70,46 +70,46 @@ namespace Repsaj.Submerged.Common.DeviceSchema
             }
         }
 
-        public static dynamic GetCommandHistory(dynamic device)
-        {
-            if (device == null)
-            {
-                throw new ArgumentNullException("device");
-            }
+        //public static dynamic GetCommandHistory(dynamic device)
+        //{
+        //    if (device == null)
+        //    {
+        //        throw new ArgumentNullException("device");
+        //    }
 
-            dynamic history = device.CommandHistory;
+        //    dynamic history = device.CommandHistory;
 
-            if (history == null)
-            {
-                history = new JArray();
-                device.CommandHistory = history;
-            }
+        //    if (history == null)
+        //    {
+        //        history = new JArray();
+        //        device.CommandHistory = history;
+        //    }
 
-            return history;
-        }
+        //    return history;
+        //}
 
-        public static IEnumerable<object> GetCommandHistoryItemOrDefault(dynamic device, string messageId)
-        {
-            dynamic result = null;
+        //public static IEnumerable<object> GetCommandHistoryItemOrDefault(dynamic device, string messageId)
+        //{
+        //    dynamic result = null;
 
-            dynamic history = GetCommandHistory(device);
+        //    dynamic history = GetCommandHistory(device);
 
-            int commandIndex = GetCommandHistoryItemIndex(history, messageId);
-            if (commandIndex > -1)
-            {
-                result = history[commandIndex];
-            }
+        //    int commandIndex = GetCommandHistoryItemIndex(history, messageId);
+        //    if (commandIndex > -1)
+        //    {
+        //        result = history[commandIndex];
+        //    }
 
-            if (result == null)
-            {
-                result = new JObject();
-                result.CreatedTime = DateTime.UtcNow;
-                result.MessageId = messageId;
-                result.Parameters = new JObject();
-            }
+        //    if (result == null)
+        //    {
+        //        result = new JObject();
+        //        result.CreatedTime = DateTime.UtcNow;
+        //        result.MessageId = messageId;
+        //        result.Parameters = new JObject();
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         private static int GetCommandHistoryItemIndex(dynamic commandHistory, string messageId)
         {
@@ -206,22 +206,22 @@ namespace Repsaj.Submerged.Common.DeviceSchema
             return default(string);
         }
 
-        public static void UpdateCommandHistoryItem(dynamic device, dynamic command)
-        {
-            dynamic history = GetCommandHistory(device);
+        //public static void UpdateCommandHistoryItem(dynamic device, dynamic command)
+        //{
+        //    dynamic history = GetCommandHistory(device);
 
-            int commandIndex = GetCommandHistoryItemIndex(history, (string)command.MessageId);
-            if (commandIndex > -1)
-            {
-                history[commandIndex] = command;
-            }
-        }
+        //    int commandIndex = GetCommandHistoryItemIndex(history, (string)command.MessageId);
+        //    if (commandIndex > -1)
+        //    {
+        //        history[commandIndex] = command;
+        //    }
+        //}
 
-        public static void AddCommandToHistory(dynamic device, dynamic command)
-        {
-            dynamic history = GetCommandHistory(device);
-            ((JArray)history).Add(command);
-        }
+        //public static void AddCommandToHistory(dynamic device, dynamic command)
+        //{
+        //    dynamic history = GetCommandHistory(device);
+        //    ((JArray)history).Add(command);
+        //}
 
         /// <summary>
         /// Given a Device command (one that is on its way to the device, or from a device's command history) get the parameters as a Json string.

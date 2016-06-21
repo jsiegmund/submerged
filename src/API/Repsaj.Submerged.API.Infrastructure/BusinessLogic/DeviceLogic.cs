@@ -23,111 +23,114 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
     public class DeviceLogic : IDeviceLogic
     {
         private readonly IIotHubRepository _iotHubRepository;
-        private readonly IDeviceRegistryCrudRepository _deviceRegistryCrudRepository;
+        //private readonly IDeviceRegistryCrudRepository _deviceRegistryCrudRepository;
         private readonly ISecurityKeyGenerator _securityKeyGenerator;
         private readonly IConfigurationProvider _configProvider;
+        private readonly ISubscriptionRepository _subscriptionRepository;
 
         public DeviceLogic(IIotHubRepository iotHubRepository,  IDeviceRegistryCrudRepository deviceRegistryCrudRepository,
-            ISecurityKeyGenerator securityKeyGenerator, IConfigurationProvider configProvider
+            ISecurityKeyGenerator securityKeyGenerator, IConfigurationProvider configProvider,
+            ISubscriptionRepository subscriptionRepository
             //, IVirtualDeviceStorage virtualDeviceStorage
             //IDeviceRegistryListRepository deviceRegistryListRepository, ,
             //, , IDeviceRulesLogic deviceRulesLogic
             )
         {
             _iotHubRepository = iotHubRepository;
-            _deviceRegistryCrudRepository = deviceRegistryCrudRepository;
+            //_deviceRegistryCrudRepository = deviceRegistryCrudRepository;
             //_deviceRegistryListRepository = deviceRegistryListRepository;
             //_virtualDeviceStorage = virtualDeviceStorage;
             _securityKeyGenerator = securityKeyGenerator;
             _configProvider = configProvider;
             //_deviceRulesLogic = deviceRulesLogic;
+            _subscriptionRepository = subscriptionRepository;
         }
 
-        /// <summary>
-        /// Adds a device to the Device Identity Store and Device Registry
-        /// </summary>
-        /// <param name="device">Device to add to the underlying repositories</param>
-        /// <returns>Device created along with the device identity store keys</returns>
-        public async Task<DeviceWithKeys> AddDeviceAsync(dynamic device)
-        {
-            // Validation logic throws an exception if it finds a validation error
-            await ValidateDevice(device);
+        ///// <summary>
+        ///// Adds a device to the Device Identity Store and Device Registry
+        ///// </summary>
+        ///// <param name="device">Device to add to the underlying repositories</param>
+        ///// <returns>Device created along with the device identity store keys</returns>
+        //public async Task<DeviceWithKeys> AddDeviceAsync(dynamic device)
+        //{
+        //    // Validation logic throws an exception if it finds a validation error
+        //    await ValidateDevice(device);
 
-            SecurityKeys generatedSecurityKeys = _securityKeyGenerator.CreateRandomKeys();
+        //    SecurityKeys generatedSecurityKeys = _securityKeyGenerator.CreateRandomKeys();
 
-            dynamic savedDevice = await AddDeviceToRepositoriesAsync(device, generatedSecurityKeys);
-            return new DeviceWithKeys(savedDevice, generatedSecurityKeys);
-        }
+        //    dynamic savedDevice = await AddDeviceToRepositoriesAsync(device, generatedSecurityKeys);
+        //    return new DeviceWithKeys(savedDevice, generatedSecurityKeys);
+        //}
 
-        /// <summary>
-        /// Adds the given device and assigned keys to the underlying repositories 
-        /// </summary>
-        /// <param name="device">Device to add to repositories</param>
-        /// <param name="securityKeys">Keys to assign to the device</param>
-        /// <returns>Device that was added to the device registry</returns>
-        private async Task<dynamic> AddDeviceToRepositoriesAsync(dynamic device, SecurityKeys securityKeys)
-        {
-            dynamic registryRepositoryDevice = null;
-            ExceptionDispatchInfo capturedException = null;
+        ///// <summary>
+        ///// Adds the given device and assigned keys to the underlying repositories 
+        ///// </summary>
+        ///// <param name="device">Device to add to repositories</param>
+        ///// <param name="securityKeys">Keys to assign to the device</param>
+        ///// <returns>Device that was added to the device registry</returns>
+        //private async Task<dynamic> AddDeviceToRepositoriesAsync(dynamic device, SecurityKeys securityKeys)
+        //{
+        //    dynamic registryRepositoryDevice = null;
+        //    ExceptionDispatchInfo capturedException = null;
 
-            // if an exception happens at this point pass it up the stack to handle it
-            // (Making this call first then the call against the Registry removes potential issues
-            // with conflicting rollbacks if the operation happens to still be in progress.)
-            await _iotHubRepository.AddDeviceAsync(device, securityKeys);
+        //    // if an exception happens at this point pass it up the stack to handle it
+        //    // (Making this call first then the call against the Registry removes potential issues
+        //    // with conflicting rollbacks if the operation happens to still be in progress.)
+        //    await _iotHubRepository.AddDeviceAsync(device, securityKeys);
 
-            try
-            {
-                registryRepositoryDevice = await _deviceRegistryCrudRepository.AddDeviceAsync(device);
-            }
-            catch (Exception ex)
-            {
-                // grab the exception so we can attempt an async removal of the device from the IotHub
-                capturedException = ExceptionDispatchInfo.Capture(ex);
+        //    try
+        //    {
+        //        registryRepositoryDevice = await _deviceRegistryCrudRepository.AddDeviceAsync(device);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // grab the exception so we can attempt an async removal of the device from the IotHub
+        //        capturedException = ExceptionDispatchInfo.Capture(ex);
 
-            }
+        //    }
 
-            //Create a device in table storage if it is a simulated type of device 
-            //and the document was stored correctly without an exception
-            bool isSimulatedAsBool = false;
-            try
-            {
-                isSimulatedAsBool = (bool)device.IsSimulatedDevice;
-            }
-            catch (InvalidCastException ex)
-            {
-                Trace.TraceError("The IsSimulatedDevice property was in an invalid format. Exception Error Message: {0}", ex.Message);
-            }
-            if (capturedException == null && isSimulatedAsBool)
-            {
-                try
-                {
-                    //await _virtualDeviceStorage.AddOrUpdateDeviceAsync(new InitialDeviceConfig()
-                    //{
-                    //    DeviceId = DeviceSchemaHelper.GetDeviceID(device),
-                    //    HostName = _configProvider.GetConfigurationSettingValue("iotHub.HostName"),
-                    //    Key = securityKeys.PrimaryKey
-                    //});
-                }
-                catch (Exception ex)
-                {
-                    //if we fail adding to table storage for the device simulator just continue
-                    Trace.TraceError("Failed to add simulated device : {0}", ex.Message);
-                }
-            }
+        //    //Create a device in table storage if it is a simulated type of device 
+        //    //and the document was stored correctly without an exception
+        //    bool isSimulatedAsBool = false;
+        //    try
+        //    {
+        //        isSimulatedAsBool = (bool)device.IsSimulatedDevice;
+        //    }
+        //    catch (InvalidCastException ex)
+        //    {
+        //        Trace.TraceError("The IsSimulatedDevice property was in an invalid format. Exception Error Message: {0}", ex.Message);
+        //    }
+        //    if (capturedException == null && isSimulatedAsBool)
+        //    {
+        //        try
+        //        {
+        //            //await _virtualDeviceStorage.AddOrUpdateDeviceAsync(new InitialDeviceConfig()
+        //            //{
+        //            //    DeviceId = DeviceSchemaHelper.GetDeviceID(device),
+        //            //    HostName = _configProvider.GetConfigurationSettingValue("iotHub.HostName"),
+        //            //    Key = securityKeys.PrimaryKey
+        //            //});
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            //if we fail adding to table storage for the device simulator just continue
+        //            Trace.TraceError("Failed to add simulated device : {0}", ex.Message);
+        //        }
+        //    }
 
 
-            // Since the rollback code runs async and async code cannot run within the catch block it is run here
-            if (capturedException != null)
-            {
-                // This is a lazy attempt to remove the device from the Iot Hub.  If it fails
-                // the device will still remain in the Iot Hub.  A more robust rollback may be needed
-                // in some scenarios.
-                //await _iotHubRepository.TryRemoveDeviceAsync(DeviceSchemaHelper.GetDeviceID(device));
-                capturedException.Throw();
-            }
+        //    // Since the rollback code runs async and async code cannot run within the catch block it is run here
+        //    if (capturedException != null)
+        //    {
+        //        // This is a lazy attempt to remove the device from the Iot Hub.  If it fails
+        //        // the device will still remain in the Iot Hub.  A more robust rollback may be needed
+        //        // in some scenarios.
+        //        //await _iotHubRepository.TryRemoveDeviceAsync(DeviceSchemaHelper.GetDeviceID(device));
+        //        capturedException.Throw();
+        //    }
 
-            return registryRepositoryDevice;
-        }
+        //    return registryRepositoryDevice;
+        //}
 
         /// <summary>
         /// Retrieves the device with the provided device id from the device registry
@@ -136,7 +139,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         /// <returns>Fully populated device from the device registry</returns>
         public async Task<dynamic> GetDeviceAsync(string deviceId)
         {
-            return await _deviceRegistryCrudRepository.GetDeviceAsync(deviceId);
+            return await _subscriptionRepository.GetDeviceAsync(deviceId);
         }
 
         /// <summary>
@@ -186,7 +189,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             dynamic command = CommandHistorySchemaHelper.BuildNewCommandHistoryItem(commandName);
             CommandHistorySchemaHelper.AddParameterCollectionToCommandHistoryItem(command, parameters);
 
-            CommandHistorySchemaHelper.AddCommandToHistory(device, command);
+            // Commented out because command history is not stored at the moment, 
+            // this needs to be placed in blob storage... more generic logging solution is needed
+            //CommandHistorySchemaHelper.AddCommandToHistory(device, command);
 
             await _iotHubRepository.SendCommand(deviceId, command);
             //await _deviceRegistryCrudRepository.UpdateDeviceAsync(device);
@@ -238,57 +243,57 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return true;
         }
 
-        /// <summary>
-        /// Updates the device in the device registry with the exact device provided in this call.
-        /// NOTE: The device provided here should represent the entire device that will be 
-        /// serialized into the device registry.
-        /// </summary>
-        /// <param name="device">Device to update in the device registry</param>
-        /// <returns>Device that was saved into the device registry</returns>
-        public async Task<dynamic> UpdateDeviceAsync(dynamic device)
-        {
-            return await _deviceRegistryCrudRepository.UpdateDeviceAsync(device);
-        }
+        ///// <summary>
+        ///// Updates the device in the device registry with the exact device provided in this call.
+        ///// NOTE: The device provided here should represent the entire device that will be 
+        ///// serialized into the device registry.
+        ///// </summary>
+        ///// <param name="device">Device to update in the device registry</param>
+        ///// <returns>Device that was saved into the device registry</returns>
+        //public async Task<dynamic> UpdateDeviceAsync(dynamic device)
+        //{
+        //    return await _subscriptionRepository.UpdateDeviceAsync(device);
+        //}
 
-        /// <summary>
-        /// Used by the event processor to update the initial data for the device
-        /// without deleting the CommandHistory and the original created date
-        /// This assumes the device controls and has full knowledge of its metadata except for:
-        /// - CreatedTime
-        /// - CommandHistory
-        /// </summary>
-        /// <param name="device">Device information to save to the backend Device Registry</param>
-        /// <returns>Combined device that was saved to registry</returns>
-        public async Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device)
-        {
-            if (device == null)
-            {
-                throw new ArgumentNullException("device");
-            }
+        ///// <summary>
+        ///// Used by the event processor to update the initial data for the device
+        ///// without deleting the CommandHistory and the original created date
+        ///// This assumes the device controls and has full knowledge of its metadata except for:
+        ///// - CreatedTime
+        ///// - CommandHistory
+        ///// </summary>
+        ///// <param name="device">Device information to save to the backend Device Registry</param>
+        ///// <returns>Combined device that was saved to registry</returns>
+        //public async Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device)
+        //{
+        //    if (device == null)
+        //    {
+        //        throw new ArgumentNullException("device");
+        //    }
 
-            dynamic existingDevice = await GetDeviceAsync(DeviceSchemaHelper.GetDeviceID(device));
+        //    dynamic existingDevice = await GetDeviceAsync(DeviceSchemaHelper.GetDeviceID(device));
 
-            // Save the command history, original created date, and system properties (if any) of the existing device
-            if (DeviceSchemaHelper.GetDeviceProperties(existingDevice) != null)
-            {
-                dynamic deviceProperties = DeviceSchemaHelper.GetDeviceProperties(device);
-                deviceProperties.CreatedTime = DeviceSchemaHelper.GetCreatedTime(existingDevice);
-            }
+        //    // Save the command history, original created date, and system properties (if any) of the existing device
+        //    if (DeviceSchemaHelper.GetDeviceProperties(existingDevice) != null)
+        //    {
+        //        dynamic deviceProperties = DeviceSchemaHelper.GetDeviceProperties(device);
+        //        deviceProperties.CreatedTime = DeviceSchemaHelper.GetCreatedTime(existingDevice);
+        //    }
 
-            device.CommandHistory = existingDevice.CommandHistory;
+        //    device.CommandHistory = existingDevice.CommandHistory;
 
-            // Copy the existing system properties, or initialize them if they do not exist
-            if (existingDevice.SystemProperties != null)
-            {
-                device.SystemProperties = existingDevice.SystemProperties;
-            }
-            else
-            {
-                DeviceSchemaHelper.InitializeSystemProperties(device, null);
-            }
+        //    // Copy the existing system properties, or initialize them if they do not exist
+        //    if (existingDevice.SystemProperties != null)
+        //    {
+        //        device.SystemProperties = existingDevice.SystemProperties;
+        //    }
+        //    else
+        //    {
+        //        DeviceSchemaHelper.InitializeSystemProperties(device, null);
+        //    }
 
-            return await _deviceRegistryCrudRepository.UpdateDeviceAsync(device);
-        }
+        //    return await _deviceRegistryCrudRepository.UpdateDeviceAsync(device);
+        //}
 
         #region Device Properties
         /// <summary>
