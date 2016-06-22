@@ -79,7 +79,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         public async Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false)
         {
             SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, owner, skipValidation);
-            return subscription.Devices.SingleOrDefault(d => d.DeviceProperties.DeviceID == deviceId);
+
+            DeviceModel device = subscription.Devices.SingleOrDefault(d => d.DeviceProperties.DeviceID == deviceId);
+
+            if (device == null)
+                throw new DeviceNotRegisteredException(deviceId);
+
+            return device;
         }
 
         public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string owner, bool skipValidation = false)
@@ -340,6 +346,8 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             if (existingModule != null)
                 throw new SubscriptionValidationException(Strings.ValidationModuleExists);
+            if (module.ModuleType != ModuleTypes.CABINET && module.ModuleType != ModuleTypes.SENSORS)
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationInvalidModuleType, module.ModuleType));
 
             device.Modules.Add(module);
 
@@ -424,6 +432,8 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.ValidationSensorExists);
             if (! device.Modules.Exists(m => String.Equals(m.Name, sensor.Module)))
                 throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
+            if (sensor.SensorType != SensorTypes.PH && sensor.SensorType != SensorTypes.TEMPERATURE)
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationInvalidSensorType, sensor.SensorType));
 
             device.Sensors.Add(sensor);
 

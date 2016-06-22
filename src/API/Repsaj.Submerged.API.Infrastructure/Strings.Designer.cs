@@ -214,6 +214,24 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Module type {0} is not a valid module type..
+        /// </summary>
+        internal static string ValidationInvalidModuleType {
+            get {
+                return ResourceManager.GetString("ValidationInvalidModuleType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sensor type {0} is not a valid sensor type. .
+        /// </summary>
+        internal static string ValidationInvalidSensorType {
+            get {
+                return ResourceManager.GetString("ValidationInvalidSensorType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is already a module registered for this device with the same name.
         /// </summary>
         internal static string ValidationModuleExists {

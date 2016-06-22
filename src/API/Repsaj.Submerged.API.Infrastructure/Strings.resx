@@ -168,6 +168,12 @@
   <data name="ValidationExceptionMessage" xml:space="preserve">
     <value>One or more validation errors occured for device {0}.</value>
   </data>
+  <data name="ValidationInvalidModuleType" xml:space="preserve">
+    <value>Module type {0} is not a valid module type.</value>
+  </data>
+  <data name="ValidationInvalidSensorType" xml:space="preserve">
+    <value>Sensor type {0} is not a valid sensor type. </value>
+  </data>
   <data name="ValidationModuleExists" xml:space="preserve">
     <value>There is already a module registered for this device with the same name</value>
   </data>

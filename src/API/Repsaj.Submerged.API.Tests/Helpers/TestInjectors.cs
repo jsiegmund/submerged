@@ -77,5 +77,26 @@ namespace Repsaj.Submerged.API.Tests.Helpers
                     .Setup(x => x.GetAllRulesForDeviceAsync(TestConfigHelper.DeviceId))
                     .Returns(() => Task.FromResult(new List<DeviceRule>(new DeviceRule[] { rule })));
         }
+
+        static string mockedModuleName = "Mocked Module";
+        static string mockedSensorName = "Mocked Sensor";
+        static string mockedModuleConnectionString = "ConnectionString";
+        static string mockedSensorDescription = "Fake Sensor";
+
+        public static ModuleModel InjectMockedModule(DeviceModel device)
+        {
+            var module = ModuleModel.BuildModule(mockedModuleName, mockedModuleConnectionString, ModuleTypes.CABINET);
+            device.Modules.Add(module);
+
+            return module;
+        }
+
+        public static SensorModel InjectSensorModel(DeviceModel device)
+        {
+            var sensor = SensorModel.BuildSensor(mockedSensorName, mockedSensorDescription, SensorTypes.PH, mockedModuleName);
+            device.Sensors.Add(sensor);
+
+            return sensor;
+        }
     }
 }

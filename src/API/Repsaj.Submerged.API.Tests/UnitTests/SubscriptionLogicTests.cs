@@ -116,6 +116,23 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Device_Duplicate()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock, true);
+                TestInjectors.InjectMockedSecurityKey(autoMock);
+
+                DeviceModel device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, false);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddDeviceAsync(device, TestConfigHelper.SubscriptionUser);
+
+            }
+        }
+
+        [TestMethod]
         public async Task Update_Device_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
@@ -126,6 +143,20 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 SubscriptionModel subscription = await subscriptionLogic.GetSubscriptionAsync(TestConfigHelper.SubscriptionUser);
                 DeviceModel firstDevice = subscription.Devices.First();
                 await subscriptionLogic.UpdateDeviceAsync(firstDevice, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Update_Device_NotFound()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock, false);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                await subscriptionLogic.UpdateDeviceAsync(device, TestConfigHelper.SubscriptionUser);
             }
         }
 
@@ -157,18 +188,61 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(DeviceNotRegisteredException))]
+        public async Task Get_Device_NotFound()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock, false);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                DeviceModel device = await subscriptionLogic.GetDeviceAsync(TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+                Assert.IsNotNull(device);
+            }
+        }
+
+        [TestMethod]
         public async Task Add_Module_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
-
-                //ModuleModel sensorModule = ModuleModel.BuildModule("Sensor Module", "", ModuleTypes.SENSORS);
                 ModuleModel cabinetModule = ModuleModel.BuildModule("Cabinet Module", "", ModuleTypes.CABINET);
 
-                //await SubscriptionLogic.AddModuleAsync(sensorModule, "Scubaline 240");
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Module_WrongType()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock, true);
+                ModuleModel cabinetModule = ModuleModel.BuildModule("Cabinet Module", "", "WRONG");
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Module_Duplicate()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock, true);
+
+                ModuleModel cabinetModule1 = ModuleModel.BuildModule("Cabinet Module", "Test module 1", ModuleTypes.CABINET);
+                ModuleModel cabinetModule2 = ModuleModel.BuildModule("Cabinet Module", "Test module 2", ModuleTypes.CABINET);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddModuleAsync(cabinetModule1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+                await subscriptionLogic.AddModuleAsync(cabinetModule2, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
             }
         }
 
@@ -192,15 +266,43 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Update_Module_NotFound()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                ModuleModel module = new ModuleModel()
+                {
+                    ConnectionString = "TestConnectionString",
+                    Name = "Test Module"
+                };
+                TestInjectors.InjectMockedSubscription(autoMock, device);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.UpdateModuleAsync(module, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
         public async Task Get_ModulesForDevice_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
-                TestInjectors.InjectMockedSubscription(autoMock, true);
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                ModuleModel module = new ModuleModel()
+                {
+                    ConnectionString = "TestConnectionString",
+                    Name = "Test Module"
+                };
+                device.Modules.Add(module);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 IEnumerable<ModuleModel> deviceModules = await subscriptionLogic.GetModulesAsync(TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+
                 Assert.IsNotNull(deviceModules);
+                Assert.AreEqual(1, deviceModules.Count());
             }
         }
 
@@ -209,7 +311,9 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         {
             using (var autoMock = AutoMock.GetLoose())
             {
-                TestInjectors.InjectMockedSubscription(autoMock, true);
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+
+                TestInjectors.InjectMockedSubscription(autoMock, device);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 IEnumerable<SensorModel> sensors = await subscriptionLogic.GetSensorsAsync(TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -232,6 +336,46 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Sensor_WrongType()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                device.Modules.Add(module);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
+                TestInjectors.InjectDeviceRules(autoMock, null);
+
+                SensorModel sensor = SensorModel.BuildSensor("temperature1", "Temperature 1", "WRONG", module.Name);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Sensor_Duplicate()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
+
+                var module = TestInjectors.InjectMockedModule(device);
+                TestInjectors.InjectMockedSubscription(autoMock, device);
+                TestInjectors.InjectDeviceRules(autoMock, null);
+
+                SensorModel sensor1 = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
+                SensorModel sensor2 = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddSensorAsync(sensor1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+                await subscriptionLogic.AddSensorAsync(sensor2, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
             }
         }
 
