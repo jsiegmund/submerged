@@ -1,0 +1,1 @@
+{"bindings":[{"type":"eventHubTrigger","name":"myEventHubMessage","direction":"in","path":"repsaj-neptune-eventhub-out","connection":"repsaj-neptune-eventhub-out"}],"disabled":false}

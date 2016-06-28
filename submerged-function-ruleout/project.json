@@ -1,0 +1,10 @@
+{
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "Microsoft.Azure.NotificationHubs": "1.0.4",
+        "Newtonsoft.Json": "8.0.3"
+      }
+    }
+  }
+}

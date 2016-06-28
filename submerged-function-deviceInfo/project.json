@@ -1,0 +1,11 @@
+{
+  "frameworks": {
+    "net46": {
+      "dependencies": {
+        "Microsoft.IdentityModel": "6.1.7600.16394",
+		"Microsoft.IdentityModel.Clients.ActiveDirectory": "3.10.305110106",
+        "Newtonsoft.Json": "8.0.3"
+      }
+    }
+  }
+}

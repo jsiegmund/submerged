@@ -1,0 +1,95 @@
+{
+  "locked": false,
+  "version": 2,
+  "targets": {
+    ".NETFramework,Version=v4.6": {
+      "Microsoft.Azure.NotificationHubs/1.0.4": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAzure.ConfigurationManager": "(, )",
+          "Newtonsoft.Json": "8.0.2"
+        },
+        "frameworkAssemblies": [
+          "System.Runtime.Serialization",
+          "System.ServiceModel",
+          "System.Xml"
+        ],
+        "compile": {
+          "lib/net45-full/Microsoft.Azure.NotificationHubs.dll": {}
+        },
+        "runtime": {
+          "lib/net45-full/Microsoft.Azure.NotificationHubs.dll": {}
+        }
+      },
+      "Microsoft.WindowsAzure.ConfigurationManager/1.7.0": {
+        "type": "package",
+        "compile": {
+          "lib/net35-full/Microsoft.WindowsAzure.Configuration.dll": {}
+        },
+        "runtime": {
+          "lib/net35-full/Microsoft.WindowsAzure.Configuration.dll": {}
+        }
+      },
+      "Newtonsoft.Json/8.0.3": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Microsoft.Azure.NotificationHubs/1.0.4": {
+      "sha512": "ZdeUc/2t5JhITYIkzZdvXsLM14NtVNsqzfLe9gO1ZFINoOBT8CnjYLG2Pg7rHza+ZTpmQudOqP56Yv8dmm+02Q==",
+      "type": "package",
+      "files": [
+        "Microsoft.Azure.NotificationHubs.1.0.4.nupkg.sha512",
+        "Microsoft.Azure.NotificationHubs.nuspec",
+        "content/app.config.install.xdt",
+        "content/web.config.install.xdt",
+        "lib/net45-full/Microsoft.Azure.NotificationHubs.dll",
+        "lib/net45-full/Microsoft.Azure.NotificationHubs.xml"
+      ]
+    },
+    "Microsoft.WindowsAzure.ConfigurationManager/1.7.0": {
+      "sha512": "1VedN38WLCN8VQuMi5a6V+ZwBwvnzt+/0KESBIogzi3gHdiO+fx7uW0KTtwW9kaSST/8q6QZal98g45soSuy1A==",
+      "type": "package",
+      "files": [
+        "Microsoft.WindowsAzure.ConfigurationManager.1.7.0.nupkg.sha512",
+        "Microsoft.WindowsAzure.ConfigurationManager.nuspec",
+        "lib/net35-full/Microsoft.WindowsAzure.Configuration.dll"
+      ]
+    },
+    "Newtonsoft.Json/8.0.3": {
+      "sha512": "KGsYQdS2zLH+H8x2cZaSI7e+YZ4SFIbyy1YJQYl6GYBWjf5o4H1A68nxyq+WTyVSOJQ4GqS/DiPE+UseUizgMg==",
+      "type": "package",
+      "files": [
+        "Newtonsoft.Json.8.0.3.nupkg.sha512",
+        "Newtonsoft.Json.nuspec",
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.xml",
+        "lib/portable-net45+wp80+win8+wpa81+dnxcore50/Newtonsoft.Json.dll",
+        "lib/portable-net45+wp80+win8+wpa81+dnxcore50/Newtonsoft.Json.xml",
+        "tools/install.ps1"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "": [],
+    ".NETFramework,Version=v4.6": [
+      "Microsoft.Azure.NotificationHubs >= 1.0.4",
+      "Newtonsoft.Json >= 8.0.3"
+    ]
+  }
+}
