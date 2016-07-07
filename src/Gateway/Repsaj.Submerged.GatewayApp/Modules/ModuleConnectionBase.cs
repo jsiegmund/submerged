@@ -162,6 +162,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         protected void SetModuleStatus(ModuleConnectionStatus newStatus)
         {
+            Debug.WriteLine($"Module [{ModuleName}] changed its status to: {StatusAsText}");
+
             if (ModuleStatus != newStatus)
             {
 
@@ -169,7 +171,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 {
                     ModuleConnectionStatus oldStatus = ModuleStatus;
                     ModuleStatus = newStatus;
-                    Debug.WriteLine($"Module [{ModuleName}] changed its status to: {StatusAsText}");
 
                     // if the new status equals Disconnected, start a timer to reconnect
                     if (newStatus == ModuleConnectionStatus.Disconnected)
