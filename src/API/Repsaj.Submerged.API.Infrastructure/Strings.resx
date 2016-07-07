@@ -156,6 +156,9 @@
   <data name="UnsupportedCommandExceptionMessage" xml:space="preserve">
     <value>Device {0} does not support the command {1}.</value>
   </data>
+  <data name="ValidationCreatedChanged" xml:space="preserve">
+    <value>The value for Created cannot be changed on updating.</value>
+  </data>
   <data name="ValidationDeviceExists" xml:space="preserve">
     <value>Device already exists in the device registry</value>
   </data>
@@ -203,6 +206,9 @@
   </data>
   <data name="ValidationTankNotFound" xml:space="preserve">
     <value>Could not find a tank with that Id in the registry.</value>
+  </data>
+  <data name="ValidationUserChanged" xml:space="preserve">
+    <value>The value for User cannot be changed on updating.</value>
   </data>
   <data name="ValidationWrongUser" xml:space="preserve">
     <value>The passed in User ID does not match the registered user. Cannot continue.</value>

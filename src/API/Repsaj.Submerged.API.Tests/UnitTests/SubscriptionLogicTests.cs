@@ -28,7 +28,9 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
-                await subscriptionLogic.CreateSubscriptionAsync(TestConfigHelper.SubscriptionName, "Test description", TestConfigHelper.SubscriptionUser);
+                var result = await subscriptionLogic.CreateSubscriptionAsync(TestConfigHelper.SubscriptionName, TestStatics.subscription_description, TestConfigHelper.SubscriptionUser);
+
+                // the created subscription will not be returned because the mocked data layer will return null
             }
         }
 
@@ -71,6 +73,43 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Update_Subscription_FailureUserChanged()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+
+                SubscriptionModel subscription = await subscriptionLogic.GetSubscriptionAsync(TestConfigHelper.SubscriptionUser);
+
+                subscription.SubscriptionProperties.CreatedTime = DateTime.Now;
+
+                dynamic result = await subscriptionLogic.UpdateSubscriptionPropertiesAsync(subscription.SubscriptionProperties, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Update_SubscriptionProperties_FailureCreatedChanged()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TestInjectors.InjectMockedSubscription(autoMock);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+
+                SubscriptionModel subscription = await subscriptionLogic.GetSubscriptionAsync(TestConfigHelper.SubscriptionUser);
+
+                // deliberately change User which should not be altered
+                subscription.SubscriptionProperties.User = "";
+
+                dynamic result = await subscriptionLogic.UpdateSubscriptionPropertiesAsync(subscription.SubscriptionProperties, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
+        [TestMethod]
         public async Task Add_Tank_Success()
         {
             using (var autoMock = AutoMock.GetLoose())
@@ -107,11 +146,19 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 TestInjectors.InjectMockedSubscription(autoMock);
                 TestInjectors.InjectMockedSecurityKey(autoMock);
 
-                DeviceModel device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, false);
+                DeviceModel model = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, false);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
-                await subscriptionLogic.AddDeviceAsync(device, TestConfigHelper.SubscriptionUser);
+                var device = await subscriptionLogic.AddDeviceAsync(model, TestConfigHelper.SubscriptionUser);
 
+                Assert.AreEqual(TestConfigHelper.DeviceId, device.DeviceProperties.DeviceID);
+                Assert.IsNotNull(device.DeviceProperties.CreatedTime);
+                Assert.IsNotNull(device.DeviceProperties.UpdatedTime);
+                Assert.AreEqual(false, device.DeviceProperties.IsInMaintenance);
+                Assert.AreEqual(false, device.DeviceProperties.IsSimulatedDevice);
+                Assert.IsNotNull(device.DeviceProperties.PrimaryKey);
+                Assert.IsNotNull(device.DeviceProperties.SecondaryKey);
+                Assert.IsNull(device.DeviceProperties.DisplayOrder);
             }
         }
 

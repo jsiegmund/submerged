@@ -54,9 +54,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return true;
         }
 
-        public async Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user)
+        public async Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user, Guid? subscriptionId = null)
         {
-            SubscriptionModel subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), name, description, user);
+            if (subscriptionId == null)
+                subscriptionId = Guid.NewGuid();
+
+            SubscriptionModel subscription = SubscriptionModel.BuildSubscription(subscriptionId.Value, name, description, user);
 
             // Validation logic throws an exception if it finds a validation error
             await ValidateSubscription(subscription);
@@ -76,6 +79,19 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return await _subscriptionRepository.GetSubscriptionAsync(owner);
         }
 
+        public async Task DeleteSubscriptionAsync(SubscriptionModel subscription)
+        {
+            await _subscriptionRepository.DeleteSubscriptionAsync(subscription);
+        }
+
+        public async Task DeleteSubscriptionAsync(Guid subscriptionId, string subscriptionUser)
+        {
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionAsync(subscriptionId, subscriptionUser);
+
+            if (subscription != null)
+                await _subscriptionRepository.DeleteSubscriptionAsync(subscription);
+        }
+
         public async Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false)
         {
             SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(deviceId, owner, skipValidation);
@@ -88,7 +104,25 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return device;
         }
 
-        public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string owner, bool skipValidation = false)
+        public async Task<SubscriptionModel> UpdateSubscriptionPropertiesAsync(SubscriptionPropertiesModel properties, string owner)
+        {
+            // get the existing subscription and only update the subscription properties
+            SubscriptionModel existing = await GetSubscriptionAsync(owner);
+
+            if (existing == null)
+                throw new SubscriptionUnknownException(Strings.ValidationSubscriptionUnknown);
+
+            if (!String.Equals(properties.User, existing.SubscriptionProperties.User))
+                throw new SubscriptionValidationException(Strings.ValidationUserChanged);
+            if (properties.CreatedTime != existing.SubscriptionProperties.CreatedTime)
+                throw new SubscriptionValidationException(Strings.ValidationCreatedChanged);
+
+            existing.SubscriptionProperties = properties;
+
+            return await UpdateSubscriptionAsync(existing, owner);
+        }
+
+        internal async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string owner, bool skipValidation = false)
         {
             return await _subscriptionRepository.UpdateSubscriptionAsync(subscription, owner, skipValidation);
         }
@@ -205,7 +239,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return await UpdateSubscriptionAsync(subscription, owner);
         }
 
-        public async Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string owner)
+        public async Task<DeviceModel> AddDeviceAsync(DeviceModel device, string owner)
         {
             SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
@@ -230,7 +264,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             subscription.Devices.Add(device);
 
-            return await UpdateSubscriptionAsync(subscription, owner);
+            await UpdateSubscriptionAsync(subscription, owner);
+
+            return device;
         }
 
         public async Task SendDeviceConfigurationMessage(string deviceId)
@@ -324,7 +360,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionUnknownException();
             }
 
-            // check the tank isn't an existing one
+            // check the device exists
             var existingDevice = subscription.Devices.SingleOrDefault(t => t.DeviceProperties.DeviceID == updatedDevice.DeviceProperties.DeviceID);
             if (existingDevice == null)
             {
@@ -390,7 +426,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (existingModule == null)
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationModuleUnknown, module.Name));
 
-            device.Modules.Remove(module);
+            device.Modules.Remove(existingModule);
             await UpdateDeviceAsync(device, owner);
         }
 
@@ -465,7 +501,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             List<DeviceRule> rules = await _deviceRulesLogic.GetDeviceRulesAsync(deviceId);
 
             // find the min and max rules for this sensor, create new ones when they do not exist yet
-            DeviceRule minRule = rules.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.LessThen);
+            DeviceRule minRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.LessThen);
             if (minRule == null)
             {
                 minRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
@@ -480,7 +516,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             await _deviceRulesLogic.SaveDeviceRuleAsync(minRule);
 
-            DeviceRule maxRule = rules.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.GreaterThen);
+            DeviceRule maxRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.GreaterThen);
             if (maxRule == null)
             {
                 maxRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);

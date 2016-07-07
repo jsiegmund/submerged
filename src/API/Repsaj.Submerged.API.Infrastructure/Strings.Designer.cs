@@ -178,6 +178,15 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The value for Created cannot be changed on updating..
+        /// </summary>
+        internal static string ValidationCreatedChanged {
+            get {
+                return ResourceManager.GetString("ValidationCreatedChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device already exists in the device registry.
         /// </summary>
         internal static string ValidationDeviceExists {
@@ -318,6 +327,15 @@ namespace Repsaj.Submerged.Infrastructure {
         internal static string ValidationTankNotFound {
             get {
                 return ResourceManager.GetString("ValidationTankNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value for User cannot be changed on updating..
+        /// </summary>
+        internal static string ValidationUserChanged {
+            get {
+                return ResourceManager.GetString("ValidationUserChanged", resourceCulture);
             }
         }
         

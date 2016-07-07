@@ -23,8 +23,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
         IDocDbOperations _docDbOperations;
 
-        public SubscriptionRepository(IConfigurationProvider configProvider, IDocDbOperations docDbOperations,
-            IDeviceRulesLogic deviceRulesLogic)
+        public SubscriptionRepository(IConfigurationProvider configProvider, IDocDbOperations docDbOperations)
         {
             if (configProvider == null)
             {
@@ -114,7 +113,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
         public async Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser, bool skipValidation = false)
         {
-            dynamic exisingSubscription = await GetSubscriptionAsync(subscription.SubscriptionProperties.User);
+            dynamic exisingSubscription = await GetSubscriptionAsync(subscription.SubscriptionProperties.SubscriptionID);
 
             if (exisingSubscription == null)
             {
@@ -129,6 +128,11 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             SubscriptionModel updatedSubscription = await _docDbOperations.UpdateDocumentAsync(subscription, subscription.Id);
 
             return updatedSubscription;
+        }
+
+        public async Task DeleteSubscriptionAsync(SubscriptionModel subscription)
+        {
+            await _docDbOperations.DeleteDocumentAsync(subscription.Id);
         }
     }
 }

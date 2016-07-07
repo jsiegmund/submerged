@@ -22,21 +22,13 @@ namespace Repsaj.Submerged.Common.Utility
         private readonly string _collectionName;
         private Uri _dbUri;
 
-
-        public DocDbOperations(string docDbEndpoint,
-            string docDbKey, string dbName, string collectionName)
-        {
-            _docDbEndpoint = docDbEndpoint;
-            _docDbKey = docDbKey;
-            _dbName = dbName;
-            _collectionName = collectionName;
-        }
         public DocDbOperations(IConfigurationProvider configProvider)
-            : this(configProvider.GetConfigurationSettingValue("docdb.EndpointUrl"),
-                configProvider.GetConfigurationSettingValue("docdb.PrimaryAuthorizationKey"),
-                configProvider.GetConfigurationSettingValue("docdb.DatabaseId"),
-                configProvider.GetConfigurationSettingValue("docdb.DocumentCollectionId"))
         {
+            _docDbEndpoint = configProvider.GetConfigurationSettingValue("docdb.EndpointUrl");
+            _docDbKey = configProvider.GetConfigurationSettingValue("docdb.PrimaryAuthorizationKey");
+            _dbName = configProvider.GetConfigurationSettingValue("docdb.DatabaseId");
+            _collectionName = configProvider.GetConfigurationSettingValue("docdb.DocumentCollectionId");
+
             _client = new Microsoft.Azure.Documents.Client.DocumentClient(new Uri(_docDbEndpoint), _docDbKey);
             _dbUri = UriFactory.CreateDocumentCollectionUri(_dbName, _collectionName);
         }
@@ -78,7 +70,7 @@ namespace Repsaj.Submerged.Common.Utility
         {
             if (document == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(document));
             }
 
             Document doc = await _client.CreateDocumentAsync(_dbUri, document);
@@ -101,7 +93,7 @@ namespace Repsaj.Submerged.Common.Utility
         {
             if (updatedDocument == null)
             {
-                throw new ArgumentNullException("updatedDocument");
+                throw new ArgumentNullException(nameof(updatedDocument));
             }
 
             string docId = SchemaHelper.GetDocDbId(updatedDocument);
@@ -113,7 +105,7 @@ namespace Repsaj.Submerged.Common.Utility
         {
             if (updatedDocument == null)
             {
-                throw new ArgumentNullException("updatedDocument");
+                throw new ArgumentNullException(nameof(updatedDocument));
             }
 
             Uri docUri = UriFactory.CreateDocumentUri(_dbName, _collectionName, id);
@@ -127,19 +119,15 @@ namespace Repsaj.Submerged.Common.Utility
         /// </summary>
         /// <param name="document"></param>
         /// <returns></returns>
-        public async Task DeleteDocumentAsync(dynamic document)
+        public async Task DeleteDocumentAsync(string documentId)
         {
-            if (document == null)
+            if (documentId == null)
             {
-                throw new ArgumentNullException("document");
+                throw new ArgumentNullException(nameof(documentId));
             }
 
-            await _client.DeleteDocumentAsync(document);
-        }
-
-        public Task DeleteDocumentAsync<T>(T document) where T : class
-        {
-            throw new NotImplementedException();
+            Uri docUri = UriFactory.CreateDocumentUri(_dbName, _collectionName, documentId);
+            await _client.DeleteDocumentAsync(docUri);
         }
     }
 }

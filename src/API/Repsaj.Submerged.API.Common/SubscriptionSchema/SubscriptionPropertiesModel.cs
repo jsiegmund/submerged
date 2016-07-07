@@ -12,7 +12,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public Guid SubscriptionID { get; set; }
         public string Name { get; set; }
         public string User { get; set; }
-        public string Description { get; internal set; }
+        public string Description { get; set; }
         public bool SubscriptionEnabledState { get; set; }
         public DateTime? CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }

@@ -34,12 +34,9 @@ namespace Repsaj.Submerged.API.Tests.Helpers
 
         public static void InjectMockedSubscription(AutoMock autoMock, TankModel tank)
         {
-            var subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, "Test Subscription", TestConfigHelper.SubscriptionUser);
-            subscription.Tanks.Add(tank);
-
             autoMock.Mock<ISubscriptionRepository>()
                 .Setup(x => x.GetSubscriptionAsync(TestConfigHelper.SubscriptionUser))
-                .Returns(() => Task.FromResult<SubscriptionModel>(subscription));
+                .Returns(() => { return ReturnSubscriptionAsync(null, tank); });
         }
 
         public static void InjectMockedSubscription(AutoMock autoMock, DeviceModel device)
@@ -47,15 +44,26 @@ namespace Repsaj.Submerged.API.Tests.Helpers
             var subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, "Test Subscription", TestConfigHelper.SubscriptionUser);
 
             // add a preconfigured device to the subscription when required
-            if (device != null)
-                subscription.Devices.Add(device);
 
             autoMock.Mock<ISubscriptionRepository>()
                 .Setup(x => x.GetSubscriptionAsync(TestConfigHelper.SubscriptionUser))
-                .Returns(() => Task.FromResult<SubscriptionModel>(subscription));
+                .Returns(() => { return ReturnSubscriptionAsync(device); });
             autoMock.Mock<ISubscriptionRepository>()
                 .Setup(x => x.GetSubscriptionByDeviceId(TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser, false))
-                .Returns(() => Task.FromResult<SubscriptionModel>(subscription));
+                .Returns(() => { return ReturnSubscriptionAsync(device); });
+        }
+
+        private static async Task<SubscriptionModel> ReturnSubscriptionAsync(DeviceModel device = null, TankModel tank = null)
+        { 
+            var result = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, "Test Subscription", TestConfigHelper.SubscriptionUser);
+
+            if (device != null)
+                result.Devices.Add(device);
+
+            if (tank != null)
+                result.Tanks.Add(tank);
+
+            return result;
         }
 
         internal static void InjectDeviceRules(AutoMock autoMock, DeviceRule rule)

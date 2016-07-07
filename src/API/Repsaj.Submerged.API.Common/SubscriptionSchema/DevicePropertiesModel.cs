@@ -8,10 +8,10 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
 {
     public class DevicePropertiesModel
     {
-        public string DeviceID { get; set; }
-        public DateTime? CreatedTime { get; set; }
+        public string DeviceID { get; internal set; }
+        public DateTime? CreatedTime { get; internal set; }
         public DateTime? UpdatedTime { get; set; }
-        public bool IsSimulatedDevice { get; set; }
+        public bool IsSimulatedDevice { get; internal set; }
         public int? DisplayOrder { get; set; }
         public string PrimaryKey { get; set; }
         public string SecondaryKey { get; set; }

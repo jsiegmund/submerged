@@ -14,8 +14,7 @@ namespace Repsaj.Submerged.Common.Utility
         Task<dynamic> SaveNewDocumentAsync<T>(T document) where T : class;
         Task<JObject> UpdateDocumentAsync(dynamic updatedDocument, string id);
         Task<T> UpdateDocumentAsync<T>(T updatedDocument, string id) where T : class;
-        Task DeleteDocumentAsync(dynamic document);
-        Task DeleteDocumentAsync<T>(T document) where T : class;
+        Task DeleteDocumentAsync(string documentId);
         Task<JArray> QueryDocuments(string query, Dictionary<string, Object> queryParams);
         Task<IEnumerable<T>> Query<T>(string query, Dictionary<string, Object> queryParams);
     }

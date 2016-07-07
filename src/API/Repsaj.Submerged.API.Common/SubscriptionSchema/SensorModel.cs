@@ -26,7 +26,8 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
             {
                 Name = name,
                 DisplayName = displayName,
-                Module = moduleName
+                Module = moduleName,
+                SensorType = sensorType
             };
 
             return sensor;

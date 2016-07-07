@@ -40,5 +40,12 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel subscription, string subscriptionUser, bool skipValidation = false);
 
         Task<DeviceModel> GetDeviceAsync(string deviceId);
+
+        /// <summary>
+        /// Deletes a subscription asynchronously
+        /// </summary>
+        /// <param name="subscription"></param>
+        /// <returns></returns>
+        Task DeleteSubscriptionAsync(SubscriptionModel subscription);
     }
 }

@@ -9,10 +9,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 {
     public interface ISubscriptionLogic
     {
-        Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user);
+        Task<SubscriptionModel> CreateSubscriptionAsync(string name, string description, string user, Guid? subscripionId = null);
         Task<SubscriptionModel> GetSubscriptionAsync(Guid subscriptionId, string owner);
         Task<SubscriptionModel> GetSubscriptionAsync(string owner);
-        Task<SubscriptionModel> UpdateSubscriptionAsync(SubscriptionModel device, string owner, bool skipValidation = false);
+        Task<SubscriptionModel> UpdateSubscriptionPropertiesAsync(SubscriptionPropertiesModel properties, string owner);
+        Task DeleteSubscriptionAsync(SubscriptionModel _subscription);
+        Task DeleteSubscriptionAsync(Guid subscription_Id, string subscriptionUser);
 
 
         Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner);
@@ -21,7 +23,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
 
         Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false);
-        Task<SubscriptionModel> AddDeviceAsync(DeviceModel device, string owner);
+        Task<DeviceModel> AddDeviceAsync(DeviceModel device, string owner);
         Task<DeviceModel> UpdateDeviceAsync(DeviceModel device, string owner);
         Task DeleteDeviceAsync(DeviceModel device, string owner);
 
