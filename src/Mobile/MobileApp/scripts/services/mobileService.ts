@@ -210,6 +210,7 @@ namespace Submerged.Services {
                 console.log("gcm id " + this.registrationId);
                 if (this.mobileServiceClient) {
                     console.log("registering with Azure for GCM notifications");
+                    //var template_subscription = '{ "data" : {"message":"$(message)","subscription":"#(subscription)"}}';
                     this.mobileServiceClient.push.register('gcm', this.registrationId, null, null, this.registrationCallback);
                 }
             }
