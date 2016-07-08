@@ -87,6 +87,7 @@ namespace Repsaj.Submerged.API
             //builder.RegisterType<KeyLogic>().As<IKeyLogic>();
             builder.RegisterType<DeviceLogic>().As<IDeviceLogic>();
             builder.RegisterType<DeviceRulesLogic>().As<IDeviceRulesLogic>();
+            builder.RegisterType<TankLogLogic>().As<ITankLogLogic>();
             //builder.RegisterType<DeviceTypeLogic>().As<IDeviceTypeLogic>();
             builder.RegisterType<SecurityKeyGenerator>().As<ISecurityKeyGenerator>();
             //builder.RegisterType<ActionMappingLogic>().As<IActionMappingLogic>();
@@ -103,6 +104,7 @@ namespace Repsaj.Submerged.API
             //builder.RegisterType<DeviceRegistryRepository>().As<IDeviceRegistryListRepository>();
             builder.RegisterType<DeviceRegistryRepository>().As<IDeviceRegistryCrudRepository>();
             builder.RegisterType<DeviceRulesRepository>().As<IDeviceRulesRepository>();
+            builder.RegisterType<TankLogRepository>().As<ITankLogRepository>();
             //builder.RegisterType<SampleDeviceTypeRepository>().As<IDeviceTypeRepository>();
             //builder.RegisterType<VirtualDeviceTableStorage>().As<IVirtualDeviceStorage>();
             //builder.RegisterType<ActionMappingRepository>().As<IActionMappingRepository>();
