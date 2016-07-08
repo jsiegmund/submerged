@@ -1,12 +1,12 @@
 ﻿"use strict";
 
-angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $urlRouterProvider) {
+angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
 
     $urlRouterProvider.otherwise("/login");
 
     $stateProvider
 
-        .state("login", {
+        .state("login", <ng.ui.IState> {
             url: "/login",
             templateUrl: "app/views/login.html",
             title: "Submerged Login",
@@ -14,7 +14,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm"
         })
 
-        .state("main", {
+        .state("main", <ng.ui.IState> {
             url: "/main",
             templateUrl: "app/views/main.html",
             title: "Submerged Mobile",
@@ -22,7 +22,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm"
         })
 
-        .state("live", {
+        .state("live", <ng.ui.IState> {
             url: "/live",
             templateUrl: "app/views/live.html",
             title: "Submerged Live",
@@ -30,7 +30,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm",
         })
 
-        .state("analytics", {
+        .state("analytics", <ng.ui.IState> {
             url: "/anaytics",
             templateUrl: "app/views/analytics.html",
             title: "Submerged Analytics",
@@ -39,7 +39,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             params: { 'tab': null, 'sensor': null }
         })
 
-        .state("control", {
+        .state("control", <ng.ui.IState> {
             url: "/control",
             templateUrl: "app/views/control.html",
             title: "Submerged Control",
@@ -47,11 +47,19 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm"
         })
 
-        .state("settings", {
+        .state("settings", <ng.ui.IState> {
             url: "/settings",
             templateUrl: "app/views/settings.html",
             title: "Submerged Settings",
             controller: "SettingsController",
+            controllerAs: "vm"
+        })
+
+        .state("tanklog", <ng.ui.IState> {
+            url: "/tanklog",
+            templateUrl: "app/views/tanklog.html",
+            title: "Submerged Tank Log",
+            controller: "TankLogController",
             controllerAs: "vm"
         });
 

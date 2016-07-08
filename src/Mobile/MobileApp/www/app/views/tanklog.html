@@ -1,0 +1,17 @@
+﻿<div ng-show="vm.loading">
+    <md-card layout="column" layout-fill layout-padding layout-margin layout-align="center center">
+        <h4>Loading data</h4>
+        <p>Please wait a short moment whilst we're getting your settings from the cloud...</p>
+        <div layout="row" layout-sm="column" layout-align="space-around">
+            <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+        </div>
+    </md-card>
+</div>
+
+<md-list>
+    <md-list-item ng-repeat="log in vm.logs">
+        <p>{{log.title}}</p>
+        <p>{{log.logType}}</p>
+        <p>{{log.description}}</p>
+    </md-list-item>
+</md-list>

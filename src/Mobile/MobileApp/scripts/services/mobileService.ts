@@ -1,20 +1,4 @@
-﻿declare namespace Microsoft.WindowsAzure {
-
-    // MobileServiceClient object based on Microsoft Azure documentation: http://msdn.microsoft.com/en-us/library/windowsazure/jj554219.aspx
-    /*
-    interface MobileServiceClient {
-        new (applicationUrl: string): MobileServiceClient;
-        push: any;
-    }*/
-
-    /*
-    interface User {
-        mobileServiceAuthenticationToken: any;
-    }
-    */
-}
-
-namespace Submerged.Services {
+﻿namespace Submerged.Services {
 
     export interface IApiCallback { (error: any, success: any): void }
 

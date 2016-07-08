@@ -2,6 +2,7 @@
     select(expr: any): any;
     where(filter: any): any;
     firstOrDefault(func: any); any;
+    first(): T;
 }
 
 Array.prototype.select = function (expr: any) {
@@ -46,4 +47,8 @@ Array.prototype.where = function (filter: any) {
 
 Array.prototype.firstOrDefault = function (func: any) {
     return this.where(func)[0] || null;
+};
+
+Array.prototype.first = function () {
+    return this[0] || null;
 };
