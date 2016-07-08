@@ -159,6 +159,9 @@
   <data name="ValidationCreatedChanged" xml:space="preserve">
     <value>The value for Created cannot be changed on updating.</value>
   </data>
+  <data name="ValidationDescriptionEmpty" xml:space="preserve">
+    <value>The Description cannot be empty.</value>
+  </data>
   <data name="ValidationDeviceExists" xml:space="preserve">
     <value>Device already exists in the device registry</value>
   </data>
@@ -176,6 +179,9 @@
   </data>
   <data name="ValidationInvalidSensorType" xml:space="preserve">
     <value>Sensor type {0} is not a valid sensor type. </value>
+  </data>
+  <data name="ValidationLogTypeEmpty" xml:space="preserve">
+    <value>The LogType cannot be empty.</value>
   </data>
   <data name="ValidationModuleExists" xml:space="preserve">
     <value>There is already a module registered for this device with the same name</value>
@@ -206,6 +212,9 @@
   </data>
   <data name="ValidationTankNotFound" xml:space="preserve">
     <value>Could not find a tank with that Id in the registry.</value>
+  </data>
+  <data name="ValidationTitleEmpty" xml:space="preserve">
+    <value>The Title cannot be empty.</value>
   </data>
   <data name="ValidationUserChanged" xml:space="preserve">
     <value>The value for User cannot be changed on updating.</value>

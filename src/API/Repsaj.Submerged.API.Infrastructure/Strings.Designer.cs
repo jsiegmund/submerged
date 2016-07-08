@@ -187,6 +187,15 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The Description cannot be empty..
+        /// </summary>
+        internal static string ValidationDescriptionEmpty {
+            get {
+                return ResourceManager.GetString("ValidationDescriptionEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device already exists in the device registry.
         /// </summary>
         internal static string ValidationDeviceExists {
@@ -237,6 +246,15 @@ namespace Repsaj.Submerged.Infrastructure {
         internal static string ValidationInvalidSensorType {
             get {
                 return ResourceManager.GetString("ValidationInvalidSensorType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The LogType cannot be empty..
+        /// </summary>
+        internal static string ValidationLogTypeEmpty {
+            get {
+                return ResourceManager.GetString("ValidationLogTypeEmpty", resourceCulture);
             }
         }
         
@@ -327,6 +345,15 @@ namespace Repsaj.Submerged.Infrastructure {
         internal static string ValidationTankNotFound {
             get {
                 return ResourceManager.GetString("ValidationTankNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Title cannot be empty..
+        /// </summary>
+        internal static string ValidationTitleEmpty {
+            get {
+                return ResourceManager.GetString("ValidationTitleEmpty", resourceCulture);
             }
         }
         

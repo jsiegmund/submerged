@@ -312,6 +312,7 @@
     <Compile Include="Controllers\ModulesController.cs" />
     <Compile Include="Controllers\SensorsController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
+    <Compile Include="Controllers\TankLogController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Filters\ErrorHandlingFilter.cs" />
     <Compile Include="Global.asax.cs">

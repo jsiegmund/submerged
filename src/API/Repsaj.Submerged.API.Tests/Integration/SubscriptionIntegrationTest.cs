@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Repsaj.Submerged.API.Tests.Integration
 {
     [TestClass]
-    public class IntegrationTests
+    public class SubscriptionIntegrationTest
     {
         static SubscriptionIntegrationContext _context;
         static bool cleanupRequired = false;
@@ -29,9 +29,14 @@ namespace Repsaj.Submerged.API.Tests.Integration
             {
                 _context.Integration_Subscription_DeleteSubscription().Wait();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
+                // ignore any error during cleaning up
+            }
+            finally
+            {
+                _context.Dispose();
+                _context = null;
             }
         }
 

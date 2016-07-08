@@ -305,10 +305,10 @@ namespace Repsaj.Submerged.Infrastructure.Repository
 
         /// <summary>
         /// Retrieve a single rule from AzureTableStorage or default if none exists. 
-        /// A distinct rule is defined by the combination key deviceID/DataField
+        /// A distinct rule is defined by the combination key deviceID/ruleId
         /// </summary>
         /// <param name="deviceId"></param>
-        /// <param name="dataField"></param>
+        /// <param name="ruleId"></param>
         /// <returns></returns>
         public async Task<DeviceRule> GetDeviceRuleAsync(string deviceId, string ruleId)
         {

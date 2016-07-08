@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.API.Tests.Integration
 {
-    public class SubscriptionIntegrationContext
+    public class SubscriptionIntegrationContext : IDisposable
     {
         private AutoMock _autoMock;
 
@@ -246,6 +246,15 @@ namespace Repsaj.Submerged.API.Tests.Integration
 
             // ensure the subscription still has one single device, not multiple
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+        }
+
+        public void Dispose()
+        {
+            if (_autoMock != null)
+            {
+                _autoMock.Dispose();
+                _autoMock = null;
+            }
         }
     }
 }

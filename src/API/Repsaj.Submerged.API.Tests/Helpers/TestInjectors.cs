@@ -41,7 +41,7 @@ namespace Repsaj.Submerged.API.Tests.Helpers
 
         public static void InjectMockedSubscription(AutoMock autoMock, DeviceModel device)
         {
-            var subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, "Test Subscription", TestConfigHelper.SubscriptionUser);
+            var subscription = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, TestStatics.subscription_description, TestConfigHelper.SubscriptionUser);
 
             // add a preconfigured device to the subscription when required
 
@@ -55,7 +55,7 @@ namespace Repsaj.Submerged.API.Tests.Helpers
 
         private static async Task<SubscriptionModel> ReturnSubscriptionAsync(DeviceModel device = null, TankModel tank = null)
         { 
-            var result = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, "Test Subscription", TestConfigHelper.SubscriptionUser);
+            var result = SubscriptionModel.BuildSubscription(Guid.NewGuid(), TestConfigHelper.SubscriptionName, TestStatics.subscription_description, TestConfigHelper.SubscriptionUser);
 
             if (device != null)
                 result.Devices.Add(device);
@@ -64,6 +64,27 @@ namespace Repsaj.Submerged.API.Tests.Helpers
                 result.Tanks.Add(tank);
 
             return result;
+        }
+
+        internal static void InjectMockedTankLog(AutoMock autoMock)
+        {
+            var tankLog = new TankLog
+            {
+                LogId = TestStatics.tankLog_id,
+                TankId = TestStatics.tankLog_tankId,
+                Title = TestStatics.tankLog_title,
+                Description = TestStatics.tankLog_description,
+                LogType = TestStatics.tankLog_logType
+            };
+
+            List<TankLog> list = new List<TankLog>(new TankLog[] { tankLog });
+
+            autoMock.Mock<ITankLogRepository>()
+                .Setup(x => x.GetTankLogAsync(TestStatics.tankLog_tankId, TestStatics.tankLog_id))
+                .Returns(() => Task.FromResult(tankLog));
+            autoMock.Mock<ITankLogRepository>()
+                .Setup(x => x.GetTankLogAsync(TestStatics.tankLog_tankId))
+                .Returns(() => Task.FromResult(list));
         }
 
         internal static void InjectDeviceRules(AutoMock autoMock, DeviceRule rule)
@@ -86,22 +107,17 @@ namespace Repsaj.Submerged.API.Tests.Helpers
                     .Returns(() => Task.FromResult(new List<DeviceRule>(new DeviceRule[] { rule })));
         }
 
-        static string mockedModuleName = "Mocked Module";
-        static string mockedSensorName = "Mocked Sensor";
-        static string mockedModuleConnectionString = "ConnectionString";
-        static string mockedSensorDescription = "Fake Sensor";
-
         public static ModuleModel InjectMockedModule(DeviceModel device)
         {
-            var module = ModuleModel.BuildModule(mockedModuleName, mockedModuleConnectionString, ModuleTypes.CABINET);
+            var module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, ModuleTypes.CABINET);
             device.Modules.Add(module);
 
             return module;
         }
 
-        public static SensorModel InjectSensorModel(DeviceModel device)
+        public static SensorModel InjectMockedSensor(DeviceModel device)
         {
-            var sensor = SensorModel.BuildSensor(mockedSensorName, mockedSensorDescription, SensorTypes.PH, mockedModuleName);
+            var sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, SensorTypes.PH, TestStatics.module_name);
             device.Sensors.Add(sensor);
 
             return sensor;

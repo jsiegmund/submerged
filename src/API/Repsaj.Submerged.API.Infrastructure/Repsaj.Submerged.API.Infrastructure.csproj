@@ -143,7 +143,9 @@
     <Compile Include="BusinessLogic\IActionLogic.cs" />
     <Compile Include="BusinessLogic\IActionMappingLogic.cs" />
     <Compile Include="BusinessLogic\ISubscriptionLogic.cs" />
+    <Compile Include="BusinessLogic\ITankLogLogic.cs" />
     <Compile Include="BusinessLogic\SubscriptionLogic.cs" />
+    <Compile Include="BusinessLogic\TankLogLogic.cs" />
     <Compile Include="Exceptions\SubscriptionAdministrationExceptionBase.cs" />
     <Compile Include="Exceptions\SubscriptionValidationException.cs" />
     <Compile Include="Exceptions\SubscriptionExistsException.cs" />
@@ -155,6 +157,7 @@
     <Compile Include="Models\DevicePropertyMetadata.cs" />
     <Compile Include="Models\DevicePropertyValueModel.cs" />
     <Compile Include="Models\PropertyType.cs" />
+    <Compile Include="Models\TankLog.cs" />
     <Compile Include="Repository\ActionRepository.cs" />
     <Compile Include="Repository\IActionRepository.cs" />
     <Compile Include="BusinessLogic\IDeviceLogic.cs" />
@@ -184,7 +187,9 @@
     <Compile Include="Repository\IIotHubRepository.cs" />
     <Compile Include="Repository\IotHubRepository.cs" />
     <Compile Include="Repository\ISubscriptionRepository.cs" />
+    <Compile Include="Repository\ITankLogRepository.cs" />
     <Compile Include="Repository\SubscriptionRepository.cs" />
+    <Compile Include="Repository\TankLogRepository.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

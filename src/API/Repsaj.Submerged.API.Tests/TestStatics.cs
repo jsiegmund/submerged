@@ -25,10 +25,16 @@ namespace Repsaj.Submerged.API.Tests
 
         public static readonly string sensor_name = "[TEST] Sensor Name";
         public static readonly string sensor_displayName = "[TEST] Sensor Display Name";
+        public static readonly string sensor_description = "[TEST] Sensor Description";
         public static readonly string sensor_type = SensorTypes.TEMPERATURE;
 
         public static readonly int relay_number = 0;
         public static readonly string relay_name = "[TEST] Relay Name";
 
+        public static readonly string tankLog_title = "[TEST] Test log line";
+        public static readonly string tankLog_description = "[TEST] Test performing maintenance on the tank";
+        public static readonly string tankLog_logType = "Maintenance";
+        public static readonly Guid tankLog_id = new Guid("{7D986651-7CB7-494E-84E5-E75350F583FE}");
+        public static readonly Guid tankLog_tankId = new Guid("{9AB89AAC-715A-4B5C-A331-6B358744B7A0}");
     }
 }
