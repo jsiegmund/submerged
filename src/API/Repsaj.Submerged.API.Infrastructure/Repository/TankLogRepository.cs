@@ -2,6 +2,7 @@
 using Repsaj.Submerged.Common.Configurations;
 using Repsaj.Submerged.Common.Helpers;
 using Repsaj.Submerged.Common.Models;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
@@ -68,13 +69,12 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 return null;
             }
 
-            var result = new TankLog()
+            var result = new TankLog(tableEntity.TankId)
             {
                 Description = tableEntity.Description,
                 ETag = tableEntity.ETag,
                 LogId = new Guid(tableEntity.LogId),
                 LogType = tableEntity.LogType,
-                TankId = tableEntity.TankId,
                 TimeCreated = tableEntity.TimeCreated,
                 Title = tableEntity.Title
             };

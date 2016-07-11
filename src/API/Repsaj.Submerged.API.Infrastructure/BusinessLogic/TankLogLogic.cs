@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.Common.Models;
 using Repsaj.Submerged.Infrastructure.Exceptions;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 
 namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 {
@@ -26,6 +27,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         public async Task<TableStorageResponse<TankLog>> SaveTankLogAsync(TankLog logLine)
         {
+            if (logLine == null)
+                throw new ArgumentNullException(nameof(logLine));
+            if (logLine.LogId == null)
+                throw new ArgumentNullException(nameof(logLine.LogId));
+            if (logLine.TankId == null)
+                throw new ArgumentNullException(nameof(logLine.TankId));
+
             if (String.IsNullOrEmpty(logLine.Title))
                 throw new SubscriptionValidationException(Strings.ValidationTitleEmpty);
             if (String.IsNullOrEmpty(logLine.Description))

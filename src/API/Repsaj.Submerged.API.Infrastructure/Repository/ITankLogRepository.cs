@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.Common.Models;
 using Repsaj.Submerged.Infrastructure.Models;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 
 namespace Repsaj.Submerged.Infrastructure.Repository
 {

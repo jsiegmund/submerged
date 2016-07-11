@@ -27,7 +27,8 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             try
             {
-                _context.Integration_TankLog_DeleteLog().Wait();
+                if (cleanupRequired)
+                    _context.Integration_TankLog_DeleteLog().Wait();
             }
             catch (Exception)
             {
@@ -44,7 +45,8 @@ namespace Repsaj.Submerged.API.Tests.Integration
         public async Task Integration_TankLog()
         {
             // perform the actions we want to test 
-            await _context.Integration_TankLog_CreateLog();
+            var success = await _context.Integration_TankLog_CreateLog();
+            Assert.IsTrue(success);
             cleanupRequired = true;
 
             // try to fetch the log
@@ -56,6 +58,8 @@ namespace Repsaj.Submerged.API.Tests.Integration
             Assert.AreEqual(1, logs.Count());
 
             await _context.Integration_TankLog_DeleteLog();
+            cleanupRequired = false;
+
         }
     }
 }

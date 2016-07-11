@@ -1,4 +1,5 @@
 ﻿using Repsaj.Submerged.Common.Models;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.Models;
 using System;
 using System.Collections.Generic;

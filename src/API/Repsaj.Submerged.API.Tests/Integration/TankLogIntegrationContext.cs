@@ -1,5 +1,6 @@
 ﻿using Autofac.Extras.Moq;
 using Repsaj.Submerged.Common.Configurations;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using Repsaj.Submerged.Infrastructure.Models;
 using Repsaj.Submerged.Infrastructure.Repository;
@@ -15,8 +16,9 @@ namespace Repsaj.Submerged.API.Tests.Integration
     {
         private AutoMock _autoMock;
 
-        private Guid log_tankId = new Guid("{00000000-0000-0000-0000-000000000000}");
-        private Guid log_Id = new Guid("{00000000-0000-0000-0000-000000000000}");
+        private Guid log_tankId = Guid.NewGuid();
+        private Guid log_Id = Guid.NewGuid();
+
         private string log_title = "Integration test log";
         private string log_description = "Integration test log item. This item was inserted during integration testing. It should be ignored when it hasn't been properly cleaned up.";
         private string log_logType = "Integration test";
@@ -48,9 +50,10 @@ namespace Repsaj.Submerged.API.Tests.Integration
             };
         }
 
-        public async Task Integration_TankLog_CreateLog()
+        public async Task<bool> Integration_TankLog_CreateLog()
         {
-            await _tankLogLogic.SaveTankLogAsync(_tankLog);
+            var result = await _tankLogLogic.SaveTankLogAsync(_tankLog);
+            return result.Status == Common.Models.TableStorageResponseStatus.Successful;
         }
 
         public async Task<TankLog> Integration_TankLog_GetLog()

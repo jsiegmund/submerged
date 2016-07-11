@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Mobile.Server.Config;
 using Repsaj.Submerged.API.Helpers;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using Repsaj.Submerged.Infrastructure.Models;
 using System;
@@ -27,15 +28,9 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<IHttpActionResult> Post(string logTitle, string logDescription, string logType)
+        public async Task<IHttpActionResult> Post(Guid tankId, string logTitle, string logDescription, string logType)
         {
-            TankLog newLog = new TankLog
-            {
-                Title = logTitle,
-                Description = logDescription,
-                LogType = logType
-            };
-
+            TankLog newLog = TankLog.BuildLog(tankId, logTitle, logType, logDescription);
             await _tankLogLogic.SaveTankLogAsync(newLog);
             return Ok();
         }

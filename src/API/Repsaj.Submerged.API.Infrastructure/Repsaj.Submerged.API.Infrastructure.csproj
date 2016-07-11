@@ -157,7 +157,6 @@
     <Compile Include="Models\DevicePropertyMetadata.cs" />
     <Compile Include="Models\DevicePropertyValueModel.cs" />
     <Compile Include="Models\PropertyType.cs" />
-    <Compile Include="Models\TankLog.cs" />
     <Compile Include="Repository\ActionRepository.cs" />
     <Compile Include="Repository\IActionRepository.cs" />
     <Compile Include="BusinessLogic\IDeviceLogic.cs" />

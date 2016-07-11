@@ -4,12 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repsaj.Submerged.Infrastructure.Models
+namespace Repsaj.Submerged.Common.SubscriptionSchema
 {
     public class TankLog
     {
         public TankLog()
         {
+            TimeCreated = DateTime.UtcNow;
+        }
+
+        public TankLog(Guid tankId)
+        {
+            TankId = tankId;
             LogId = Guid.NewGuid();
             TimeCreated = DateTime.UtcNow;
         }
@@ -21,5 +27,17 @@ namespace Repsaj.Submerged.Infrastructure.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string LogType { get; set; }
+
+        public static TankLog BuildLog(Guid tankId, string title, string type, string description)
+        {
+            TankLog newLog = new TankLog(tankId)
+            {
+                Title = title,
+                LogType = type,
+                Description = description
+            };
+
+            return newLog;
+        }
     }
 }
