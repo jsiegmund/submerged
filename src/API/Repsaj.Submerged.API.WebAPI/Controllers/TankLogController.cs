@@ -28,10 +28,9 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<IHttpActionResult> Post(Guid tankId, string logTitle, string logDescription, string logType)
+        public async Task<IHttpActionResult> Post(TankLog log)
         {
-            TankLog newLog = TankLog.BuildLog(tankId, logTitle, logType, logDescription);
-            await _tankLogLogic.SaveTankLogAsync(newLog);
+            await _tankLogLogic.SaveTankLogAsync(log);
             return Ok();
         }
 

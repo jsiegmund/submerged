@@ -41,6 +41,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (String.IsNullOrEmpty(logLine.LogType))
                 throw new SubscriptionValidationException(Strings.ValidationLogTypeEmpty);
 
+            if (logLine.LogId == null || logLine.LogId == Guid.Empty)
+                logLine.LogId = Guid.NewGuid();
+
             return await _tankLogRepository.SaveTankLogAsync(logLine); 
         }
 
