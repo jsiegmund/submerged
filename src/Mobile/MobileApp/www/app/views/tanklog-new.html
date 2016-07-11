@@ -1,0 +1,33 @@
+﻿<md-content layout="column" layout-fill layout-padding>
+
+    <!-- Title -->
+    <md-input-container flex="none" style="margin-bottom: 0;">
+        <label>Title</label>
+        <input type="text" ng-model="vm.newLog.title" class="md-display-1" />
+    </md-input-container>
+
+    <!-- LogType -->
+    <md-input-container flex="none">
+        <label>Type</label>
+        <md-select ng-model="vm.newLog.logType">
+            <md-option ng-repeat="logType in vm.logTypes" value="{{logType.value}}">
+                {{logType.display}}
+            </md-option>
+        </md-select>
+    </md-input-container>
+
+    <!-- Description -->
+    <div id="description" layout="column" flex ng-cloak>
+        <md-input-container flex>
+            <label>Description</label>
+            <textarea ng-model="vm.newLog.description" />
+        </md-input-container>
+    </div>
+
+    <!-- Action buttons -->
+    <div layout="row" layout-padding layout-align="end center" flex="none">
+        <md-button ng-click="vm.cancelNew()" class="md-raised md-primary">CANCEL</md-button>
+        <md-button ng-click="vm.saveNew()" class="md-raised md-primary">SAVE</md-button>
+    </div>
+
+</md-content>

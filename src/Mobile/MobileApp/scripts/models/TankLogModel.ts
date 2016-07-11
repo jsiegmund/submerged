@@ -5,5 +5,6 @@
         title: string;
         description: string;
         logType: string;
+        createdTime: Date;
     }
 }

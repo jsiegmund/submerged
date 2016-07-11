@@ -1,0 +1,25 @@
+﻿<md-content layout="column" layout-fill layout-padding>
+
+    <!-- Title -->
+    <md-input-container style="margin-bottom: 0;">
+        <label>Title</label>
+        <input type="text" ng-model="vm.selectedLog.title" ng-readonly="true" class="md-display-1" />
+    </md-input-container>
+
+     <!-- LogType -->
+     <md-input-container>
+         <label>Type</label>
+         <md-select ng-model="vm.selectedLog.logType" ng-disabled="true">
+             <md-option ng-repeat="logType in vm.logTypes" value="{{logType.value}}">
+                 {{logType.display}}
+             </md-option>
+         </md-select>
+     </md-input-container>
+
+    <!-- Description -->
+    <md-input-container>
+        <label>Description</label>
+        <textarea ng-model="vm.selectedLog.description" ng-readonly="true" />
+    </md-input-container>
+
+</md-content>

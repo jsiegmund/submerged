@@ -1,4 +1,9 @@
-﻿.md-button.npt-kpigreen {
+﻿body {
+    height: 100%;
+    width: 100%;
+}
+
+.md-button.npt-kpigreen {
     background-color: #1B5E20;
     color: white;
 }
@@ -16,4 +21,12 @@
 .md-button.npt-kpigray {
     background-color: gray;
     color: white;
+}
+
+md-list.md-default-theme md-list-item > md-icon, md-list md-list-item > md-icon {
+    color: rgba(0,0,0,0.54);
+}
+
+#description {
+    overflow-y: auto;
 }
