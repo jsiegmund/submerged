@@ -10,7 +10,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             url: "/login",
             templateUrl: "app/views/login.html",
             title: "Submerged Login",
-            controller: "LoginContoller",
+            controller: "LoginController",
             controllerAs: "vm"
         })
 

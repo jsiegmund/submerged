@@ -42,7 +42,7 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok(result);
         }
 
-        [Route("delete")]
+        [Route("")]
         [HttpDelete]
         public async Task<IHttpActionResult> Delete(Guid tankId, Guid logId)
         {

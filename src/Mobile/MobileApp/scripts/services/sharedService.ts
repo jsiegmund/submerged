@@ -1,6 +1,4 @@
-﻿"use strict";
-
-namespace Submerged.Services {
+﻿namespace Submerged.Services {
 
     export class ApiInfo {
         apiUrl: string;
@@ -57,7 +55,7 @@ namespace Submerged.Services {
         }
     }
 
-    export interface IShared {
+    export interface ISharedService {
         settings: ISettings;
 
         save(): void;
@@ -66,7 +64,7 @@ namespace Submerged.Services {
         loadSubscriptionFromCloud(mobileService: IMobileService): ng.IPromise<ISettings>;
     }
 
-    export class Shared implements IShared {
+    export class SharedService implements ISharedService {
 
         settings: ISettings;
         file: string = "subscription.json";
@@ -187,7 +185,6 @@ namespace Submerged.Services {
             this.loadSubscription(mobileService).then(function(subscription) {
                 // build a new settings object and save the subscription in it
                 deferred.resolve(subscription);
-
             }, function (err) {
                 deferred.reject();
             });
@@ -258,5 +255,5 @@ namespace Submerged.Services {
 
     }
 
-    angular.module("ngapp").service("shared", Shared);
+    angular.module("ngapp").service("sharedService", SharedService);
 }

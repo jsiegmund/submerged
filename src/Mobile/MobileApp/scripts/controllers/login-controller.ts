@@ -4,10 +4,10 @@
 
         loading: boolean;
         vm: LoginController = this;
-        static $inject = ['mobileService', '$location', 'shared'];
+        static $inject = ['mobileService', '$location', 'sharedService'];
 
         constructor(private mobileService: Submerged.Services.IMobileService, private $location: ng.ILocationService,
-            private shared: Services.IShared) {
+            private sharedService: Services.ISharedService) {
 
             this.ensureLogin().then(
                 (() => {
@@ -33,7 +33,7 @@
 
         loadSettings(): ng.IPromise<{}> {
             console.log("logincontroller.loadSettings");
-            return this.shared.init(this.mobileService);
+            return this.sharedService.init(this.mobileService);
         }
 
         redirect(): void {
@@ -47,5 +47,5 @@
         }
     }
 
-    angular.module("ngapp").controller("LoginContoller", LoginController);
+    angular.module("ngapp").controller("LoginController", LoginController);
 }

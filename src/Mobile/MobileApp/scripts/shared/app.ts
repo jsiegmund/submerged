@@ -1,8 +1,9 @@
 ﻿"use strict";
 
-angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "ngCordova.plugins", "ngStorage", "TimerApp", "angular-jwt"])
+angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "ngCordova.plugins", "ngStorage", "angular-jwt", "pr.longpress"])
 
-    .run(function ($rootScope: ng.IRootScopeService, $cordovaStatusbar: any, $location: ng.ILocationService, shared: Submerged.Services.IShared) {
+    .run(function ($rootScope: ng.IRootScopeService, $cordovaStatusbar: any, $location: ng.ILocationService,
+        sharedService: Submerged.Services.ISharedService, menuService: Submerged.Services.IMenuService) {
 
         document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -14,6 +15,19 @@ angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "n
 
             //document.addEventListener("backbutton", onBackButton, false);
             document.addEventListener("resume", onResume, false);
+            $rootScope.$on('$stateChangeSuccess', changeTitle);
+        }
+
+        /* Using the title of the state to set the title of the page displayed in the menu bar.
+           Menu service is intermediate between here and the actual menu controller
+        */
+        function changeTitle(event: ng.IAngularEvent, toState: any) {
+            var newTitle = 'Submerged';
+
+            if (toState.title)
+                newTitle = toState.title;
+
+            menuService.setTitle(newTitle);
         }
 
         /* Hijack Android Back Button (You Can Set Different Functions for Each View by Checking the $state.current) */

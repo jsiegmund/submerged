@@ -8,12 +8,14 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://login.windows.net https://neptune-mobileapi.azurewebsites.net; style-src 'self'">-->
     <!--<link rel="stylesheet" type="text/css" href="assets/css/index.css" />-->
-    <link rel="stylesheet" type="text/css" href="css/submerged.css" />
     <link rel="stylesheet" type="text/css" href="lib/angular/angular-csp.css" />
     <link rel="stylesheet" type="text/css" href="lib/angular-material/angular-material.min.css" />
     <link rel="stylesheet" type="text/css" href="lib/angular-material-icons/angular-material-icons.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700" />
+
+    <!-- Load as latest for overrides -->
+    <link rel="stylesheet" type="text/css" href="css/submerged.css" />
 
     <!-- Add compatibility for the windows store -->
     <!--<script type="text/javascript" src="app/shared/winstore-jscompat.js"></script>-->
@@ -33,6 +35,7 @@
     <script type="text/javascript" src="lib/angular-animate/angular-animate.min.js"></script>
     <script type="text/javascript" src="lib/ngstorage/ngStorage.min.js"></script>
     <script type="text/javascript" src="lib/angular-jwt/dist/angular-jwt.min.js"></script>
+    <script type="text/javascript" src="lib/angular-long-press/dist/angular-long-press.js"></script>
     <!--script type="text/javascript" src="assets/lib/ngTouch.min.js"></script  No Longer Supported by Angular-Material-->
     <!--<script type="text/javascript" src="assets/lib/angular-signalr-hub/signalr-hub.js"></script>-->
     <!-- Angular Material -->
@@ -53,14 +56,22 @@
     <md-content flex layout="column" layout-fill>
 
         <!-- Menu bar -->
-        <div ng-controller="MenuController">
+        <div ng-controller="MenuController as ctrl">
             <md-toolbar flex>
-                <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
-                    <md-button class="md-icon-button md-primary" aria-label="Menu" ng-click="toggle()">
+                <div class="md-toolbar-tools" layout="row">
+                    <md-button class="md-icon-button md-primary" aria-label="Menu" ng-click="ctrl.toggle()" flex="none">
                         <md-icon md-svg-src="icons/menu_24px.svg" class="s24" style="color: white;"></md-icon>
                     </md-button>
-                    <p>{{ title }}</p>
-                    <div style="width: 40px; height: 40px;"></div>
+                    <div class="smb-title" flex="auto">
+                        {{ ctrl.title }}
+                    </div>
+                    <div class="smb-command-buttons" flex>
+                        <div ng-repeat="button in ctrl.buttons">
+                            <md-button ng-click="button.click()" class="md-icon-button">
+                                <md-icon md-svg-src="{{button.svgSrc}}" aria-label="{{button.label}}"></md-icon>
+                            </md-button>
+                        </div>
+                    </div>
                 </div>
             </md-toolbar>
 
@@ -70,27 +81,27 @@
                     <h1 class="md-toolbar-tools">Menu</h1>
                 </md-toolbar>
                 <md-list ng-cloak>
-                    <md-list-item ng-click="navigate('main')">
+                    <md-list-item ng-click="ctrl.navigate('main')">
                         <md-icon md-svg-src="icons/home_24px.svg" class="s24"></md-icon>
                         <p>Home</p>
                     </md-list-item>
-                    <md-list-item ng-click="navigate('live')">
+                    <md-list-item ng-click="ctrl.navigate('live')">
                         <md-icon md-svg-src="icons/tap_and_play_24px.svg" class="s24"></md-icon>
                         <p>Live</p>
                     </md-list-item>
-                    <md-list-item ng-click="navigate('analytics')">
+                    <md-list-item ng-click="ctrl.navigate('analytics')">
                         <md-icon md-svg-src="icons/trending_up_24px.svg" class="s24"></md-icon>
                         <p>Analytics</p>
                     </md-list-item>
-                    <md-list-item ng-click="navigate('tanklog')">
+                    <md-list-item ng-click="ctrl.navigate('tanklog')">
                         <md-icon md-svg-src="icons/event_note_24px.svg" class="s24"></md-icon>
                         <p>Tank Log</p>
                     </md-list-item>
-                    <md-list-item ng-click="navigate('control')">
+                    <md-list-item ng-click="ctrl.navigate('control')">
                         <md-icon md-svg-src="icons/power_settings_new_24px.svg" class="s24"></md-icon>
                         <p>Outlet control</p>
                     </md-list-item>
-                    <md-list-item ng-click="navigate('settings')">
+                    <md-list-item ng-click="ctrl.navigate('settings')">
                         <md-icon md-svg-src="icons/settings_24px.svg" class="s24"></md-icon>
                         <p>Settings</p>
                     </md-list-item>

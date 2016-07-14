@@ -1,13 +1,24 @@
-﻿angular.module('ngapp').directive('smLoadingIndicator', function () {
-    return {
-        restrict: 'EA', //E = element, A = attribute, C = class, M = comment    
-        templateUrl: 'app/directives/loading-indicator.html',
-        replace: true,
-        transclude: true,
-        scope: {
+﻿namespace Submerged.Directives {
+
+    export class LoadingIndicatorDirective implements ng.IDirective {
+        public restrict = 'EA'; //E = element, A = attribute, C = class, M = comment    
+        public templateUrl = 'app/directives/loading-indicator.html';
+        public replace = true;
+        public transclude = true;
+        public scope = {
             displayText: '=smText'
-        },
-        link: function ($scope, element, attrs) {
+        };
+
+        link($scope, element, attrs) {
+
         }
-    };
-});
+
+        static factory(): ng.IDirectiveFactory {
+            const directive = () => new LoadingIndicatorDirective();
+            directive.$inject = [];
+            return directive;
+        }
+    }
+
+    angular.module('ngapp').directive('smLoadingIndicator', LoadingIndicatorDirective.factory());
+}

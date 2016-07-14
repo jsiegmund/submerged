@@ -21,13 +21,13 @@
 
         sensors: Submerged.Models.SensorModel[];
 
-        static $inject = ['shared', 'mobileService', '$scope', '$stateParams', '$timeout'];
+        //static $inject = ['shared', 'mobileService', '$scope', '$stateParams', '$timeout'];
 
-        constructor(private shared: Services.IShared, private mobileService: Services.IMobileService,
+        constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService,
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService) {
 
-            this.deviceId = shared.settings.getDeviceId();
-            this.timezoneOffset = shared.settings.globalizationInfo.server_offset_seconds;
+            this.deviceId = sharedService.settings.getDeviceId();
+            this.timezoneOffset = sharedService.settings.globalizationInfo.server_offset_seconds;
             this.loadSensors();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
@@ -65,8 +65,8 @@
                     var sensors: Models.SensorModel[] = success.result;
                     this.processSensors(sensors);      // process the last known data for display
 
-                    this.shared.settings.subscription.sensors = sensors;
-                    this.shared.save();
+                    this.sharedService.settings.subscription.sensors = sensors;
+                    this.sharedService.save();
                 }
             }).bind(this));
         }

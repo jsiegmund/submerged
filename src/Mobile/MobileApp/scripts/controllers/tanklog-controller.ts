@@ -1,22 +1,28 @@
 ﻿namespace Submerged.Controllers {
 
+    class TankLogModel extends Models.TankLogModel {
+        selected: boolean;
+    }
+
     export class TankLogController {
 
-        private logs: Models.TankLogModel[];
-        private newLog: Models.TankLogModel;
+        private logs: TankLogModel[];
+        private newLog: TankLogModel;
         private selectedLog: Models.TankLogModel;
         private loading: boolean = true;
 
         private logTypes: {}[];
 
-        constructor(private shared: Services.IShared, private tankLogService: Services.ITankLogService, private $location: ng.ILocationService) {
-            var tank = shared.settings.subscription.tanks.first();
+        constructor(private sharedService: Services.ISharedService, private tankLogService: Services.ITankLogService, private $location: ng.ILocationService,
+            private menuService: Services.IMenuService, private $mdToast: ng.material.IToastService, private $q: ng.IQService) {
 
-            this.newLog = new Models.TankLogModel;
+            var tank = sharedService.settings.subscription.tanks.first();
+
+            this.newLog = new TankLogModel;
             this.newLog.tankId = tank.id;
 
             this.tankLogService.getTankLogs(tank.id).then((result) => {
-                this.logs = result;
+                this.logs = <TankLogModel[]>result;
                 this.loading = false;
             }, (error) => {
                 this.loading = false;
@@ -26,9 +32,81 @@
             this.selectedLog = this.tankLogService.getSelectedLog();
         }
 
-        deleteLog(logId: string) {
-            var tank = this.shared.settings.subscription.tanks.first();
-            this.tankLogService.deleteLog(tank.id, logId);
+        logSelectionChanged() {
+            var selected = this.logs.any({ selected: true });
+
+            if (selected && this.menuService.getButtons().length == 0) {
+                var deleteButton = new Services.CommandButton();
+                deleteButton.svgSrc = 'icons/ic_delete_24px.svg';
+                deleteButton.clickHandler = this.deleteLogs;
+                deleteButton.label = 'Delete';
+                deleteButton.owner = this;
+
+                this.menuService.setButtons([deleteButton]);
+            }
+            else if (!selected && this.menuService.getButtons().length > 0) {
+                this.menuService.setButtons([]);
+            }
+        }
+
+        toggleLogSelected(log: TankLogModel) {
+            log.selected = !log.selected;
+            this.logSelectionChanged();
+        };
+
+        logClicked(log: TankLogModel, $event: ng.IAngularEvent): void {
+            var selected = this.logs.any({ selected: true });
+
+            if (!selected)
+            {
+                this.tankLogService.setSelectedLog(log);
+                this.$location.path("/tanklog/detail");
+            }                
+            else
+                this.toggleLogSelected(log);                
+        }
+
+
+        deleteLogs() {
+            var selected = this.logs.where({ selected: true });
+            var promises = [];
+
+            for (var log of selected) {
+                promises.push(this.deleteLog(log));
+            }
+
+            this.$q.all(promises).then((results) => {
+                var failed = results.any(function (a) { return a === false });
+
+                // display a toast to inform the user of the outcome
+                if (!failed && results.length > 1)
+                    this.showSimpleToast("Logs have been deleted.");
+                else if (!failed && results.length === 1)
+                    this.showSimpleToast("Log has been deleted.");
+                else
+                    this.showSimpleToast("Something went wrong.");
+
+                // call logSelectedChanged to remove the delete button again
+                this.logSelectionChanged();
+            }, () => {
+                this.logSelectionChanged();
+            });
+        }
+
+        deleteLog(log: TankLogModel): ng.IPromise<boolean> {
+            var deferred = this.$q.defer();
+
+            this.tankLogService.deleteLog(log.tankId, log.logId).then(() => {
+                // success = delete log entry from local list
+                var index = this.logs.indexOf(log);
+                this.logs.splice(index, 1);
+
+                deferred.resolve(true);
+            }, () => {
+                deferred.resolve(false);
+            });
+
+            return deferred.promise;
         }
 
         getLogIcon(logType: string): string {
@@ -49,6 +127,15 @@
                 deferred;
             return results;
         }
+
+        showSimpleToast(text: string) {
+            this.$mdToast.show(
+                this.$mdToast.simple()
+                    .textContent(text)
+                    .position("bottom center")
+                    .hideDelay(3000)
+            );
+        };
 
         /**
          * Create filter function for a query string
@@ -72,11 +159,6 @@
             this.tankLogService.saveTankLog(this.newLog).then(() => {
                 this.$location.path("/tanklog");
             });
-        }
-
-        openDetails(log: Models.TankLogModel): void {
-            this.tankLogService.setSelectedLog(log);
-            this.$location.path("/tanklog/detail");
         }
     }
 

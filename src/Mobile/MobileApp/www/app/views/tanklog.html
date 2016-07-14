@@ -12,13 +12,13 @@
 
     <div flex layout="row" layout-fill style="height: 100%;">
        <md-list flex class="md-dense">
-           <md-list-item ng-repeat="log in vm.logs" class="md-2-line" ng-click="vm.openDetails(log);">
-               <md-icon md-svg-src="{{vm.getLogIcon(log.logType)}}" class="md-icon md-24"></md-icon>
-               <div class="md-list-item-text" layout="column">
-                   <h3>{{log.title}}</h3>
-                   <h4>Timestamp: {{log.timeCreated.toLocaleString();}}</h4>
-               </div>
-               <md-icon md-svg-src="/icons/ic_delete_24px.svg" class="md-icon md-24" ng-click="vm.deleteLog(log.logId)"></md-icon>
+           <md-list-item ng-repeat="log in vm.logs" class="md-2-line" ng-class="log.selected ? 'selected' : false"
+                         ng-click="vm.logClicked(log)" on-long-press="vm.toggleLogSelected(log)" longPressDuration="300">
+                   <md-icon md-svg-src="{{vm.getLogIcon(log.logType)}}" class="md-icon md-24"></md-icon>
+                   <div class="md-list-item-text" layout="column">
+                       <h3>{{log.title}}</h3>
+                       <h4>Timestamp: {{log.timeCreated.toLocaleString();}}</h4>
+                   </div>
                <md-divider></md-divider>
            </md-list-item>
        </md-list>

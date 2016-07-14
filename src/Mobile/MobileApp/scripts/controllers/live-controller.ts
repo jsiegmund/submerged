@@ -43,18 +43,18 @@ namespace Submerged.Controllers {
         deviceId: string
         timezoneOffsetSeconds: number;
 
-        static $inject = ['shared', 'mobileService', 'signalRService', '$state', '$scope', '$timeout', '$sce'];
+        //static $inject = ['sharedService', 'mobileService', 'signalRService', '$state', '$scope', '$timeout', '$sce'];
 
-        constructor(private shared: Submerged.Services.IShared, private mobileService: Submerged.Services.IMobileService,
+        constructor(private sharedService: Submerged.Services.ISharedService, private mobileService: Submerged.Services.IMobileService,
             private signalRService: Submerged.Services.ISignalRService,
             private $state: ng.ui.IState, private $scope: ng.IRootScopeService, private $timeout: ng.ITimeoutService,
             private $sce: ng.ISCEService) {
 
-            this.deviceId = shared.settings.getDeviceId();
-            this.timezoneOffsetSeconds = shared.settings.globalizationInfo.server_offset_seconds;
+            this.deviceId = sharedService.settings.getDeviceId();
+            this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
 
             // get the settings stored in local storage; when empty refresh from cloud
-            var settings = shared.settings;
+            var settings = sharedService.settings;
             if (settings.subscription.sensors == null || settings.subscription.sensors.length == 0) {
                 this.loadSensors();
             }
@@ -109,8 +109,8 @@ namespace Submerged.Controllers {
                     var sensors: Models.SensorModel[] = success.result;
                     this.processSensors(sensors);      // process the last known data for display
 
-                    this.shared.settings.subscription.sensors = sensors;
-                    this.shared.save();    
+                    this.sharedService.settings.subscription.sensors = sensors;
+                    this.sharedService.save();    
                 }
             }).bind(this));
         }

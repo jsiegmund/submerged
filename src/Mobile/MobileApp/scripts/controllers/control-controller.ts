@@ -6,11 +6,11 @@
         maintenanceMode: boolean;
         disabled: boolean = true;
 
-        constructor(private shared: Services.IShared, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
+        constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
             private $state: ng.ui.IStateService) {
 
-            this.deviceId = shared.settings.getDeviceId();
-            this.maintenanceMode = shared.settings.getDevice().deviceProperties.isInMaintenance;
+            this.deviceId = sharedService.settings.getDeviceId();
+            this.maintenanceMode = sharedService.settings.getDevice().deviceProperties.isInMaintenance;
             this.loadRelays();
         }
 
@@ -33,7 +33,7 @@
 
         toggleMaintenance() {
             this.disabled = true;
-            this.shared.settings.getDevice().deviceProperties.isInMaintenance = this.maintenanceMode;
+            this.sharedService.settings.getDevice().deviceProperties.isInMaintenance = this.maintenanceMode;
             var apiUrl = "control/maintenance/toggle?deviceId=" + this.deviceId + "&inMaintenance=" + this.maintenanceMode;
 
             this.mobileService.invokeApi(apiUrl, {

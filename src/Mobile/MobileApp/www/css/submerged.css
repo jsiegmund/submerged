@@ -30,3 +30,27 @@ md-list.md-default-theme md-list-item > md-icon, md-list md-list-item > md-icon 
 #description {
     overflow-y: auto;
 }
+
+.md-toolbar-tools .smb-title {
+    padding-left: 5px;
+}
+
+.md-toolbar-tools {
+    padding-right: 0;   /* cancel padding on right because of command buttons */
+}
+
+.md-toolbar-tools .smb-command-buttons {
+    align-content: flex-end;
+}
+
+.md-toolbar-tools .md-icon-button {
+    color: white;
+}
+
+.selected {
+    background-color: rgba(158,158,158,0.2);
+}
+
+md-input-container {
+    margin: 8px 0;
+}

@@ -9,10 +9,10 @@
 
         deviceId: string;
 
-        constructor(private shared: Services.IShared, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
+        constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
             private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService) {
 
-            this.deviceId = shared.settings.getDeviceId();
+            this.deviceId = sharedService.settings.getDeviceId();
 
             var apiUrl = "sensors?deviceId=" + this.deviceId;
             mobileService.invokeApi(apiUrl, {
@@ -63,12 +63,12 @@
         save(): void {
             this.saving = true;
 
-            this.shared.settings.subscription.sensors = this.sensors;
-            this.shared.save();
+            this.sharedService.settings.subscription.sensors = this.sensors;
+            this.sharedService.save();
 
             var apiUrl = "sensors/save?deviceId=" + this.deviceId;
             this.mobileService.invokeApi(apiUrl, {
-                body: this.shared.settings.subscription.sensors,
+                body: this.sharedService.settings.subscription.sensors,
                 method: "post"
             }, ((error, success) => {
                 this.saving = false;

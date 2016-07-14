@@ -1,8 +1,9 @@
 ﻿interface Array<T> {
-    select(expr: any): any;
-    where(filter: any): any;
-    firstOrDefault(func: any); any;
+    select(expr: any): Array<T>;
+    where(filter: any): Array<T>;
+    firstOrDefault(func: any): T;
     first(): T;
+    any(filter: any): boolean;
 }
 
 Array.prototype.select = function (expr: any) {
@@ -43,6 +44,11 @@ Array.prototype.where = function (filter: any) {
             throw new TypeError('func must be either a' +
                 'function or an object of properties and values to filter by');
     }
+};
+
+Array.prototype.any = function (filter: any): boolean {
+    var collection = this;
+    return this.where(filter).length > 0;
 };
 
 Array.prototype.firstOrDefault = function (func: any) {

@@ -19,8 +19,8 @@
         private file: string = "authtoken.json";
         private folder: string;                     // initialized during init()
 
-        constructor(private shared: IShared, private fileService: IFileService, private $q: ng.IQService, private jwtHelper: ng.jwt.IJwtHelper) {
-            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.shared.settings.apiInfo.apiUrl);
+        constructor(private sharedService: ISharedService, private fileService: IFileService, private $q: ng.IQService, private jwtHelper: ng.jwt.IJwtHelper) {
+            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.sharedService.settings.apiInfo.apiUrl);
             this.init();
         }
 
@@ -168,7 +168,7 @@
 
             this.pushRegistration = window.PushNotification.init({
                 android: {
-                    senderID: this.shared.settings.apiInfo.gcmSenderID
+                    senderID: this.sharedService.settings.apiInfo.gcmSenderID
                 }
             });
 
