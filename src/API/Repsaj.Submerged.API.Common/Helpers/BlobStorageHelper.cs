@@ -104,6 +104,49 @@ namespace Repsaj.Submerged.Common.Helpers
         }
 
         /// <summary>
+        /// Exctract's a blob item's last modified date.
+        /// </summary>
+        /// <param name="blobItem">
+        /// The blob item, for which to extract a last modified date.
+        /// </param>
+        /// <returns>
+        /// blobItem's last modified date, or null, of such could not be 
+        /// extracted.
+        /// </returns>
+        public static DateTime? ExtractBlobItemPropertyDate(IListBlobItem blobItem)
+        {
+            if (blobItem == null)
+            {
+                throw new ArgumentNullException("blobItem");
+            }
+
+            BlobProperties blobProperties;
+            CloudBlockBlob blockBlob;
+            CloudPageBlob pageBlob;
+
+            if ((blockBlob = blobItem as CloudBlockBlob) != null)
+            {
+                blobProperties = blockBlob.Properties;
+            }
+            else if ((pageBlob = blobItem as CloudPageBlob) != null)
+            {
+                blobProperties = pageBlob.Properties;
+            }
+            else
+            {
+                blobProperties = null;
+            }
+
+            if ((blobProperties != null) &&
+                blobProperties.LastModified.HasValue)
+            {
+                return blobProperties.LastModified.Value.DateTime;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Load's a blob listing's items.
         /// </summary>
         /// <param name="segmentLoader">

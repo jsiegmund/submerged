@@ -79,7 +79,12 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                             null);
                     });
 
-            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t));
+
+            // TODO: instead of doing it like this, all blobmodels should be loaded from files that have the correct 
+            // datetime pattern in the folder structure. Then we should do a compare to find out what the latest 
+            // record was. This is a temporary fix.
+            blobs = blobs.OrderByDescending(t => BlobStorageHelper.ExtractBlobItemDate(t))
+                         .OrderByDescending(t => BlobStorageHelper.ExtractBlobItemPropertyDate(t));
 
             CloudBlockBlob blockBlob;
             IEnumerable<DeviceTelemetryModel> blobModels;
