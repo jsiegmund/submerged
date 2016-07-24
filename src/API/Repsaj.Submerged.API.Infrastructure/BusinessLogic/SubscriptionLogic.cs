@@ -10,6 +10,7 @@ using Repsaj.Submerged.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -382,7 +383,14 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             if (existingModule != null)
                 throw new SubscriptionValidationException(Strings.ValidationModuleExists);
-            if (module.ModuleType != ModuleTypes.CABINET && module.ModuleType != ModuleTypes.SENSORS)
+
+            string[] moduleTypes = typeof(ModuleTypes).GetFields(BindingFlags.Public | BindingFlags.Static)
+                                                      .Select(p => p.GetValue(null))
+                                                      .Cast<string>()
+                                                      .ToArray();
+
+            // check that the given module type exists
+            if (! moduleTypes.Contains(module.ModuleType))
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationInvalidModuleType, module.ModuleType));
 
             device.Modules.Add(module);

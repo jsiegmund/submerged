@@ -10,6 +10,7 @@ namespace Repsaj.Submerged.Common.Models
     {
         public static readonly string SENSORS = "SensorModule";
         public static readonly string CABINET = "CabinetModule";
+        public static readonly string FIRMATA = "FirmataModule";
     }
 
     public static class SensorTypes

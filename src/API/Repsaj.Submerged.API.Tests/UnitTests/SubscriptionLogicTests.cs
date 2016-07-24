@@ -254,7 +254,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
-                ModuleModel cabinetModule = ModuleModel.BuildModule("Cabinet Module", "", ModuleTypes.CABINET);
+                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, TestStatics.module_moduleType);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -269,7 +269,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
-                ModuleModel cabinetModule = ModuleModel.BuildModule("Cabinet Module", "", "WRONG");
+                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, "WRONG");
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);

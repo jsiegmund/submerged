@@ -19,6 +19,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public string SensorType { get; set; }
         public object Reading { get; set; }
         public string Module { get; set; }
+        public string[] PinConfig { get; set; }
 
         public static Sensor BuildSensor(string name, string displayName, string sensorType)
         {
