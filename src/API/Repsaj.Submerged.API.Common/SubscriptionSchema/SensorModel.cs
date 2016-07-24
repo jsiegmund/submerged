@@ -19,18 +19,25 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public bool MaxThresholdEnabled { get; set; }
         public string SensorType { get; set; }
         public string Module { get; set; }
+        public string[] PinConfig { get; set; }
 
-        public static SensorModel BuildSensor(string name, string displayName, string sensorType, string moduleName)
+        public static SensorModel BuildSensor(string name, string displayName, string sensorType, string moduleName, string[] pinConfig)
         {
             SensorModel sensor = new SensorModel()
             {
                 Name = name,
                 DisplayName = displayName,
                 Module = moduleName,
-                SensorType = sensorType
+                SensorType = sensorType,
+                PinConfig = pinConfig
             };
 
             return sensor;
+        }
+
+        public static object BuildSensor(string sensor_name, string sensor_description, string pH, string module_name, object sensor_pinConfig)
+        {
+            throw new NotImplementedException();
         }
     }
 }

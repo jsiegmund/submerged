@@ -374,15 +374,21 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, TestStatics.module_moduleType);
                 device.Modules.Add(module);
                 TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
 
-                SensorModel sensor = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
+                SensorModel sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_displayName, TestStatics.sensor_type, module.Name, TestStatics.sensor_pinConfig);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
-                await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+                SensorModel newModel = await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+
+                Assert.AreEqual(TestStatics.sensor_name, newModel.Name);
+                Assert.AreEqual(TestStatics.sensor_displayName, newModel.DisplayName);
+                Assert.AreEqual(TestStatics.sensor_type, newModel.SensorType);
+                Assert.AreEqual(TestStatics.module_name, newModel.Module);
+                Assert.AreEqual(TestStatics.sensor_pinConfig, sensor.PinConfig);
             }
         }
 
@@ -398,7 +404,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
 
-                SensorModel sensor = SensorModel.BuildSensor("temperature1", "Temperature 1", "WRONG", module.Name);
+                SensorModel sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, "WRONG", module.Name, TestStatics.sensor_pinConfig);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddSensorAsync(sensor, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -417,8 +423,8 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
 
-                SensorModel sensor1 = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
-                SensorModel sensor2 = SensorModel.BuildSensor("temperature1", "Temperature 1", SensorTypes.TEMPERATURE, module.Name);
+                SensorModel sensor1 = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, TestStatics.sensor_type, module.Name, TestStatics.sensor_pinConfig);
+                SensorModel sensor2 = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, TestStatics.sensor_type, module.Name, TestStatics.sensor_pinConfig);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddSensorAsync(sensor1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -433,9 +439,9 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
 
-                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_description, TestStatics.module_moduleType);
                 device.Modules.Add(module);
-                SensorModel sensor = SensorModel.BuildSensor("Test Sensor", "Display Name", SensorTypes.TEMPERATURE, module.Name);
+                SensorModel sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, TestStatics.sensor_type, module.Name, TestStatics.sensor_pinConfig);
                 device.Sensors.Add(sensor);
 
                 TestInjectors.InjectMockedSubscription(autoMock, device);

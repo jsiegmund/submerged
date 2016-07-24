@@ -117,7 +117,7 @@ namespace Repsaj.Submerged.API.Tests.Helpers
 
         public static SensorModel InjectMockedSensor(DeviceModel device)
         {
-            var sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, SensorTypes.PH, TestStatics.module_name);
+            var sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, SensorTypes.PH, TestStatics.module_name, TestStatics.sensor_pinConfig);
             device.Sensors.Add(sensor);
 
             return sensor;

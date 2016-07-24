@@ -88,7 +88,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
-            SensorModel model = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_displayName, TestStatics.sensor_type, TestStatics.module_name);
+            SensorModel model = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_displayName, TestStatics.sensor_type, TestStatics.module_name, TestStatics.sensor_pinConfig);
             var updatedSubscription = await _subscriptionLogic.AddSensorAsync(model, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);

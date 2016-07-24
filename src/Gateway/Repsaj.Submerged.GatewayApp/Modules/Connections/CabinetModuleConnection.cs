@@ -28,6 +28,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         byte sensorPin3 = 16;
         byte sensorPin4 = 17;
         byte sensorPin5 = 18;
+        byte sensorPin6 = 19;
+        byte sensorPin7 = 20;
 
         byte relayPin1 = 2;
         byte relayPin2 = 3;
@@ -105,6 +107,11 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 ushort result4 = _arduino.analogRead("A3");
                 _arduino.pinMode(sensorPin5, Microsoft.Maker.RemoteWiring.PinMode.INPUT);
                 ushort result5 = _arduino.analogRead("A4");
+
+                _arduino.pinMode(sensorPin6, Microsoft.Maker.RemoteWiring.PinMode.INPUT);
+                ushort result6 = _arduino.analogRead("A5");
+                _arduino.pinMode(sensorPin7, Microsoft.Maker.RemoteWiring.PinMode.INPUT);
+                ushort result7 = _arduino.analogRead("A6");
 
                 bool leakDetected = false;
                 List<string> triggeredSensors = new List<string>();
