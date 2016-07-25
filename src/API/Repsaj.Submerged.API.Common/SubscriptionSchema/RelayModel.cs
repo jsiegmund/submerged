@@ -14,14 +14,16 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public int? OrderNumber { get; set; }
         public string Module { get; set; }
         public bool ToggleForMaintenance { get; set; }
+        public string[] PinConfig { get; set; } 
 
-        public static RelayModel BuildModel(int relayNumber, string name, string moduleName)
+        public static RelayModel BuildModel(int relayNumber, string name, string moduleName, string[] pinConfig)
         {
             RelayModel relay = new RelayModel();
             relay.RelayNumber = relayNumber;
             relay.Name = name;
             relay.State = true;
             relay.Module = moduleName;
+            relay.PinConfig = pinConfig;            
             return relay;
         }
     }

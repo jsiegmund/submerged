@@ -474,11 +474,16 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 device.Modules.Add(module);
                 TestInjectors.InjectMockedSubscription(autoMock, device);
 
-                RelayModel relay1 = RelayModel.BuildModel(1, "Pump", module.Name);
+                RelayModel relay1 = RelayModel.BuildModel(1, TestStatics.relay_name, module.Name, TestStatics.relay_pinConfig);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 var relay = await subscriptionLogic.AddRelayAsync(relay1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+
                 Assert.IsNotNull(relay);
+                Assert.AreEqual(1, relay1.RelayNumber);
+                Assert.AreEqual(TestStatics.relay_name, relay1.Name);
+                Assert.AreEqual(module.Name, relay1.Module);
+                Assert.AreEqual(TestStatics.relay_pinConfig, relay1.PinConfig);
             }
         }
 

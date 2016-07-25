@@ -32,6 +32,7 @@ namespace Repsaj.Submerged.API.Tests
 
         public static readonly int relay_number = 0;
         public static readonly string relay_name = "[TEST] Relay Name";
+        public static readonly string[] relay_pinConfig = new string[] { "D0" };
 
         public static readonly string tankLog_title = "[TEST] Test log line";
         public static readonly string tankLog_description = "[TEST] Test performing maintenance on the tank";

@@ -99,7 +99,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
-            RelayModel model = RelayModel.BuildModel(TestStatics.relay_number, TestStatics.relay_name, TestStatics.module_name);
+            RelayModel model = RelayModel.BuildModel(TestStatics.relay_number, TestStatics.relay_name, TestStatics.module_name, TestStatics.relay_pinConfig);
             var updatedSubscription = await _subscriptionLogic.AddRelayAsync(model, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
