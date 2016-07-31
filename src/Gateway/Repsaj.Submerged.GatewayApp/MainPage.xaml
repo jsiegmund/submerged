@@ -35,7 +35,7 @@
                 <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" x:Name="textBlock_Sensors" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Sensors" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-            <ListView x:Name="listView_Sensors" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" ItemsSource="{x:Bind Submerged.Sensors}">
+            <ListView x:Name="listView_Sensors" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" ItemsSource="{x:Bind DataModel.Sensors, Mode=OneWay}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0,0,10,10"/>
@@ -49,12 +49,12 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" Visibility="{Binding Reading, Converter={StaticResource IsNullToVisibilityConverter}}"/>
+                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
             <TextBlock x:Name="textBlock_Relays" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" TextWrapping="Wrap" Text="Relays" VerticalAlignment="Top" Style="{StaticResource submergedSubheader}"/>
-            <ListView x:Name="listView_Relays" Grid.Row="1" Grid.Column="1" Width="Auto" ItemsSource="{x:Bind Submerged.Relays}" HorizontalContentAlignment="Stretch">
+            <ListView x:Name="listView_Relays" Grid.Row="1" Grid.Column="1" Width="Auto" ItemsSource="{x:Bind DataModel.Relays, Mode=OneWay}" HorizontalContentAlignment="Stretch">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0,0,10,10"/>
@@ -69,7 +69,7 @@
                 </ListView.ItemTemplate>
             </ListView>
             <TextBlock x:Name="textBlock_Modules" Grid.Row="0" Grid.Column="2" Margin="0,0,10,10"  HorizontalAlignment="Left" TextWrapping="Wrap" Text="Modules" VerticalAlignment="Top" FontWeight="Normal" Style="{StaticResource submergedSubheader}"/>
-            <ListView x:Name="listView_Modules" Grid.Row="1" Grid.Column="2" Width="Auto" ItemsSource="{x:Bind Submerged.Modules}" HorizontalContentAlignment="Stretch">
+            <ListView x:Name="listView_Modules" Grid.Row="1" Grid.Column="2" Width="Auto" ItemsSource="{x:Bind DataModel.Modules, Mode=OneWay}" HorizontalContentAlignment="Stretch">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="0,0,10,10"/>
@@ -79,7 +79,7 @@
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Submerged:ModuleRowControl ModuleName="{Binding Name}" ModuleState="{Binding Status}" HorizontalAlignment="Stretch" />
+                        <Submerged:ModuleRowControl ModuleName="{Binding Name}" ModuleStatus="{Binding Status}" HorizontalAlignment="Stretch" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

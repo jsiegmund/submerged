@@ -10,17 +10,18 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Modules
 {
-    public delegate void ModuleStatusChanged(string moduleName, bool notConnecting);
+    public delegate void ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus);
 
     public interface IModuleConnectionManager : IDisposable
     {
         event Action ModulesInitialized;
-        event ModuleStatusChanged ModuleConnecting;
-        event ModuleStatusChanged ModuleConnected;
-        event ModuleStatusChanged ModuleDisconnected;
+        event ModuleStatusChanged ModuleStatusChanged;
+        //event ModuleStatusChanged ModuleConnected;
+        //event ModuleStatusChanged ModuleDisconnected;
 
-        Dictionary<string, string> GetModuleStatuses();
-        void InitializeModules(IEnumerable<Module> modules);
+        ModuleConnectionStatus GetModuleStatus(string moduleName);
+        Dictionary<string, ModuleConnectionStatus> GetModuleStatuses();
+        void InitializeModules(IEnumerable<Module> modules, IEnumerable<Sensor> sensors, IEnumerable<Relay> relays);
         JObject GetAvailableData();
         //IEnumerable<ModuleStatusModel> GetModuleStatusModels();
 

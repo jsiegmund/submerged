@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Repsaj.Submerged.GatewayApp.UserControls
 {
-    public sealed partial class ModuleRowControl : UserControl
+    public partial class ModuleRowControl : UserControl
     {
         public ModuleRowControl()
         {
@@ -37,15 +37,15 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
             DependencyProperty.Register(nameof(ModuleName), typeof(string), typeof(ModuleRowControl), null);
         #endregion
 
-        #region ModuleState Property
-        public string ModuleState
+        #region ModuleStatus Property
+        public string ModuleStatus
         {
-            get { return (string)GetValue(TileModuleStateProperty); }
-            set { SetValue(TileModuleStateProperty, value); }
+            get { return (string)GetValue(TileModuleStatusProperty); }
+            set { SetValue(TileModuleStatusProperty, value); }
         }
 
-        public static readonly DependencyProperty TileModuleStateProperty =
-            DependencyProperty.Register(nameof(ModuleState), typeof(string), typeof(ModuleRowControl), null);
+        public static readonly DependencyProperty TileModuleStatusProperty =
+            DependencyProperty.Register(nameof(ModuleStatus), typeof(string), typeof(ModuleRowControl), null);
         #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<UserControl x:Name="userControl"
     x:Class="Repsaj.Submerged.GatewayApp.UserControls.ModuleRowControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,8 +13,8 @@
         <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding ModuleName}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding ModuleState}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding Path=ModuleName}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding Path=ModuleStatus}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
         </Grid>
     </Border>
 </UserControl>

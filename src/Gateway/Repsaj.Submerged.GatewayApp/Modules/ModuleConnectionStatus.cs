@@ -11,6 +11,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         Initializing,
         Disconnected,
         Connecting,
-        Connected
+        Connected,
+        NotRegistered
     }
 }

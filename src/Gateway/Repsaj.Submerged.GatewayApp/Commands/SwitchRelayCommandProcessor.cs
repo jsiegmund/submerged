@@ -14,13 +14,11 @@ namespace RemoteArduino.Commands
 {
     public class SwitchRelayCommandProcessor : ICommandProcessor
     {
-        IGPIOController _gpioController;
         IModuleConnectionFactory _moduleConnectionFactory;
         public event Action<int, bool> RelaySwitched;
 
-        public SwitchRelayCommandProcessor(IGPIOController gpioController, IModuleConnectionFactory connectionFactory)
+        public SwitchRelayCommandProcessor(IModuleConnectionFactory connectionFactory)
         {
-            this._gpioController = gpioController;
             this._moduleConnectionFactory = connectionFactory;
         }
 

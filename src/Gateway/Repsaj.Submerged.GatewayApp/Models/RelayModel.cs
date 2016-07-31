@@ -17,7 +17,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
             set { SetProperty(This.Name, value, () => This.Name = value); }
         }
 
-        public bool State
+        public bool? State
         {
             get { return This.State; }
             set { SetProperty(This.State, value, () => This.State = value); this.RaisePropertyChanged(nameof(RelayStateAsText)); }
@@ -31,7 +31,13 @@ namespace Repsaj.Submerged.GatewayApp.Models
 
         public string RelayStateAsText
         {
-            get { return this.State ? "ON" : "OFF"; }
+            get
+            {
+                if (this.State.HasValue)
+                    return this.State.Value ? "ON" : "OFF";
+                else
+                    return String.Empty;
+            }
         }
     }
 }

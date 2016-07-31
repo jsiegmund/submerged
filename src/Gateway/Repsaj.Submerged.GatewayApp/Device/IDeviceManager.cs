@@ -13,9 +13,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
     public interface IDeviceManager : IDisposable
     {
         event UpdateLog NewLogLine;
-        event Action<IEnumerable<Sensor>> SensorDataChanged;
-        event Action<IEnumerable<Module>> ModuleDataChanged;
-        event Action<IEnumerable<Relay>> RelayDataChanged;
+
+        event Action<IEnumerable<Module>> ModulesUpdated;
+        event Action<IEnumerable<Sensor>> SensorsUpdated;
+        event Action<IEnumerable<Relay>> RelaysUpdated;
+
         event Action AzureConnected;
         event Action AzureDisconnected;
 

@@ -12,6 +12,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Diagnostics;
 using Windows.System.Threading;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace Repsaj.Submerged.GatewayApp.Modules
 { 
@@ -25,7 +26,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         internal UwpFirmata _firmata;
 
         internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
-        public abstract dynamic RequestArduinoData();
+        public abstract JObject RequestArduinoData();
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
@@ -47,11 +48,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             this.ModuleName = name;
         }
 
-        public string StatusAsText
-        {
-            get { return Enum.GetName(typeof(ModuleConnectionStatus), this.ModuleStatus); }
-        }
-
         private dynamic _deviceProperties;
         public dynamic DeviceProperties
         {
@@ -62,6 +58,13 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         public void Init()
         {
+            // when no valid device info was passed in, this module will remain idle
+            if (_device == null)
+            {
+                SetModuleStatus(ModuleConnectionStatus.NotRegistered);
+                return;
+            }
+
             Debug.WriteLine($"Initializing connection for module [{ModuleName}]");
             SetModuleStatus(ModuleConnectionStatus.Initializing);
 
@@ -86,7 +89,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                     _arduino.DeviceConnectionLost += _arduino_DeviceConnectionLost;
                     _arduino.DeviceReady += _arduino_DeviceReady;
 
-                    _adapter.begin(0, SerialConfig.SERIAL_8N1);
+                    _adapter.begin(9600, SerialConfig.SERIAL_8N1);
                     _waitHandle.WaitOne();
 
                     _firmata.begin(_adapter);
@@ -108,11 +111,13 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         private void _adapter_ConnectionLost(string message)
         {
             //MinimalEventSource.Log.LogWarning($"Bluetooth connection to [{ModuleName}] lost.");
+            Debug.WriteLine($"Module {this.ModuleName} lost BluetoothSerial connection.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionFailed(string message)
         {
+            Debug.WriteLine($"Module {this.ModuleName} could not create BluetoothSerial connection.");
             //MinimalEventSource.Log.LogError($"Bluetooth connection to [{ModuleName}] failed.");
             _waitHandle.Set();
         }
@@ -131,12 +136,14 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         private void _firmata_FirmataConnectionLost(string message)
         {
+            Debug.WriteLine($"Module {this.ModuleName} lost Firmata connection.");
             //MinimalEventSource.Log.LogWarning($"Firmata connection lost on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _firmata_FirmataConnectionFailed(string message)
         {
+            Debug.WriteLine($"Module {this.ModuleName} could not create Firmata connection.");
             //MinimalEventSource.Log.LogError($"Firmata connection failed on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
             _waitHandle.Set();
@@ -150,20 +157,20 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         private void _arduino_DeviceConnectionLost(string message)
         {
+            Debug.WriteLine($"Module {this.ModuleName} lost RemoteDevice connection.");
             //MinimalEventSource.Log.LogWarning($"Remote device connection for [{ModuleName}] lost.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _arduino_DeviceConnectionFailed(string message)
         {
+            Debug.WriteLine($"Module {this.ModuleName} could not create RemoteDevice connection.");
             //MinimalEventSource.Log.LogError($"Remote device connection for [{ModuleName}] failed.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         protected void SetModuleStatus(ModuleConnectionStatus newStatus)
         {
-            Debug.WriteLine($"Module [{ModuleName}] changed its status to: {StatusAsText}");
-
             if (ModuleStatus != newStatus)
             {
 

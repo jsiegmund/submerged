@@ -29,7 +29,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override dynamic RequestArduinoData()
+        public override JObject RequestArduinoData()
         {
             Random rand = new Random();
 
@@ -37,10 +37,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             double currentTemp2 = baseTemp2 + rand.NextDouble() * 5 - 2.5;
             double currentPH = basePh + rand.NextDouble() * 1.2 - 0.6;
 
-            dynamic data = new ExpandoObject();
-            data.temperature1 = currentTemp1;
-            data.temperature2 = currentTemp2;
-            data.pH = currentPH;
+            JObject data = new JObject();
+            data.Add("temperature1", currentTemp1);
+            data.Add("temperature2", currentTemp2);
+            data.Add("pH", currentPH);
             return data;
 
         }

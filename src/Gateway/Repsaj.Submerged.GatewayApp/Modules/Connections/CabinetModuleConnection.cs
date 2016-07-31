@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
+using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -93,7 +94,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
         }
 
-        override public dynamic RequestArduinoData()
+        override public JObject RequestArduinoData()
         {
             if (_adapter.connectionReady())
             {
@@ -122,11 +123,13 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 ProcessSensor(result4, "Sensor 4", ref leakDetected, ref triggeredSensors);
                 ProcessSensor(result5, "Sensor 5", ref leakDetected, ref triggeredSensors);
 
-                dynamic data = new System.Dynamic.ExpandoObject();
-                data.leakDetected = leakDetected;
-                data.leakSensors = String.Join(", ", triggeredSensors);
+                string leakSensors = String.Join(", ", triggeredSensors);
 
-                Debug.WriteLine($"Leak detection: {data.leakDetected}, sensors: {data.leakSensors}");
+                JObject data = new JObject();
+                data.Add("leakDetected", leakDetected);
+                data.Add("leakSensors", leakSensors);
+
+                Debug.WriteLine($"Leak detection: {leakDetected}, sensors: {leakSensors}");
 
                 return data;
             }

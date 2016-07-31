@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +14,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules
     {
         string ModuleName { get; }
         ModuleConnectionStatus ModuleStatus { get; }
-        string StatusAsText { get; }
 
         event IModuleConnectionStatusChanged ModuleStatusChanged;
 
         void Init();
-        dynamic RequestArduinoData();
+        JObject RequestArduinoData();        
     }
 }

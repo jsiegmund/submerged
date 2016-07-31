@@ -20,12 +20,11 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         Dictionary<string, IModuleConnection> _moduleConnections = new Dictionary<string, IModuleConnection>();
         Dictionary<string, ModuleConnectionStatus> _moduleStatuses = new Dictionary<string, ModuleConnectionStatus>();
 
-        public event ModuleStatusChanged ModuleConnecting;
-        public event ModuleStatusChanged ModuleConnected;
-        public event ModuleStatusChanged ModuleDisconnected;
+        public event ModuleStatusChanged ModuleStatusChanged;
         public event Action ModulesInitialized;
 
         public bool AllModulesInitialized { get; private set; }
+        private static object _moduleLock = new object();
 
 
         public ModuleConnectionManager(IModuleConnectionFactory moduleConnectionFactory)
@@ -39,37 +38,40 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             await _moduleConnectionFactory.Init();
         }
 
-        public void InitializeModules(IEnumerable<Module> modules)
+        public void InitializeModules(IEnumerable<Module> modules, IEnumerable<Sensor> sensors, IEnumerable<Relay> relays)
         {
             _modules = modules;
 
-            // Initialize all of the Arduino connections
-            foreach (Module module in modules)
+            lock (_moduleLock)
             {
-                // skip the module when we already have it
-                if (_moduleConnections.ContainsKey(module.Name))
-                    continue;
-
-                // if there's a new module to initialize; set the 'all initialized' flag to false again
-                AllModulesInitialized = false;
-
-                try
+                // Initialize all of the Arduino connections
+                foreach (Module module in modules)
                 {
-                    //MinimalEventSource.Log.LogInfo($"Requesting module {module.Name} from factory. Bluetooth id: {module.ConnectionString}");
+                    // skip the module when we already have it
+                    if (_moduleConnections.ContainsKey(module.Name))
+                        continue;
 
-                    IModuleConnection connection = _moduleConnectionFactory.GetModuleConnection(module);
+                    // if there's a new module to initialize; set the 'all initialized' flag to false again
+                    AllModulesInitialized = false;
 
-                    if (connection != null)
+                    try
                     {
-                        connection.ModuleStatusChanged += Connection_ModuleStatusChanged;
+                        //MinimalEventSource.Log.LogInfo($"Requesting module {module.Name} from factory. Bluetooth id: {module.ConnectionString}");
+                        Sensor[] moduleSensors = sensors.Where(s => s.Module == module.Name).ToArray();
+                        Relay[] moduleRelays = relays.Where(r => r.Module == module.Name).ToArray();
+
+                        IModuleConnection connection = _moduleConnectionFactory.GetModuleConnection(module, moduleSensors, moduleRelays);
 
                         _moduleConnections.Add(module.Name, connection);
                         _moduleStatuses[connection.ModuleName] = connection.ModuleStatus;
+                        Connection_ModuleStatusChanged(module.Name, ModuleConnectionStatus.Disconnected, connection.ModuleStatus);
+
+                        connection.ModuleStatusChanged += Connection_ModuleStatusChanged;
                     }
-                }
-                catch (Exception ex)
-                {
-                    //MinimalEventSource.Log.LogError($"Could not initialize a module connection to module {module.Name} because: {ex}");
+                    catch (Exception ex)
+                    {
+                        //MinimalEventSource.Log.LogError($"Could not initialize a module connection to module {module.Name} because: {ex}");
+                    }
                 }
             }
         }
@@ -80,25 +82,31 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             // connectionToggle is only set true when the module switches from connected => disconnected and vice versa
             // we ignore "connecting" because that would cause a lot of chatter with Azure since a disconnected 
             // module will be connecting every x minutes
-            bool connectionToggle = false;
+            //bool connectionToggle = false;
+
             if (newStatus != ModuleConnectionStatus.Connecting && _moduleStatuses[moduleName] != newStatus)
             {
                 _moduleStatuses[moduleName] = newStatus;
-                connectionToggle = true;
+                //connectionToggle = true;
             }
 
-            switch (newStatus)
-            {
-                case ModuleConnectionStatus.Connecting:
-                    ModuleConnecting?.Invoke(moduleName, connectionToggle);
-                    break;
-                case ModuleConnectionStatus.Disconnected:
-                    ModuleDisconnected?.Invoke(moduleName, connectionToggle);
-                    break;
-                case ModuleConnectionStatus.Connected:
-                    ModuleConnected?.Invoke(moduleName, connectionToggle);
-                    break;
-            }
+            //switch (newStatus)
+            //{
+            //    case ModuleConnectionStatus.Connecting:
+            //        ModuleStatusChanged?.Invoke(moduleName, moduleConnection.StatusAsText);
+            //        break;
+            //    case ModuleConnectionStatus.Disconnected:
+            //        ModuleDisconnected?.Invoke(moduleName, moduleConnection.StatusAsText);
+            //        break;
+            //    case ModuleConnectionStatus.Connected:
+            //        ModuleConnected?.Invoke(moduleName, moduleConnection.StatusAsText);
+            //        break;
+            //}
+
+            IModuleConnection moduleConnection = _moduleConnections[moduleName];
+
+            if (oldStatus != newStatus)
+                ModuleStatusChanged?.Invoke(moduleName, moduleConnection.ModuleStatus);
 
             if (oldStatus == ModuleConnectionStatus.Initializing)
             {
@@ -134,8 +142,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             {
                 try
                 {
-                    dynamic moduleData = module.RequestArduinoData();
-                    TelemetryHelper.Merge(data, moduleData);
+                    JObject moduleData = module.RequestArduinoData();
+                    data.Merge(moduleData);
                     dataPresent = true;
                 }
                 catch (Exception ex)
@@ -148,21 +156,22 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 return data;
             else
                 return null;
-        }       
+        }
 
-        public Dictionary<string, string> GetModuleStatuses()
+        public ModuleConnectionStatus GetModuleStatus(string moduleName)
         {
-            Dictionary<string, string> statuses = new Dictionary<string, string>();
+            return _moduleConnections[moduleName].ModuleStatus;
+        }
 
-            foreach (var module in _modules)
+        public Dictionary<string, ModuleConnectionStatus> GetModuleStatuses()
+        {
+            Dictionary<string, ModuleConnectionStatus> statuses = new Dictionary<string, ModuleConnectionStatus>();
+
+            lock (_moduleLock)
             {
-                if (_moduleConnections.ContainsKey(module.Name))
-                    statuses.Add(module.Name, _moduleConnections[module.Name].StatusAsText);
-                else
-                    statuses.Add(module.Name, "Error");
+                return _moduleConnections.Select(conn => new { conn.Key, conn.Value.ModuleStatus })
+                                         .ToDictionary(c => c.Key, c => c.ModuleStatus);
             }
-
-            return statuses;
         }
     }
 }

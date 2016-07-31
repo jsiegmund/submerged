@@ -60,8 +60,7 @@ namespace Repsaj.Submerged.GatewayApp
             InitializeComponent();
             InitializeAutofac();
 
-            Submerged = new MainModel();
-
+            this.DataModel = new MainModel();
             this.Loaded += MainPage_Loaded;
         }
 
@@ -70,8 +69,8 @@ namespace Repsaj.Submerged.GatewayApp
             Init();
         }
 
-        public MainModel Submerged{ get; set; }
-
+        public MainModel DataModel{ get; set; }
+         
         private async void Init()
         {
             IConfigurationRepository configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
@@ -95,9 +94,11 @@ namespace Repsaj.Submerged.GatewayApp
             {
                 _deviceManager = _autofacContainer.Resolve<IDeviceManager>();
                 _deviceManager.NewLogLine += UpdateLog;
-                _deviceManager.SensorDataChanged += _deviceManager_SensorDataChanged;
-                _deviceManager.ModuleDataChanged += _deviceManager_ModuleDataChanged;
-                _deviceManager.RelayDataChanged += _deviceManager_RelayDataChanged;
+
+                _deviceManager.ModulesUpdated += _deviceManager_ModulesUpdated;
+                _deviceManager.SensorsUpdated += _deviceManager_SensorsUpdated;
+                _deviceManager.RelaysUpdated += _deviceManager_RelaysUpdated;
+
                 _deviceManager.AzureConnected += _deviceManager_AzureConnected;
                 _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
 
@@ -121,63 +122,77 @@ namespace Repsaj.Submerged.GatewayApp
             });
         }
 
-        private async void _deviceManager_RelayDataChanged(IEnumerable<Relay> relays)
+        public async void _deviceManager_ModulesUpdated(IEnumerable<Universal.Models.Module> modules)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                foreach (var module in modules)
+                {
+                    var model = DataModel.Modules.SingleOrDefault(s => s.Name == module.Name);
+
+                    if (model == null)
+                    {
+                        ModuleModel newModule = new ModuleModel(module);
+                        DataModel.Modules.Add(newModule);
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Updated module {module.Name} to status {module.Status}");
+                        model.Status = module.Status;
+                    }
+                }
+
+                Bindings.Update();
+            });
+        }
+
+        private async void _deviceManager_SensorsUpdated(IEnumerable<Sensor> sensors)
+        {
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                foreach (var sensor in sensors)
+                {
+                    var sensorModel = DataModel.Sensors.SingleOrDefault(s => s.Name == sensor.Name);
+
+                    if (sensorModel == null && sensor.Reading != null)
+                    {
+                        SensorModel newSensor = new SensorModel(sensor);
+                        DataModel.Sensors.Add(newSensor);
+                    }
+                    else if (sensorModel != null && sensor.Reading == null)
+                    {
+                        DataModel.Sensors.Remove(sensorModel);
+                    }
+                    else if (sensorModel != null && sensor.Reading != null)
+                    {
+                        sensorModel.Reading = sensor.Reading;
+                    }
+                }
+
+                Bindings.Update();
+            });
+        }
+
+        private async void _deviceManager_RelaysUpdated(IEnumerable<Relay> relays)
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 foreach (var relay in relays)
                 {
-                    var model = Submerged.Relays.SingleOrDefault(s => s.Name == relay.Name);
+                    var model = DataModel.Relays.SingleOrDefault(s => s.Name == relay.Name);
 
                     if (model == null)
                     {
-                        Submerged.Relays.Add(new RelayModel(relay));
+                        RelayModel newRelay = new RelayModel(relay);
+                        DataModel.Relays.Add(newRelay);
                     }
                     else
                     {
                         model.State = relay.State;
                     }
                 }
-            });
-        }
 
-        public async void _deviceManager_ModuleDataChanged(IEnumerable<Universal.Models.Module> modules)
-        {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                foreach (var module in modules)
-                {
-                    var model = Submerged.Modules.SingleOrDefault(s => s.Name == module.Name);
-
-                    if (model == null)
-                    {
-                        Submerged.Modules.Add(new ModuleModel(module));
-                    }
-                    else
-                    {
-                        model.Status = module.Status;
-                    }
-                }
-            });
-        }
-
-        private async void _deviceManager_SensorDataChanged(IEnumerable<Sensor> sensors)
-        {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                foreach (var sensor in sensors)
-                {
-                    var model = Submerged.Sensors.SingleOrDefault(s => s.Name == sensor.Name);
-
-                    if (model == null)
-                    {
-                        Submerged.Sensors.Add(new SensorModel(sensor));
-                    }
-                    else
-                    {
-                        model.Reading = sensor.Reading;
-                    }
-                }
+                Bindings.Update();
             });
         }
 

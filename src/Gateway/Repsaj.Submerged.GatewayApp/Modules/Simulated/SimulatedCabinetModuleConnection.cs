@@ -1,4 +1,5 @@
-﻿using Repsaj.Submerged.GatewayApp.Universal.Models;
+﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +23,11 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override dynamic RequestArduinoData()
+        public override JObject RequestArduinoData()
         {
-            dynamic data = new System.Dynamic.ExpandoObject();
-            data.leakDetected = false;
-            data.leakSensors = "";
+            JObject data = new JObject();
+            data.Add("leakDetected", false);
+            data.Add("leakSensors", "");
             return data;
         }
     }

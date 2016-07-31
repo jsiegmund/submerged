@@ -21,9 +21,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
 {
     internal class DeviceManager : IDeviceManager
     {
-        public event Action<IEnumerable<Sensor>> SensorDataChanged;
-        public event Action<IEnumerable<Module>> ModuleDataChanged;
-        public event Action<IEnumerable<Relay>> RelayDataChanged;
+        public event Action<IEnumerable<Module>> ModulesUpdated;
+        public event Action<IEnumerable<Sensor>> SensorsUpdated;
+        public event Action<IEnumerable<Relay>> RelaysUpdated;
+
         public event Action AzureConnected;
         public event Action AzureDisconnected;
         public event UpdateLog NewLogLine;
@@ -50,9 +51,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             _moduleConnectionManager = moduleConnectionManager;
             _moduleConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
-            _moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
-            _moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
-            _moduleConnectionManager.ModuleConnecting += _arduinoConnectionManager_ModuleStatusChanged;
+            //_moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
+            //_moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
+            _moduleConnectionManager.ModuleStatusChanged += _arduinoConnectionManager_ModuleStatusChanged;
         }
 
         public async Task Init()
@@ -81,9 +82,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
             else
             {
+                CleanDeviceModel();
                 PopulateDeviceComponents();
 
-                Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules));
+                Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays));
 
                 Task.WaitAll(moduleTask, azureTask);
                 NewLogLine?.Invoke("Device initialization completed!");
@@ -93,19 +95,28 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
+        private void CleanDeviceModel()
+        {
+            foreach (var module in this._deviceModel.Modules)
+                module.Status = string.Empty;
+
+            foreach (var sensor in this._deviceModel.Sensors)
+                sensor.Reading = null;
+        }
+
         public void Init(DeviceModel deviceModel)
         {
             _deviceModel = deviceModel;
 
             PopulateDeviceComponents();
-            _moduleConnectionManager.InitializeModules(_deviceModel.Modules);
+            _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
         }
 
         private void PopulateDeviceComponents()
         {
-            SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
-            //ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
-            RelayDataChanged?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
+            //SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
+            ModulesUpdated?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
+            //RelaysUpdated?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
         }
 
         #region Command Processor Callbacks
@@ -178,7 +189,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
             }
 
-            SensorDataChanged?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
+            SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
         }
 
         private void UpdateRelayData(int relayNumber, bool relayState)
@@ -188,23 +199,54 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (relay != null)
             {
                 relay.State = relayState;
-                RelayDataChanged?.Invoke(_deviceModel.Relays.OrderBy(r => r.OrderNumber));
+
+                var relayData = _deviceModel.Relays.OrderBy(r => r.OrderNumber)
+                                            .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
+                RelaysUpdated?.Invoke(relayData);
             }
         }
 
-        private void UpdateModuleData()
+        private void UpdateModuleData(string moduleName, ModuleConnectionStatus moduleStatus)
         {
-            Dictionary<string, string> statuses = _moduleConnectionManager.GetModuleStatuses();
+            var moduleItem = _deviceModel.Modules.SingleOrDefault(m => m.Name == moduleName);
 
-            foreach (KeyValuePair<string, string> kvp in statuses)
+            if (moduleItem != null)
             {
-                var moduleItem = _deviceModel.Modules.SingleOrDefault(m => m.Name == kvp.Key);
+                moduleItem.Status = ModuleConnectionStatusAsText(moduleStatus);
 
-                if (moduleItem != null)
-                    moduleItem.Status = kvp.Value;
+                var moduleData = _deviceModel.Modules.OrderBy(r => r.DisplayOrder);
+                ModulesUpdated?.Invoke(moduleData);
+            }
+        }
+
+        private string ModuleConnectionStatusAsText(ModuleConnectionStatus moduleStatus)
+        {
+            string moduleStatusAsText;
+
+            // TODO; needs to move to a helper class 
+            switch (moduleStatus)
+            {
+                case ModuleConnectionStatus.Connected:
+                    moduleStatusAsText = "Connected";
+                    break;
+                case ModuleConnectionStatus.Connecting:
+                    moduleStatusAsText = "Connecting";
+                    break;
+                case ModuleConnectionStatus.Disconnected:
+                    moduleStatusAsText = "Disconnected";
+                    break;
+                case ModuleConnectionStatus.Initializing:
+                    moduleStatusAsText = "Initializing";
+                    break;
+                case ModuleConnectionStatus.NotRegistered:
+                    moduleStatusAsText = "Not registered";
+                    break;
+                default:
+                    moduleStatusAsText = "Unknown";
+                    break;
             }
 
-            ModuleDataChanged?.Invoke(_deviceModel.Modules.OrderBy(m => m.DisplayOrder));
+            return moduleStatusAsText;
         }
         #endregion
 
@@ -252,8 +294,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async Task SendDeviceData()
         {
-            Dictionary<string, string> statuses = _moduleConnectionManager.GetModuleStatuses();
-            dynamic data = DeviceFactory.GetDevice(_connectionInfo.DeviceId, _connectionInfo.DeviceKey, statuses);
+            Dictionary<string, ModuleConnectionStatus> statuses = _moduleConnectionManager.GetModuleStatuses();
+            Dictionary<string, string> statusesAsText = statuses.Select(s => new { s.Key, Value = ModuleConnectionStatusAsText(s.Value) })
+                                                                .ToDictionary(s => s.Key, s => s.Value);
+
+            dynamic data = DeviceFactory.GetDevice(_connectionInfo.DeviceId, _connectionInfo.DeviceKey, statusesAsText);
 
             try
             {
@@ -309,23 +354,18 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        //private void _arduinoConnection_ConnectionFailed(string message)
-        //{
-        //    NewLogLine?.Invoke(message);
-        //}
-
         private async void _arduinoConnectionManager_ModulesInitialized()
         {
             NewLogLine?.Invoke("All modules have been intialized.");
 
-            UpdateModuleData();
+            //UpdateModuleData();
             await SendDeviceData();
             StartTimer();
         }
 
-        private void _arduinoConnectionManager_ModuleStatusChanged(string moduleName, bool notConnecting)
+        private void _arduinoConnectionManager_ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus)
         {
-            Task.Run(() => UpdateModuleData());
+            UpdateModuleData(moduleName, newStatus);
         }
         #endregion
 

@@ -10,6 +10,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
     {
         public static readonly string SENSORS = "SensorModule";
         public static readonly string CABINET = "CabinetModule";
+        public static readonly string FIRMATA = "FirmataModule";
     }
 
     public static class ModuleTypeDisplayNames
@@ -22,6 +23,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
     {
         public static readonly string TEMPERATURE = "temperature";
         public static readonly string PH = "pH";
+        public static readonly string STOCKFLOAT = "stockfloat";
+        public static readonly string MOISTURE = "moisture";
+        public static readonly string FLOW = "flow";
     }
 
     public static class CommandNames

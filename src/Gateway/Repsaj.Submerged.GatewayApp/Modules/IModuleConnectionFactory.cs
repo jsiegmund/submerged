@@ -12,6 +12,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
     {
         Task Init();
         IModuleConnection GetModuleConnection(string moduleName);
-        IModuleConnection GetModuleConnection(Module module);
+        IModuleConnection GetModuleConnection(Module module, Sensor[] sensors, Relay[] relays);
     }
 }

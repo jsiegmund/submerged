@@ -19,12 +19,5 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Device
 
             return data;
         }
-
-        public static JObject Merge(JObject data, dynamic mergee)
-        {
-            JObject toMerge = JObject.FromObject(mergee);
-            data.Merge(toMerge);
-            return data;
-        }
     }
 }

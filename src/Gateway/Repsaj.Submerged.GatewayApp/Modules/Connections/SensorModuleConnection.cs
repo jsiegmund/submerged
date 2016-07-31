@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.Serial;
+using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -39,9 +40,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         { }
 
         EventWaitHandle _waitHandle = new AutoResetEvent(false);
-        dynamic _data = null;
+        JObject _data = null;
 
-        override public dynamic RequestArduinoData()
+        override public JObject RequestArduinoData()
         {
             try
             {
@@ -92,11 +93,15 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                     if (_measurementQueue.Count > 6)
                         _measurementQueue.Dequeue();
 
+                    var temp1 = _measurementQueue.Sum(s => s.temperature1) / _measurementQueue.Count;
+                    var temp2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
+                    var pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
 
-                    dynamic data = new ExpandoObject();
-                    data.temperature1 = _measurementQueue.Sum(s => s.temperature1) / _measurementQueue.Count;
-                    data.temperature2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
-                    data.pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
+                    JObject data = new JObject();
+                    data.Add("temperature1", temp1);
+                    data.Add("temperature2", temp2);
+                    data.Add("pH", pH);
+
                     _data = data;
                 }
 

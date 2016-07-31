@@ -43,7 +43,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             return _connections[moduleName];
         }
 
-        public IModuleConnection GetModuleConnection(Module module)
+        public IModuleConnection GetModuleConnection(Module module, Sensor[] sensors, Relay[] relays)
         {
             IModuleConnection connection = null;
 
@@ -55,17 +55,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 var simulated = module.ConnectionString == "simulated";
                 var device = _devices.SingleOrDefault(d => d.Id == module.ConnectionString);
 
-                if (device == null && !simulated)
-                {
-                    string msg = $"Could not find module {module.Name} in the device registry. Check the connectionstring or repair the device";
-                    //MinimalEventSource.Log.LogWarning(msg);
-                    return null;
-                }
-
                 if (!simulated)
-                    connection = CreateConnection(module, device);
+                    connection = CreateConnection(module, device, sensors, relays);
                 else
-                    connection = CreateSimulatedConnection(module);
+                    connection = CreateSimulatedConnection(module, sensors, relays);
 
                 connection.Init();
 
@@ -80,22 +73,26 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             return connection;
         }
 
-        private IModuleConnection CreateSimulatedConnection(Module module)
+        private IModuleConnection CreateSimulatedConnection(Module module, Sensor[] sensors, Relay[] relays)
         {
             if (module.ModuleType == ModuleTypes.CABINET)
                 return new SimulatedCabinetModuleConnection(module.Name);
             else if (module.ModuleType == ModuleTypes.SENSORS)
                 return new SimulatedSensorModuleConnection(module.Name);
+            else if (module.ModuleType == ModuleTypes.FIRMATA)
+                return new SimulatedFirmataModuleConnection(module.Name, sensors, relays);
             else
                 throw new ArgumentException($"Module type {module.ModuleType} is not supported by this device.");
         }
 
-        private IModuleConnection CreateConnection(Module module, DeviceInformation device)
+        private IModuleConnection CreateConnection(Module module, DeviceInformation device, Sensor[] sensors, Relay[] relays)
         {
             if (module.ModuleType == ModuleTypes.CABINET)
                 return new CabinetModuleConnection(device, module.Name);
             else if (module.ModuleType == ModuleTypes.SENSORS)
                 return new SensorModuleConnection(device, module.Name);
+            else if (module.ModuleType == ModuleTypes.FIRMATA)
+                return new FirmataModuleConnection(device, module.Name, sensors, relays);
             else
                 throw new ArgumentException($"Module type {module.ModuleType} is not supported by this device.");
         }

@@ -10,8 +10,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
     {
         public int RelayNumber { get; set; }
         public string Name { get; set; }
-        public Boolean State { get; set; }
+        public Boolean? State { get; set; }
         public int? OrderNumber { get; set; }
         public string Module { get; set; }
+        public string[] PinConfig { get; set; }
     }
 }
