@@ -51,6 +51,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
             await _context.Integration_Subscription_AddDevices();
             await _context.Integration_Subscription_AddModules();
             await _context.Integration_Subscription_AddRelays();
+            await _context.IntegrationSubscription_GetRelays();
             await _context.Integration_Subscription_AddSensors();
 
             await _context.Integration_Subscription_UpdateSubscription();

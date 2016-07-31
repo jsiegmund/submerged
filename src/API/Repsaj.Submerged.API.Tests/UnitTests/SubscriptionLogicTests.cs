@@ -464,6 +464,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 Assert.IsNotNull(relays);
             }
         }
+
         [TestMethod]
         public async Task Add_Relay_Success()
         {

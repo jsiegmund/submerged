@@ -100,10 +100,23 @@ namespace Repsaj.Submerged.API.Tests.Integration
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
             RelayModel model = RelayModel.BuildModel(TestStatics.relay_number, TestStatics.relay_name, TestStatics.module_name, TestStatics.relay_pinConfig);
-            var updatedSubscription = await _subscriptionLogic.AddRelayAsync(model, TestStatics.device_id, subscription_User);
+            RelayModel newModel = await _subscriptionLogic.AddRelayAsync(model, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
             Assert.AreEqual(1, subscription.Devices.First().Relays.Count);
+        }
+
+        public async Task IntegrationSubscription_GetRelays()
+        {
+            IEnumerable<RelayModel> relays = await _subscriptionLogic.GetRelaysAsync(TestStatics.device_id, subscription_User);
+            RelayModel relay = relays.SingleOrDefault(r => r.Name == TestStatics.relay_name);
+
+            Assert.IsNotNull(relay);
+            Assert.AreEqual(TestStatics.relay_number, relay.RelayNumber);
+            Assert.AreEqual(TestStatics.relay_name, relay.Name);
+            Assert.AreEqual(TestStatics.module_name, relay.Module);
+            CollectionAssert.AreEqual(TestStatics.relay_pinConfig, relay.PinConfig);
+
         }
 
         public async Task Integration_Subscription_UpdateSubscription()
