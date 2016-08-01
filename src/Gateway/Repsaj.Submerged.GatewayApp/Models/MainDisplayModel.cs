@@ -41,6 +41,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
             ProcessLeakage(moistureSensors);
             sensorList.RemoveAll(s => s.SensorType == SensorTypes.MOISTURE);
 
+            // process all other types of sensors
             foreach (var sensor in sensorList)
             {
                 ProcessSensor(sensor);

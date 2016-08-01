@@ -52,8 +52,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
             get { return This.SensorType; }
             set { SetProperty(This.SensorType, value, () => This.SensorType = value); UpdateIcon(); }
         }
-
-//        private object _reading;
+        
         public object Reading
         {
             get { return This.Reading; }
