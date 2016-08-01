@@ -48,6 +48,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
                     value = GetRandomDouble(basePh, rangePh);
                 else if (sensor.SensorType == SensorTypes.STOCKFLOAT)
                     value = GetRandomBool();
+                else if (sensor.SensorType == SensorTypes.FLOW)
+                    value = GetRandomDouble(1200, 200);
+                else if (sensor.SensorType == SensorTypes.MOISTURE)
+                    value = GetRandomBool();
 
                 data.Add(new JProperty(sensor.Name, value));
 

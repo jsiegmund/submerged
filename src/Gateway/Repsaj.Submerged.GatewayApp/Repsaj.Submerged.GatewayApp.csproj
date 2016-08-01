@@ -128,10 +128,10 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\MainModel.cs" />
-    <Compile Include="Models\ModuleModel.cs" />
-    <Compile Include="Models\RelayModel.cs" />
-    <Compile Include="Models\SensorModel.cs" />
+    <Compile Include="Models\MainDisplayModel.cs" />
+    <Compile Include="Models\ModuleDisplayModel.cs" />
+    <Compile Include="Models\RelayDisplayModel.cs" />
+    <Compile Include="Models\SensorDisplayModel.cs" />
     <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedModuleConnectionBase.cs" />
@@ -158,6 +158,9 @@
   <ItemGroup>
     <Content Include="Icons\Cloud-Download-48.png" />
     <Content Include="Icons\Cloud-Upload-48.png" />
+    <Content Include="Icons\Sensor_Moisture.png" />
+    <Content Include="Icons\Sensor_WaterLevel.png" />
+    <Content Include="Icons\Sensor_Flow.png" />
     <Content Include="Icons\Sensor_Gauge.png" />
     <Content Include="Icons\Sensor_StockFloat.png" />
     <Content Include="Icons\Sensor_Temperature.png" />

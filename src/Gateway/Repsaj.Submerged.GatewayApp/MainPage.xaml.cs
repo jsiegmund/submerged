@@ -60,7 +60,7 @@ namespace Repsaj.Submerged.GatewayApp
             InitializeComponent();
             InitializeAutofac();
 
-            this.DataModel = new MainModel();
+            this.DataModel = new MainDisplayModel();
             this.Loaded += MainPage_Loaded;
         }
 
@@ -69,7 +69,7 @@ namespace Repsaj.Submerged.GatewayApp
             Init();
         }
 
-        public MainModel DataModel{ get; set; }
+        public MainDisplayModel DataModel{ get; set; }
          
         private async void Init()
         {
@@ -126,22 +126,7 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                foreach (var module in modules)
-                {
-                    var model = DataModel.Modules.SingleOrDefault(s => s.Name == module.Name);
-
-                    if (model == null)
-                    {
-                        ModuleModel newModule = new ModuleModel(module);
-                        DataModel.Modules.Add(newModule);
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"Updated module {module.Name} to status {module.Status}");
-                        model.Status = module.Status;
-                    }
-                }
-
+                DataModel.ProcessModuleData(modules);
                 Bindings.Update();
             });
         }
@@ -150,25 +135,7 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                foreach (var sensor in sensors)
-                {
-                    var sensorModel = DataModel.Sensors.SingleOrDefault(s => s.Name == sensor.Name);
-
-                    if (sensorModel == null && sensor.Reading != null)
-                    {
-                        SensorModel newSensor = new SensorModel(sensor);
-                        DataModel.Sensors.Add(newSensor);
-                    }
-                    else if (sensorModel != null && sensor.Reading == null)
-                    {
-                        DataModel.Sensors.Remove(sensorModel);
-                    }
-                    else if (sensorModel != null && sensor.Reading != null)
-                    {
-                        sensorModel.Reading = sensor.Reading;
-                    }
-                }
-
+                DataModel.ProcessSensorData(sensors);
                 Bindings.Update();
             });
         }
@@ -177,21 +144,7 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                foreach (var relay in relays)
-                {
-                    var model = DataModel.Relays.SingleOrDefault(s => s.Name == relay.Name);
-
-                    if (model == null)
-                    {
-                        RelayModel newRelay = new RelayModel(relay);
-                        DataModel.Relays.Add(newRelay);
-                    }
-                    else
-                    {
-                        model.State = relay.State;
-                    }
-                }
-
+                DataModel.ProcessRelayData(relays);
                 Bindings.Update();
             });
         }

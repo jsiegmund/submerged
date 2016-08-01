@@ -89,7 +89,7 @@
         <Setter Property="Margin"
             Value="10,4,10,4" />
         <Setter Property="HorizontalAlignment"
-            Value="Center" />
+            Value="Left" />
         <Setter Property="FontFamily"
             Value="Segoe UI" />
         <Setter Property="FontSize"

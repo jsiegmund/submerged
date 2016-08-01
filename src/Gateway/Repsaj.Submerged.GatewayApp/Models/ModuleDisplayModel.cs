@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
-    public class ModuleModel : NotificationBase<Module>
+    public class ModuleDisplayModel : NotificationBase<Module>
     {
-        public ModuleModel(Module module = null) : base(module) { }
+        public ModuleDisplayModel(Module module = null) : base(module) { }
 
         public String Name
         {

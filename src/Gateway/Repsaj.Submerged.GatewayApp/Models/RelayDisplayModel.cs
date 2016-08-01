@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
-    public class RelayModel : NotificationBase<Relay>
+    public class RelayDisplayModel : NotificationBase<Relay>
     {
-        public RelayModel(Relay relay = null) : base(relay) { }
+        public RelayDisplayModel(Relay relay = null) : base(relay) { }
 
         public String Name
         {

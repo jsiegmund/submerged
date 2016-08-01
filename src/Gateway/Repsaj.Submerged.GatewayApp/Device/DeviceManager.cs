@@ -115,7 +115,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         private void PopulateDeviceComponents()
         {
             //SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
-            ModulesUpdated?.Invoke(_deviceModel.Modules.OrderBy(s => s.DisplayOrder));
+            ModulesUpdated?.Invoke(_deviceModel.Modules);
             //RelaysUpdated?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
         }
 
@@ -167,12 +167,12 @@ namespace Repsaj.Submerged.GatewayApp.Device
         {
             List<string> processedSensors = new List<string>();
 
-            foreach (var sensorData in data)
+            foreach (var dataObject in data)
             {
-                JToken valueToken = sensorData.Value;
+                JToken valueToken = dataObject.Value;
                 JValue value = (JValue)valueToken.Value<object>();
 
-                var sensorItem = _deviceModel.Sensors.SingleOrDefault(s => s.Name == sensorData.Key);
+                var sensorItem = _deviceModel.Sensors.SingleOrDefault(s => s.Name == dataObject.Key);
 
                 if (sensorItem != null)
                 {
@@ -189,7 +189,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
             }
 
-            SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
+            var sensorData = _deviceModel.Sensors
+                                         .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
+            SensorsUpdated?.Invoke(sensorData);
         }
 
         private void UpdateRelayData(int relayNumber, bool relayState)
@@ -200,7 +202,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             {
                 relay.State = relayState;
 
-                var relayData = _deviceModel.Relays.OrderBy(r => r.OrderNumber)
+                var relayData = _deviceModel.Relays
                                             .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
                 RelaysUpdated?.Invoke(relayData);
             }
@@ -214,8 +216,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             {
                 moduleItem.Status = ModuleConnectionStatusAsText(moduleStatus);
 
-                var moduleData = _deviceModel.Modules.OrderBy(r => r.DisplayOrder);
-                ModulesUpdated?.Invoke(moduleData);
+                ModulesUpdated?.Invoke(_deviceModel.Modules);
             }
         }
 

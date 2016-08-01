@@ -7,24 +7,26 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:UniversalWrapPanel="using:Gregstoll"  
     mc:Ignorable="d"
-    d:DesignHeight="120"
-    d:DesignWidth="120">
+    d:DesignHeight="128"
+    d:DesignWidth="128">
 
     <Border x:Name="borMain">
         <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <Image Grid.Row="0"
                 Name="imgMain"
-                Style="{StaticResource submergedTileImageStyle}" Height="48" Width="48" Source="{Binding ImageUri}" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" />
+                Style="{StaticResource submergedTileImageStyle}" Height="46" Width="46" Source="{Binding ImageUri}" HorizontalAlignment="Left" Margin="8,0,0,0" VerticalAlignment="Center" />
             <TextBlock Grid.Row="0"
             	x:Name="tbReading"
             	Style="{StaticResource submergedTileReadingStyle}"
-            	Text="{Binding Path=Reading}" Margin="15,20,0,20" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            	Text="{Binding Path=Reading}" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center" />
             <TextBlock 
-                Grid.Row="1"
+                Grid.Row="0"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="8,0,0,8"
                 Name="tbSensorName"
                 Style="{StaticResource submergedTileTextBlockStyle}"
                 Text="{Binding Path=SensorName}" />

@@ -49,7 +49,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Submerged:SensorTileControl Height="120" Width="120" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" />
+                        <Submerged:SensorTileControl Height="128" Width="128" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

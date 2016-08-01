@@ -10,25 +10,29 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
-    public class SensorModel : NotificationBase<Sensor>
+    public class SensorDisplayModel : NotificationBase<Sensor>
     {
-        public SensorModel(Sensor sensor = null) : base(sensor)
+        public SensorDisplayModel(Sensor sensor = null) : base(sensor)
         {
+            UpdateIcon();
+        }
+
+        private void UpdateIcon()
+        {
+            string iconImageUrl;
+
             if (This.SensorType == SensorTypes.TEMPERATURE)
-            {
-                var value = "ms-appx:///Icons/Sensor_Temperature.png";
-                SetProperty(this._iconImageUrl, value, () => this._iconImageUrl = value);
-            }
-            if (This.SensorType == SensorTypes.STOCKFLOAT)
-            {
-                var value = "ms-appx:///Icons/Sensor_StockFloat.png";
-                SetProperty(this._iconImageUrl, value, () => this._iconImageUrl = value);
-            }
+                iconImageUrl = "ms-appx:///Icons/Sensor_Temperature.png";
+            else if (This.SensorType == SensorTypes.STOCKFLOAT)
+                iconImageUrl = "ms-appx:///Icons/Sensor_StockFloat.png";
+            else if (This.SensorType == SensorTypes.MOISTURE)
+                iconImageUrl = "ms-appx:///Icons/Sensor_Moisture.png";
+            else if (This.SensorType == SensorTypes.FLOW)
+                iconImageUrl = "ms-appx:///Icons/Sensor_Flow.png";
             else
-            {
-                var value = "ms-appx:///Icons/Sensor_Gauge.png";
-                SetProperty(this._iconImageUrl, value, () => this._iconImageUrl = value);
-            }
+                iconImageUrl = "ms-appx:///Icons/Sensor_Gauge.png";
+
+            SetProperty(this._iconImageUrl, iconImageUrl, () => this._iconImageUrl = iconImageUrl);
         }
 
         public String Name
@@ -43,13 +47,19 @@ namespace Repsaj.Submerged.GatewayApp.Models
             set { SetProperty(This.DisplayName, value, () => This.DisplayName = value); }
         }
 
-        private object _reading;
+        public String SensorType
+        {
+            get { return This.SensorType; }
+            set { SetProperty(This.SensorType, value, () => This.SensorType = value); UpdateIcon(); }
+        }
+
+//        private object _reading;
         public object Reading
         {
-            get { return _reading; }
+            get { return This.Reading; }
             set
             {
-                SetProperty(this._reading, value, () => this._reading = value);
+                SetProperty(This.Reading, value, () => This.Reading = value);
                 RaisePropertyChanged(nameof(ReadingAsText));
             }
         }
@@ -70,7 +80,7 @@ namespace Repsaj.Submerged.GatewayApp.Models
         {
             get
             {
-                return SensorModel.ReadingToText(Reading, This.SensorType);
+                return SensorDisplayModel.ReadingToText(Reading, This.SensorType);
             }
         }
 
@@ -88,8 +98,10 @@ namespace Repsaj.Submerged.GatewayApp.Models
                 {
                     if (sensorType == SensorTypes.TEMPERATURE)
                         formattedText = String.Format("{0:0.0}", reading);
-                    if (sensorType == SensorTypes.PH)
+                    else if (sensorType == SensorTypes.PH)
                         formattedText = String.Format("{0:0.00}", reading);
+                    else if (sensorType == SensorTypes.FLOW)
+                        formattedText = String.Format("{0:0}", reading);
                     else
                         formattedText = String.Format("{0:0.0}", reading);
                 }
