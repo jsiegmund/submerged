@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Helpers;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
     {
         Sensor[] _sensors;
         Relay[] _relays;
-
-        Random _rand = new Random();
 
         double basePh = 7.0;
         double rangePh = 1.2;
@@ -43,31 +42,21 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
                 object value = null;
 
                 if (sensor.SensorType == SensorTypes.TEMPERATURE)
-                    value = GetRandomDouble(baseTemp, rangeTemp);
+                    value = Randomizer.GetRandomDouble(baseTemp, rangeTemp);
                 else if (sensor.SensorType == SensorTypes.PH)
-                    value = GetRandomDouble(basePh, rangePh);
+                    value = Randomizer.GetRandomDouble(basePh, rangePh);
                 else if (sensor.SensorType == SensorTypes.STOCKFLOAT)
-                    value = GetRandomBool();
+                    value = Randomizer.GetRandomBool();
                 else if (sensor.SensorType == SensorTypes.FLOW)
-                    value = GetRandomDouble(1200, 200);
+                    value = Randomizer.GetRandomDouble(1200, 200);
                 else if (sensor.SensorType == SensorTypes.MOISTURE)
-                    value = GetRandomBool();
+                    value = Randomizer.GetRandomBool();
 
                 data.Add(new JProperty(sensor.Name, value));
 
             }
 
             return data;
-        }
-
-        private double GetRandomDouble(double baseValue, double rangeValue)
-        {
-            return baseValue + _rand.NextDouble() * rangeValue - (rangeValue / 2);
-        }
-
-        private bool GetRandomBool()
-        {
-            return _rand.NextDouble() > 0.5;
         }
     }
 }

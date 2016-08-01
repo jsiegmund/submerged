@@ -13,8 +13,8 @@
         <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding RelayName}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding RelayState}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{x:Bind RelayName, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{x:Bind RelayState, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
         </Grid>
     </Border>
 </UserControl>

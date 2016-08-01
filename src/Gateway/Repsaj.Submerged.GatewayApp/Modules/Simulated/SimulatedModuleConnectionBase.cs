@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,14 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
-        public ModuleConnectionStatus ModuleStatus { get; private set; }
+
+        private ModuleConnectionStatus _moduleStatus = ModuleConnectionStatus.Initializing;
+        public ModuleConnectionStatus ModuleStatus
+        {
+            get { return _moduleStatus; }
+            private set { _moduleStatus = value; }
+        }
+
         public abstract JObject RequestArduinoData();
 
         public string StatusAsText
@@ -25,7 +33,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
         public SimulatedModuleConnectionBase(string moduleName)
         {
             this.ModuleName = moduleName;
-            SetModuleStatus(ModuleConnectionStatus.Initializing);
         }
 
         public async void Init()
@@ -37,7 +44,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
         private async Task SetConnectedDelayed()
         {
             // simulate a delay before the module is actually connected
-            await Task.Delay(TimeSpan.FromSeconds(10));
+            await Task.Delay(TimeSpan.FromSeconds(Randomizer.GetRandomInt(5,3)));
             SetModuleStatus(ModuleConnectionStatus.Connected);
         }
 

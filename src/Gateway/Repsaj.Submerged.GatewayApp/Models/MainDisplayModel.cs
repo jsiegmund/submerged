@@ -1,4 +1,5 @@
-﻿using Repsaj.Submerged.GatewayApp.Universal.Models;
+﻿using Repsaj.Submerged.GatewayApp.Helpers;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,22 +12,22 @@ namespace Repsaj.Submerged.GatewayApp.Models
 {
     public class MainDisplayModel : NotificationBase
     {
-        ObservableCollection<ModuleDisplayModel> _modules = new ObservableCollection<ModuleDisplayModel>();
-        public ObservableCollection<ModuleDisplayModel> Modules
+        TrulyObservableCollection<ModuleDisplayModel> _modules = new TrulyObservableCollection<ModuleDisplayModel>();
+        public TrulyObservableCollection<ModuleDisplayModel> Modules
         {
             get { return _modules; }
             set { SetProperty(ref _modules, value); }
         }
 
-        ObservableCollection<SensorDisplayModel> _sensors = new ObservableCollection<SensorDisplayModel>();
-        public ObservableCollection<SensorDisplayModel> Sensors
+        TrulyObservableCollection<SensorDisplayModel> _sensors = new TrulyObservableCollection<SensorDisplayModel>();
+        public TrulyObservableCollection<SensorDisplayModel> Sensors
         {
             get { return _sensors; }
             set { SetProperty(ref _sensors, value); }
         }
 
-        ObservableCollection<RelayDisplayModel> _relays = new ObservableCollection<RelayDisplayModel>();
-        public ObservableCollection<RelayDisplayModel> Relays
+        TrulyObservableCollection<RelayDisplayModel> _relays = new TrulyObservableCollection<RelayDisplayModel>();
+        public TrulyObservableCollection<RelayDisplayModel> Relays
         {
             get { return _relays; }
             set { SetProperty(ref _relays, value); }
@@ -46,6 +47,8 @@ namespace Repsaj.Submerged.GatewayApp.Models
             {
                 ProcessSensor(sensor);
             }
+
+            RaisePropertyChanged(nameof(Sensors));
         }
 
         private void ProcessLeakage(IEnumerable<Sensor> sensor)
@@ -97,6 +100,8 @@ namespace Repsaj.Submerged.GatewayApp.Models
             {
                 ProcessRelay(relay);
             }
+
+            RaisePropertyChanged(nameof(Relays));
         }
 
         private void ProcessRelay(Relay relay)
@@ -120,6 +125,8 @@ namespace Repsaj.Submerged.GatewayApp.Models
             {
                 ProcessModule(module);
             }
+
+            RaisePropertyChanged(nameof(Modules));
         }
 
         private void ProcessModule(Module module)

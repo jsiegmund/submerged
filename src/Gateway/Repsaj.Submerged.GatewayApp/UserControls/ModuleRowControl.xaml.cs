@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repsaj.Submerged.GatewayApp.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         public ModuleRowControl()
         {
             this.InitializeComponent();
-            borMain.DataContext = this;
+            this.DataContextChanged += (elem, args) => { this.Bindings.Update(); };
         }
 
         #region ModuleName Property
@@ -47,5 +48,6 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         public static readonly DependencyProperty TileModuleStatusProperty =
             DependencyProperty.Register(nameof(ModuleStatus), typeof(string), typeof(ModuleRowControl), null);
         #endregion
+
     }
 }

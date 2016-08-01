@@ -50,10 +50,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
             _commandProcessorFactory = commandProcessor;
 
             _moduleConnectionManager = moduleConnectionManager;
-            _moduleConnectionManager.ModulesInitialized += _arduinoConnectionManager_ModulesInitialized;
+            _moduleConnectionManager.ModulesInitialized += _moduleConnectionManager_ModulesInitialized;
             //_moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
             //_moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
-            _moduleConnectionManager.ModuleStatusChanged += _arduinoConnectionManager_ModuleStatusChanged;
+            _moduleConnectionManager.ModuleStatusChanged += _moduleConnectionManager_ModuleStatusChanged;
         }
 
         public async Task Init()
@@ -104,18 +104,32 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
         }
 
-        public void Init(DeviceModel deviceModel)
+        public async Task UpdateDeviceModel(DeviceModel updatedModel)
         {
-            _deviceModel = deviceModel;
+            // add any modules that might not yet exist in the current model
+            // TODO: remove any modules that might have been deleted
+            var newModules = updatedModel.Modules.Where(m => !_deviceModel.Modules.Any(m2 => m.Name == m2.Name));
+            foreach (var newModule in newModules)
+            {
+                _deviceModel.Modules.Add(newModule);
+            }
 
-            PopulateDeviceComponents();
-            _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
+            // update the list of sensors and relays by clearing and re-adding 
+            _deviceModel.Sensors.Clear();
+            _deviceModel.Sensors.AddRange(updatedModel.Sensors);
+
+            _deviceModel.Relays.Clear();
+            _deviceModel.Relays.AddRange(updatedModel.Relays);
+
+            // run the initialization of any new modules that might have been added
+            if (newModules.Count() > 0)
+                await Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays));
         }
 
         private void PopulateDeviceComponents()
         {
             //SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
-            ModulesUpdated?.Invoke(_deviceModel.Modules);
+            //ModulesUpdated?.Invoke(_deviceModel.Modules);
             //RelaysUpdated?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
         }
 
@@ -131,7 +145,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
         {
-            Init(deviceModel);
+            UpdateDeviceModel(deviceModel);
         }
         #endregion
 
@@ -215,7 +229,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (moduleItem != null)
             {
                 moduleItem.Status = ModuleConnectionStatusAsText(moduleStatus);
-
                 ModulesUpdated?.Invoke(_deviceModel.Modules);
             }
         }
@@ -355,16 +368,15 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private async void _arduinoConnectionManager_ModulesInitialized()
+        private async void _moduleConnectionManager_ModulesInitialized()
         {
             NewLogLine?.Invoke("All modules have been intialized.");
-
-            //UpdateModuleData();
+            
             await SendDeviceData();
             StartTimer();
         }
 
-        private void _arduinoConnectionManager_ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus)
+        private void _moduleConnectionManager_ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus)
         {
             UpdateModuleData(moduleName, newStatus);
         }

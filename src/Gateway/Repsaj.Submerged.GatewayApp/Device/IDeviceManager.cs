@@ -22,7 +22,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         event Action AzureDisconnected;
 
         Task Init();
-        void Init(DeviceModel deviceModel);
+        Task UpdateDeviceModel(DeviceModel deviceModel);
         Task RequestDeviceUpdate();
     }
 }

@@ -8,26 +8,34 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
-    public class ModuleDisplayModel : NotificationBase<Module>
+    public class ModuleDisplayModel : NotificationBase
     {
-        public ModuleDisplayModel(Module module = null) : base(module) { }
+        public ModuleDisplayModel(Module module) : base()
+        {
+            _name = module.Name;
+            _displayOrder = module.DisplayOrder;
+            _status = module.Status;
+        }
 
+        string _name;
         public String Name
         {
-            get { return This.Name; }
-            set { SetProperty(This.Name, value, () => This.Name = value); }
+            get { return this._name; }
+            set { SetProperty(this._name, value, () => this._name = value); }
         }
 
+        int? _displayOrder;
         public int? DisplayOrder
         {
-            get { return This.DisplayOrder; }
-            set { SetProperty(This.DisplayOrder, value, () => This.DisplayOrder = value); }
+            get { return this._displayOrder; }
+            set { SetProperty(_displayOrder, value, () => _displayOrder = value); }
         }
 
+        string _status;
         public string Status
         {
-            get { return This.Status; }
-            set { SetProperty(This.Status, value, () => This.Status = value); }
+            get { return this._status; }
+            set { SetProperty(this._status, value, () => this._status = value); }
         }
     }
 }

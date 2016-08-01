@@ -127,7 +127,6 @@ namespace Repsaj.Submerged.GatewayApp
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DataModel.ProcessModuleData(modules);
-                Bindings.Update();
             });
         }
 
@@ -136,7 +135,6 @@ namespace Repsaj.Submerged.GatewayApp
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DataModel.ProcessSensorData(sensors);
-                Bindings.Update();
             });
         }
 
@@ -145,7 +143,6 @@ namespace Repsaj.Submerged.GatewayApp
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 DataModel.ProcessRelayData(relays);
-                Bindings.Update();
             });
         }
 

@@ -22,7 +22,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         public RelayRowControl()
         {
             this.InitializeComponent();
-            borMain.DataContext = this;
+            this.DataContextChanged += (elem, args) => { this.Bindings.Update(); };
         }
 
         #region RelayName Property

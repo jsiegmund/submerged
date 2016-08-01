@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
@@ -23,7 +24,7 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         public SensorTileControl()
         {
             this.InitializeComponent();
-            borMain.DataContext = this;
+            //this.DataContextChanged += (elem, args) => { this.Bindings.Update(); };
         }
 
 
@@ -51,17 +52,25 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
         #endregion
 
         #region ImageUri Property
-        public Uri ImageUri
+        public string ImageUri
         {
-            get { return (Uri)GetValue(TileImageUriProperty); }
+            get { return (string)GetValue(TileImageUriProperty); }
             set { SetValue(TileImageUriProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for TileImageUri.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TileImageUriProperty =
-            DependencyProperty.Register(nameof(ImageUri), typeof(Uri), typeof(SensorTileControl), null);
+            DependencyProperty.Register(nameof(ImageUri), typeof(string), typeof(SensorTileControl), null);
         #endregion
 
 
+        private BitmapImage IconImage
+        {
+            get
+            {
+                string imageUri = (string)GetValue(TileImageUriProperty);
+                return !String.IsNullOrEmpty(imageUri) ? new BitmapImage(new Uri(imageUri)) : null;
+            }
+        }
     }
 }

@@ -13,8 +13,8 @@
         <Grid Style="{StaticResource submergedTileBackgroundColor}">
             <Grid.RowDefinitions>
             </Grid.RowDefinitions>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding Path=ModuleName}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{Binding Path=ModuleStatus}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{x:Bind ModuleName, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <TextBlock Style="{StaticResource submergedTileTextBlockStyle}" Text="{x:Bind ModuleStatus, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
         </Grid>
     </Border>
 </UserControl>

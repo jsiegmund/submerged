@@ -110,12 +110,15 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
             if (oldStatus == ModuleConnectionStatus.Initializing)
             {
-                // check to see whether there are any modules left initializing
-                if (AllModulesInitialized == false && 
-                    !_moduleConnections.Any(s => s.Value.ModuleStatus == ModuleConnectionStatus.Initializing))
+                lock (_moduleLock)
                 {
-                    AllModulesInitialized = true;
-                    ModulesInitialized?.Invoke();
+                    // check to see whether there are any modules left initializing
+                    if (AllModulesInitialized == false &&
+                        !_moduleConnections.Any(s => s.Value.ModuleStatus == ModuleConnectionStatus.Initializing))
+                    {
+                        AllModulesInitialized = true;
+                        ModulesInitialized?.Invoke();
+                    }
                 }
             }
         }

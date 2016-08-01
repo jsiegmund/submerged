@@ -48,8 +48,8 @@
                     </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Submerged:SensorTileControl Height="128" Width="128" SensorName="{Binding DisplayName}" Reading="{Binding ReadingAsText}" ImageUri="{Binding IconImageUri}" />
+                    <DataTemplate x:DataType="viewModels:SensorDisplayModel">
+                        <Submerged:SensorTileControl Height="128" Width="128" SensorName="{x:Bind DisplayName, Mode=OneWay}" Reading="{x:Bind ReadingAsText, Mode=OneWay}" ImageUri="{x:Bind IconImageUri, Mode=OneWay}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
@@ -63,8 +63,8 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Submerged:RelayRowControl RelayName="{Binding Name}" RelayState="{Binding RelayStateAsText}" HorizontalAlignment="Stretch"/>
+                    <DataTemplate x:DataType="viewModels:RelayDisplayModel">
+                        <Submerged:RelayRowControl RelayName="{x:Bind Name, Mode=OneWay}" RelayState="{x:Bind RelayStateAsText, Mode=OneWay}" HorizontalAlignment="Stretch"/>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
@@ -78,8 +78,8 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Submerged:ModuleRowControl ModuleName="{Binding Name}" ModuleStatus="{Binding Status}" HorizontalAlignment="Stretch" />
+                    <DataTemplate x:DataType="viewModels:ModuleDisplayModel">
+                        <Submerged:ModuleRowControl ModuleName="{x:Bind Name, Mode=OneWay}" ModuleStatus="{x:Bind Status, Mode=OneWay}" HorizontalAlignment="Stretch" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

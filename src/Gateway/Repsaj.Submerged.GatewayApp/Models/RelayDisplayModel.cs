@@ -7,26 +7,34 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Models
 {
-    public class RelayDisplayModel : NotificationBase<Relay>
+    public class RelayDisplayModel : NotificationBase
     {
-        public RelayDisplayModel(Relay relay = null) : base(relay) { }
+        public RelayDisplayModel(Relay relay) : base()
+        {
+            this._name = relay.Name;
+            this._state = relay.State;
+            this._orderNumber = relay.OrderNumber;
+        }
 
+        string _name;
         public String Name
         {
-            get { return This.Name; }
-            set { SetProperty(This.Name, value, () => This.Name = value); }
+            get { return this._name; }
+            set { SetProperty(this._name, value, () => this._name = value); }
         }
 
+        bool? _state;
         public bool? State
         {
-            get { return This.State; }
-            set { SetProperty(This.State, value, () => This.State = value); this.RaisePropertyChanged(nameof(RelayStateAsText)); }
+            get { return this._state; }
+            set { SetProperty(this._state, value, () => this._state = value); this.RaisePropertyChanged(nameof(RelayStateAsText)); }
         }
 
+        int? _orderNumber;
         public int? OrderNumber
         {
-            get { return This.OrderNumber; }
-            set { SetProperty(This.OrderNumber, value, () => This.OrderNumber = value); }
+            get { return this._orderNumber; }
+            set { SetProperty(this._orderNumber, value, () => this._orderNumber = value); }
         }
 
         public string RelayStateAsText

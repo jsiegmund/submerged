@@ -30,7 +30,13 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
-        public ModuleConnectionStatus ModuleStatus { get; private set;}
+
+        private ModuleConnectionStatus _moduleStatus = ModuleConnectionStatus.Initializing;
+        public ModuleConnectionStatus ModuleStatus
+        {
+            get { return _moduleStatus; }
+            private set { _moduleStatus = value; }
+        }
 
         EventWaitHandle _waitHandle = new AutoResetEvent(true);
         private readonly object _statusLock = new object();
@@ -66,7 +72,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             }
 
             Debug.WriteLine($"Initializing connection for module [{ModuleName}]");
-            SetModuleStatus(ModuleConnectionStatus.Initializing);
 
             try
             {
