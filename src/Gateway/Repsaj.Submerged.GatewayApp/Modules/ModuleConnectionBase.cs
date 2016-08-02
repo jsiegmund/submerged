@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Windows.System.Threading;
 using System.Threading;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 
 namespace Repsaj.Submerged.GatewayApp.Modules
 { 
@@ -26,7 +27,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         internal UwpFirmata _firmata;
 
         internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
-        public abstract JObject RequestArduinoData();
+        public abstract IEnumerable<SensorTelemetryModel> RequestSensorData();
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }

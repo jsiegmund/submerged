@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Maker.RemoteWiring;
 using Repsaj.Submerged.Gateway.Common.Arduino;
 using System.Diagnostics;
+using Repsaj.Submerged.GatewayApp.Models;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
@@ -72,17 +73,16 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
         }
 
-        public override JObject RequestArduinoData()
+        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
-            JObject data = new JObject();
+            List<SensorTelemetryModel> data = new List<SensorTelemetryModel>();
 
             foreach (Sensor sensor in _sensors)
             {
                 try
                 {
                     object sensorValue = GetSensorValue(sensor);
-                    JProperty value = new JProperty(sensor.Name, sensorValue);
-                    data.Add(value);
+                    data.Add(new SensorTelemetryModel(sensor.Name, sensorValue));
                 }   
                 catch (Exception ex)
                 {
@@ -90,8 +90,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                     // TODO: error handling
                 } 
             }
-
-            Debug.WriteLine(data);
+            
             return data;
         }
 

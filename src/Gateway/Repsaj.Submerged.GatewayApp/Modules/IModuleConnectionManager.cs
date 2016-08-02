@@ -22,7 +22,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         ModuleConnectionStatus GetModuleStatus(string moduleName);
         Dictionary<string, ModuleConnectionStatus> GetModuleStatuses();
         void InitializeModules(IEnumerable<Module> modules, IEnumerable<Sensor> sensors, IEnumerable<Relay> relays);
-        JObject GetAvailableData();
+        IEnumerable<SensorTelemetryModel> GetSensorData();
         //IEnumerable<ModuleStatusModel> GetModuleStatusModels();
 
         bool AllModulesInitialized { get; }

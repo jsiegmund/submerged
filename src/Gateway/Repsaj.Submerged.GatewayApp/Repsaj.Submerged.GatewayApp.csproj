@@ -134,6 +134,7 @@
     <Compile Include="Models\ModuleDisplayModel.cs" />
     <Compile Include="Models\RelayDisplayModel.cs" />
     <Compile Include="Models\SensorDisplayModel.cs" />
+    <Compile Include="Modules\SensorData.cs" />
     <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedModuleConnectionBase.cs" />

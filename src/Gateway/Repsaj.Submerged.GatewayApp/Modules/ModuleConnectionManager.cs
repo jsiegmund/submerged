@@ -133,9 +133,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             }
         }
 
-        public JObject GetAvailableData()
+        public IEnumerable<SensorTelemetryModel> GetSensorData()
         {
-            JObject data = new JObject();
+            List<SensorTelemetryModel> data = new List<SensorTelemetryModel>();
 
             bool dataPresent = false;
             IEnumerable<IModuleConnection> connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
@@ -145,9 +145,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             {
                 try
                 {
-                    JObject moduleData = module.RequestArduinoData();
-                    data.Merge(moduleData);
-                    dataPresent = true;
+                    var moduleData = module.RequestSensorData();
+                    data.AddRange(moduleData);
+                    dataPresent |= moduleData.Count() > 0;
                 }
                 catch (Exception ex)
                 {

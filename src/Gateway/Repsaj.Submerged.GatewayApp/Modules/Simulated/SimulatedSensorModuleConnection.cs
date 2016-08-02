@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override JObject RequestArduinoData()
+        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             Random rand = new Random();
 
@@ -37,12 +38,12 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             double currentTemp2 = baseTemp2 + rand.NextDouble() * 5 - 2.5;
             double currentPH = basePh + rand.NextDouble() * 1.2 - 0.6;
 
-            JObject data = new JObject();
-            data.Add("temperature1", currentTemp1);
-            data.Add("temperature2", currentTemp2);
-            data.Add("pH", currentPH);
-            return data;
+            List<SensorTelemetryModel> sensorData = new List<SensorTelemetryModel>();
+            sensorData.Add(new SensorTelemetryModel("temperature1", currentTemp1));
+            sensorData.Add(new SensorTelemetryModel("temperature2", currentTemp2));
+            sensorData.Add(new SensorTelemetryModel("pH", currentPH));
 
+            return sensorData;
         }
     }
 }

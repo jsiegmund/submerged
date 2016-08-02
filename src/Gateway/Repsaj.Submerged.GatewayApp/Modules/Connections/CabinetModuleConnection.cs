@@ -2,6 +2,7 @@
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -94,7 +95,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
         }
 
-        override public JObject RequestArduinoData()
+        override public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             if (_adapter.connectionReady())
             {
@@ -125,11 +126,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
                 string leakSensors = String.Join(", ", triggeredSensors);
 
-                JObject data = new JObject();
-                data.Add("leakDetected", leakDetected);
-                data.Add("leakSensors", leakSensors);
-
-                Debug.WriteLine($"Leak detection: {leakDetected}, sensors: {leakSensors}");
+                List<SensorTelemetryModel> data = new List<SensorTelemetryModel>();
+                data.Add(new SensorTelemetryModel("leakDetected", leakDetected));
+                data.Add(new SensorTelemetryModel("leakSensors", leakSensors));
 
                 return data;
             }

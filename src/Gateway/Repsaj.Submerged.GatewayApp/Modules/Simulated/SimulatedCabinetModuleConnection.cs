@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,12 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override JObject RequestArduinoData()
+        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
-            JObject data = new JObject();
-            data.Add("leakDetected", false);
-            data.Add("leakSensors", "");
-            return data;
+            List<SensorTelemetryModel> sensorData = new List<SensorTelemetryModel>();
+            sensorData.Add(new SensorTelemetryModel("leakDetected", false));
+            sensorData.Add(new SensorTelemetryModel("leakSensors", ""));
+            return sensorData;
         }
     }
 }

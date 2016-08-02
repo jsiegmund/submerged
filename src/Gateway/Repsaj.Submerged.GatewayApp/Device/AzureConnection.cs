@@ -69,36 +69,36 @@ namespace Repsaj.Submerged.GatewayApp.Device
         /// <param name="device"></param>
         /// <param name="eventData"></param>
         /// <returns></returns>
-        public Task<string> SendDeviceToCloudMessagesAsync(JObject eventData)
+        public Task<string> SendDeviceToCloudMessageAsync(JObject eventData)
         {
-            var eventId = Guid.NewGuid();
-            return SendDeviceToCloudMessagesAsync(eventId, eventData);
+            string payload = eventData.ToString();
+            return SendDeviceToCloudMessageAsync(payload);
         }
 
-        private async Task<string> SendDeviceToCloudMessagesAsync(Guid eventId, JObject eventData)
+        public async Task<string> SendDeviceToCloudMessageAsync(string payload)
         {
+            var eventId = Guid.NewGuid();
+
             byte[] bytes;
-            string jsonObject = string.Empty;
 
             try
             {
-                jsonObject = eventData.ToString();
-                bytes = Encoding.UTF8.GetBytes(jsonObject);
+                bytes = Encoding.UTF8.GetBytes(payload);
 
                 var message = new Microsoft.Azure.Devices.Client.Message(bytes);
                 message.Properties["EventId"] = eventId.ToString();
 
-                Debug.WriteLine("{0} > Sending IoT hub message: {1}", DateTime.UtcNow, jsonObject);
+                Debug.WriteLine("{0} > Sending IoT hub message: {1}", DateTime.UtcNow, payload);
                 await _deviceClient.SendEventAsync(message);
 
                 SetConnected();
 
-                return jsonObject;
+                return payload;
             }
             catch (Exception ex)
             {
                 SetDisconnected();
-                throw new Exception(String.Format("Failed sending message ({0}) to Azure: {1}", jsonObject, ex.ToString()));
+                throw new Exception(String.Format("Failed sending message ({0}) to Azure: {1}", payload, ex.ToString()));
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Helpers;
+using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -33,9 +34,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override JObject RequestArduinoData()
+        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
-            JObject data = new JObject();
+            List<SensorTelemetryModel> sensorData = new List<SensorTelemetryModel>();
 
             foreach (Sensor sensor in _sensors)
             {
@@ -52,11 +53,11 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
                 else if (sensor.SensorType == SensorTypes.MOISTURE)
                     value = Randomizer.GetRandomBool();
 
-                data.Add(new JProperty(sensor.Name, value));
+                sensorData.Add(new SensorTelemetryModel(sensor.Name, value));
 
             }
 
-            return data;
+            return sensorData;
         }
     }
 }

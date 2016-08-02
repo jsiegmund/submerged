@@ -172,25 +172,23 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void Timer_Tick(ThreadPoolTimer timer)
         {
+            _timer.Cancel();
             RequestArduinoData();
         }
         #endregion
 
         #region Status Updates
-        private void UpdateSensorData(JObject data)
+        private void UpdateSensorData(IEnumerable<SensorTelemetryModel> data)
         {
             List<string> processedSensors = new List<string>();
 
-            foreach (var dataObject in data)
+            foreach (var sensorData in data)
             {
-                JToken valueToken = dataObject.Value;
-                JValue value = (JValue)valueToken.Value<object>();
-
-                var sensorItem = _deviceModel.Sensors.SingleOrDefault(s => s.Name == dataObject.Key);
+                var sensorItem = _deviceModel.Sensors.SingleOrDefault(s => s.Name == sensorData.SensorName);
 
                 if (sensorItem != null)
                 {
-                    sensorItem.Reading = value.Value;
+                    sensorItem.Reading = sensorData.Value;
                     processedSensors.Add(sensorItem.Name);
                 }
             }
@@ -203,9 +201,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
             }
 
-            var sensorData = _deviceModel.Sensors
-                                         .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
-            SensorsUpdated?.Invoke(sensorData);
+            var connectedSensorData = _deviceModel.Sensors
+                                                  .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
+            SensorsUpdated?.Invoke(connectedSensorData);
         }
 
         private void UpdateRelayData(int relayNumber, bool relayState)
@@ -288,24 +286,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
             this.AzureConnected?.Invoke();
         }
 
-        private async Task SendTelemetryAsync(JObject data)
-        {
-            try
-            {
-                TelemetryHelper.MakeTelemetryObject(data, _connectionInfo.DeviceId);
-
-                // push the data to Azure for cloud processing
-                string message = await _azureConnection.SendDeviceToCloudMessagesAsync(data);
-
-                NewLogLine?.Invoke(String.Format("Telemetry sent @ {0:G}", DateTime.UtcNow));
-            }
-            catch (Exception ex)
-            {
-                //MinimalEventSource.Log.LogError($"Failure trying to send the data to Azure: {ex}");
-                NewLogLine?.Invoke(String.Format("Failure trying to send the data to Azure."));
-            }
-        }
-
         private async Task SendDeviceData()
         {
             Dictionary<string, ModuleConnectionStatus> statuses = _moduleConnectionManager.GetModuleStatuses();
@@ -317,7 +297,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             try
             {
                 // push the data to Azure for cloud processing
-                await _azureConnection.SendDeviceToCloudMessagesAsync(data);
+                await _azureConnection.SendDeviceToCloudMessageAsync(data);
 
                 NewLogLine?.Invoke(String.Format("Device data sent @ {0:G}", DateTime.UtcNow));
             }
@@ -334,27 +314,69 @@ namespace Repsaj.Submerged.GatewayApp.Device
             requestObject.Add(DeviceModelConstants.OBJECT_TYPE, DeviceMessageObjectTypes.UPDATE_REQUEST);
             requestObject.Add(DevicePropertiesConstants.DEVICE_ID, _connectionInfo.DeviceId);
 
-            await _azureConnection.SendDeviceToCloudMessagesAsync(requestObject);
-        }    
+            await _azureConnection.SendDeviceToCloudMessageAsync(requestObject);
+        }
         #endregion
 
         #region Arduino / Module Connections
         private void RequestArduinoData()
         {
-            JObject data = _moduleConnectionManager.GetAvailableData();
-
-            if (data != null)
+            var sensorData = _moduleConnectionManager.GetSensorData();
+         
+            if (sensorData?.Count() > 0)
             {
-                JObject dataToBind = (JObject)data.DeepClone();
-                UpdateSensorData(dataToBind);
+                UpdateSensorData(sensorData);
 
                 // we want to send new telemetry data every 6 requests ( = once a minute)
                 requestCounter = (requestCounter + 1) % 6;
+                Task.Run(() => SendTelemetryAsync(sensorData));
                 if (requestCounter == 0)
-                    Task.Run(() => SendTelemetryAsync(data));
+                {
+                    
+                }
             }
         }
+        private async Task SendTelemetryAsync(IEnumerable<SensorTelemetryModel> sensorData)
+        { 
+            try
+            {
+                sensorData = PrepareSensorData(sensorData);
 
+                DeviceTelemetryModel telemetryModel = new DeviceTelemetryModel()
+                {
+                    DeviceId = _connectionInfo.DeviceId,
+                    SensorData = sensorData
+                };
+
+                string payload = Newtonsoft.Json.JsonConvert.SerializeObject(telemetryModel);
+
+                // push the data to Azure for cloud processing
+                string message = await _azureConnection.SendDeviceToCloudMessageAsync(payload);
+
+                NewLogLine?.Invoke(String.Format("Telemetry sent @ {0:G}", DateTime.UtcNow));
+            }
+            catch (Exception ex)
+            {
+                //MinimalEventSource.Log.LogError($"Failure trying to send the data to Azure: {ex}");
+                NewLogLine?.Invoke(String.Format("Failure trying to send the data to Azure."));
+            }
+
+        }
+
+        private IEnumerable<SensorTelemetryModel> PrepareSensorData(IEnumerable<SensorTelemetryModel> sensorData)
+        {
+            List<SensorTelemetryModel> preppedData = new List<SensorTelemetryModel>(sensorData);
+
+            // remove all sensor floats that not high, no relevance in storing that
+            var stockFloatSensors = _deviceModel.Sensors.Where(s => s.SensorType == SensorTypes.STOCKFLOAT);
+            preppedData.RemoveAll(d => stockFloatSensors.Any(sf => sf.Name == d.SensorName) && (bool?)d.Value == false);
+
+            // remove all moisture sensors that read false
+            var moistureSensors = _deviceModel.Sensors.Where(s => s.SensorType == SensorTypes.MOISTURE);
+            preppedData.RemoveAll(d => moistureSensors.Any(ms => ms.Name == d.SensorName) && (bool?)d.Value == false);
+
+            return preppedData;
+        }
 
         private async Task _azureConnection_CommandReceived(DeserializableCommand command)
         {

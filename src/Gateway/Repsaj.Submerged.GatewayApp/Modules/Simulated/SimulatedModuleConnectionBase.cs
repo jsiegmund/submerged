@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Helpers;
+using Repsaj.Submerged.GatewayApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,7 +24,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             private set { _moduleStatus = value; }
         }
 
-        public abstract JObject RequestArduinoData();
+        public abstract IEnumerable<SensorTelemetryModel> RequestSensorData();
 
         public string StatusAsText
         {

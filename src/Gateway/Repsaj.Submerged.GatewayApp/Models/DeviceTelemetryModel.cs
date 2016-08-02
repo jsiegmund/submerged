@@ -1,4 +1,5 @@
-﻿using Repsaj.Submerged.GatewayApp.Universal.Models;
+﻿using Newtonsoft.Json;
+using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,19 @@ namespace Repsaj.Submerged.GatewayApp.Models
     public class DeviceTelemetryModel
     {
         public string ObjectType { get { return DeviceMessageObjectTypes.TELEMETRY; } }
-        public double? Temperature1 { get; set; }
-        public double? Temperature2 { get; set; }
-        public double? pH { get; set; }
         public string DeviceId { get; set; }
+        public IEnumerable<SensorTelemetryModel> SensorData { get; set; }
+    }
+
+    public class SensorTelemetryModel
+    {
+        public SensorTelemetryModel(string sensorName, object value)
+        {
+            this.SensorName = sensorName;
+            this.Value = value;
+        }
+
+        public string SensorName { get; set; }
+        public object Value { get; set; }
     }
 }

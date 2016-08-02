@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Repsaj.Submerged.GatewayApp.Modules.ModuleConnectionBase;
 
 namespace Repsaj.Submerged.GatewayApp.Modules
 {
@@ -18,6 +18,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         event IModuleConnectionStatusChanged ModuleStatusChanged;
 
         void Init();
-        JObject RequestArduinoData();        
+        IEnumerable<SensorTelemetryModel> RequestSensorData();        
     }
 }

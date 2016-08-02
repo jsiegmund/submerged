@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.Serial;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -40,9 +41,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         { }
 
         EventWaitHandle _waitHandle = new AutoResetEvent(false);
-        JObject _data = null;
+        List<SensorTelemetryModel> _sensorData = new List<SensorTelemetryModel>();
 
-        override public JObject RequestArduinoData()
+        override public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             try
             {
@@ -58,7 +59,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                     }
 
                     _waitHandle.WaitOne();
-                    return _data;
+                    return _sensorData;
                 }
             }
             catch (Exception ex)
@@ -82,6 +83,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 // lock the part where we use the queue to prevent any simulatenous access to it
                 lock (_queueLock)
                 {
+                    _sensorData.Clear();
+
                     Measurement measurement = new Measurement()
                     {
                         temperature1 = jsonObject.temp1,
@@ -97,12 +100,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                     var temp2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
                     var pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
 
-                    JObject data = new JObject();
-                    data.Add("temperature1", temp1);
-                    data.Add("temperature2", temp2);
-                    data.Add("pH", pH);
-
-                    _data = data;
+                    _sensorData.Add(new SensorTelemetryModel("temperature1", temp1));
+                    _sensorData.Add(new SensorTelemetryModel("temperature2", temp2));
+                    _sensorData.Add(new SensorTelemetryModel("pH", pH));
                 }
 
                 _waitHandle.Set();
