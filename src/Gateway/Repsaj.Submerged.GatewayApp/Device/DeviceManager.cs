@@ -172,7 +172,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void Timer_Tick(ThreadPoolTimer timer)
         {
-            _timer.Cancel();
             RequestArduinoData();
         }
         #endregion
@@ -329,10 +328,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
                 // we want to send new telemetry data every 6 requests ( = once a minute)
                 requestCounter = (requestCounter + 1) % 6;
-                Task.Run(() => SendTelemetryAsync(sensorData));
                 if (requestCounter == 0)
                 {
-                    
+                    Task.Run(() => SendTelemetryAsync(sensorData));
                 }
             }
         }

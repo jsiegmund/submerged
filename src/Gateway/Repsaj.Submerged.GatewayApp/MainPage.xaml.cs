@@ -50,8 +50,6 @@ namespace Repsaj.Submerged.GatewayApp
         private IContainer _autofacContainer;
         IDeviceManager _deviceManager;
 
-        Stack<string> logLines = new Stack<string>();
-
         public MainPage()
         {
             Application.Current.UnhandledException += Current_UnhandledException;
@@ -193,16 +191,17 @@ namespace Repsaj.Submerged.GatewayApp
         {
             await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                logLines.Push(text);
+                string[] lines = tbLog.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                List<string> linesList = new List<string>(lines);
 
-                while (logLines.Count > 10)
-                    logLines.Pop();
+                // remove old lines when the count reaches 100 
+                while (linesList.Count > 100)
+                    linesList.RemoveAt(linesList.Count - 1);
 
-                StringBuilder content = new StringBuilder();
-                foreach (string line in logLines)
-                    content.AppendLine(line);
+                // insert the new line at the top of the list
+                linesList.Insert(0, text);
 
-                tbLog.Text = content.ToString();
+                tbLog.Text = string.Join(Environment.NewLine, linesList);
             });
         }
 
