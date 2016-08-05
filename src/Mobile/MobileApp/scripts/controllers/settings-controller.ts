@@ -10,23 +10,15 @@
         deviceId: string;
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
-            private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService) {
+            private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService,
+            private dataService: Services.IDataService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
 
-            var apiUrl = "sensors?deviceId=" + this.deviceId;
-            mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/sensors to the sensor configuration: " + error);
-                }
-                else {
-                    this.processData(success.result);      // process the last known data for display
-                }
-            }).bind(this));
+            this.dataService.getSensors(this.deviceId).then(
+                (sensors) => {
+                    this.processData(<Models.SensorRuleModel[]>sensors);      // process the last known data for display
+                });
         }
 
         processData(sensors: Models.SensorRuleModel[]): void {
@@ -66,18 +58,10 @@
             this.sharedService.settings.subscription.sensors = this.sensors;
             this.sharedService.save();
 
-            var apiUrl = "sensors/save?deviceId=" + this.deviceId;
-            this.mobileService.invokeApi(apiUrl, {
-                body: this.sharedService.settings.subscription.sensors,
-                method: "post"
-            }, ((error, success) => {
-                this.saving = false;
-
-                if (error) {
-                    // do nothing
-                    this.showSimpleToast("Sorry, settings were not saved.");
-                }
-            }).bind(this));
+            this.dataService.saveSensors(this.deviceId, this.sharedService.settings.subscription.sensors).then(
+                () => { this.saving = false; },
+                () => { this.showSimpleToast("Sorry, settings were not saved."); }
+            );
         }
     }
 

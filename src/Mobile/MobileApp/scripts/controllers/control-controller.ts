@@ -7,47 +7,34 @@
         disabled: boolean = true;
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
-            private $state: ng.ui.IStateService) {
+            private $state: ng.ui.IStateService, private dataService: Services.IDataService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
             this.maintenanceMode = sharedService.settings.getDevice().deviceProperties.isInMaintenance;
+
             this.loadRelays();
         }
 
         loadRelays() {
-            var apiUrl = "control/relays?deviceId=" + this.deviceId;
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    this.showSimpleToast("Sorry, settings were not saved.");
-                }
-                else {
-                    this.processRelays(success.result);
-                    this.disabled = false;
-                }
-            }).bind(this));
+            this.dataService.getRelays(this.deviceId).then(
+                this.processRelays,
+                (error) => { this.showSimpleToast("Could not load relays"); }
+            );
         }
 
         toggleMaintenance() {
             this.disabled = true;
             this.sharedService.settings.getDevice().deviceProperties.isInMaintenance = this.maintenanceMode;
-            var apiUrl = "control/maintenance/toggle?deviceId=" + this.deviceId + "&inMaintenance=" + this.maintenanceMode;
 
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
+            this.dataService.toggleMaintenance(this.deviceId, this.maintenanceMode).then(
+                () => {
                     this.showSimpleToast("Sorry, settings were not saved.");
-                }
-                else {
+                },
+                () => {
                     this.loadRelays();
                     this.showSimpleToast("Maintenance mode toggled!");
                 }
-            }).bind(this));
+            );
         }
 
         processRelays(relays: Models.RelayModel[]) {
@@ -66,19 +53,17 @@
 
         toggle(relayNumber: number, relayState: boolean) {
             this.disabled = true;
-            var apiUrl = "control/setrelay?deviceId=" + this.deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                    if (error) {
-                        this.showSimpleToast("Sorry, settings were not saved.");
-                    }
-                    else {
-                        this.showSimpleToast("Toggle command sent!");
-                        this.disabled = false;
-                    }
-                }).bind(this));
+
+            this.dataService.toggleRelay(this.deviceId, relayNumber, relayState).then(
+                () => {
+                    this.showSimpleToast("Toggle command sent!");
+                    this.disabled = false;
+                },
+                () => {
+                    this.showSimpleToast("Sorry, settings were not saved.");
+                    this.disabled = false;
+                }
+            );
         };
     }
 
