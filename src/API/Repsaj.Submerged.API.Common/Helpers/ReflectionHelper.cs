@@ -527,5 +527,17 @@ namespace Repsaj.Submerged.Common.Helpers
                 }
             }
         }
+
+        public static string[] GetStringMemberValues(Type type)
+        {
+            FieldInfo[] members = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+
+            List<string> result = new List<string>();
+
+            foreach (var member in members)
+                result.Add((string)member.GetValue(null));
+
+            return result.ToArray();
+        }
     }
 }

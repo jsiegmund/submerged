@@ -23,7 +23,7 @@ namespace Repsaj.Submerged.Infrastructure.Models
         public string DeviceID { get; set; }
         public string DataField { get; set; }
         public string Operator { get; set; }
-        public double? Threshold { get; set; }
+        public double Threshold { get; set; }
         public string RuleOutput { get; set; }
         public string DataType { get; set; }
         public string Etag { get; set; }

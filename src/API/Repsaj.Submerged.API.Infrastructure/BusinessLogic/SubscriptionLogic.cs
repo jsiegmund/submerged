@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using Repsaj.Submerged.Common.Helpers;
 
 namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 {
@@ -476,7 +477,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.ValidationSensorExists);
             if (! device.Modules.Exists(m => String.Equals(m.Name, sensor.Module)))
                 throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
-            if (sensor.SensorType != SensorTypes.PH && sensor.SensorType != SensorTypes.TEMPERATURE)
+
+            var sensorTypes = ReflectionHelper.GetStringMemberValues(typeof(SensorTypes));
+            if (!sensorTypes.Contains(sensor.SensorType))
                 throw new SubscriptionValidationException(String.Format(Strings.ValidationInvalidSensorType, sensor.SensorType));
 
             device.Sensors.Add(sensor);
@@ -508,36 +511,58 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             // update the rules linked to this sensor
             List<DeviceRule> rules = await _deviceRulesLogic.GetDeviceRulesAsync(deviceId);
 
-            // find the min and max rules for this sensor, create new ones when they do not exist yet
-            DeviceRule minRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.LessThen);
-            if (minRule == null)
+            // for all moisture && stockfloat sensor types, add a rule which triggers when the value reads 'true'
+            if (sensor.SensorType == SensorTypes.MOISTURE || sensor.SensorType == SensorTypes.STOCKFLOAT)
             {
-                minRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
-                minRule.Operator = DeviceRuleOperators.LessThen;
-                minRule.DataField = sensor.Name;
-                minRule.DataType = sensor.SensorType;
-                minRule.RuleOutput = sensor.Name + "MinAlarm";
+                DeviceRule sensorRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.Equal);
+
+                if (sensorRule == null)
+                {
+                    sensorRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
+                    sensorRule.Operator = DeviceRuleOperators.Equal;
+                    sensorRule.DataField = sensor.Name;
+                    sensorRule.DataType = sensor.SensorType;
+                    sensorRule.RuleOutput = sensor.Name + "Alarm";
+                    sensorRule.Threshold = 1;
+                    sensorRule.EnabledState = true;
+
+                    await _deviceRulesLogic.SaveDeviceRuleAsync(sensorRule);
+                }
             }
-
-            minRule.Threshold = sensor.MinThreshold ?? 0;
-            minRule.EnabledState = sensor.MinThresholdEnabled;
-
-            await _deviceRulesLogic.SaveDeviceRuleAsync(minRule);
-
-            DeviceRule maxRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.GreaterThen);
-            if (maxRule == null)
+            else
             {
-                maxRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
-                maxRule.Operator = DeviceRuleOperators.GreaterThen;
-                maxRule.DataField = sensor.Name;
-                maxRule.DataType = sensor.SensorType;
-                maxRule.RuleOutput = sensor.Name + "MaxAlarm";
+                // find the min and max rules for this sensor, create new ones when they do not exist yet
+                DeviceRule minRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.LessThen);
+                if (minRule == null)
+                {
+                    minRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
+                    minRule.Operator = DeviceRuleOperators.LessThen;
+                    minRule.DataField = sensor.Name;
+                    minRule.DataType = sensor.SensorType;
+                    minRule.RuleOutput = sensor.Name + "MinAlarm";
+                }
+
+                minRule.Threshold = sensor.MinThreshold ?? 0;
+                minRule.EnabledState = sensor.MinThresholdEnabled;
+
+                await _deviceRulesLogic.SaveDeviceRuleAsync(minRule);
+
+                DeviceRule maxRule = rules?.SingleOrDefault(r => r.DataField == sensor.Name && r.Operator == DeviceRuleOperators.GreaterThen);
+                if (maxRule == null)
+                {
+                    maxRule = await _deviceRulesLogic.GetNewRuleAsync(deviceId);
+                    maxRule.Operator = DeviceRuleOperators.GreaterThen;
+                    maxRule.DataField = sensor.Name;
+                    maxRule.DataType = sensor.SensorType;
+                    maxRule.RuleOutput = sensor.Name + "MaxAlarm";
+                }
+
+                maxRule.Threshold = sensor.MaxThreshold ?? 0;
+                maxRule.EnabledState = sensor.MaxThresholdEnabled;
+
+                await _deviceRulesLogic.SaveDeviceRuleAsync(maxRule);
+
             }
-
-            maxRule.Threshold = sensor.MaxThreshold ?? 0;
-            maxRule.EnabledState = sensor.MaxThresholdEnabled;
-
-            await _deviceRulesLogic.SaveDeviceRuleAsync(maxRule);
         }
 
         public async Task<SensorModel> UpdateSensorAsync(SensorModel updatedSensor, string deviceId, string owner)

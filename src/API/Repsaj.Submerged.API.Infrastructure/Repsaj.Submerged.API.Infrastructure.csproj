@@ -171,7 +171,6 @@
     <Compile Include="BusinessLogic\IDeviceRulesLogic.cs" />
     <Compile Include="BusinessLogic\IDeviceTelemetryLogic.cs" />
     <Compile Include="Models\DeviceRuleBlobEntity.cs" />
-    <Compile Include="Models\DeviceRuleDataFields.cs" />
     <Compile Include="Models\DeviceRuleModel.cs" />
     <Compile Include="Models\DeviceRuleOperators.cs" />
     <Compile Include="Models\DeviceTelemetryModel.cs" />

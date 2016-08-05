@@ -88,11 +88,18 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
-            SensorModel model = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_displayName, TestStatics.sensor_type, TestStatics.module_name, TestStatics.sensor_pinConfig);
-            var updatedSubscription = await _subscriptionLogic.AddSensorAsync(model, TestStatics.device_id, subscription_User);
+            SensorModel sensor1 = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_displayName, TestStatics.sensor_type, TestStatics.module_name, TestStatics.sensor_pinConfig);
+            sensor1.MinThreshold = 22;
+            sensor1.MinThresholdEnabled = true;
+            sensor1.MaxThreshold = 28;
+            sensor1.MaxThresholdEnabled = true;
+            var updatedSubscription = await _subscriptionLogic.AddSensorAsync(sensor1, TestStatics.device_id, subscription_User);
+
+            SensorModel sensor2 = SensorModel.BuildSensor(TestStatics.sensor2_name, TestStatics.sensor2_displayName, TestStatics.sensor2_type, TestStatics.module_name, TestStatics.sensor2_pinConfig);
+            updatedSubscription = await _subscriptionLogic.AddSensorAsync(sensor2, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
-            Assert.AreEqual(1, subscription.Devices.First().Sensors.Count);
+            Assert.AreEqual(2, subscription.Devices.First().Sensors.Count);
         }
 
         public async Task Integration_Subscription_AddRelays()
@@ -184,7 +191,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
 
             // ensure the subscription still has one single device, not multiple
             device = await _subscriptionLogic.GetDeviceAsync(TestStatics.device_id, subscription_User, false);
-            Assert.AreEqual(1, device.Sensors.Count);
+            Assert.AreEqual(2, device.Sensors.Count);
         }
 
         public async Task Integration_Subscription_UpdateRelays()
@@ -218,9 +225,12 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
             DeviceModel device = subscription.Devices.Single(d => d.DeviceProperties.DeviceID == TestStatics.device_id);
-            SensorModel sensor = device.Sensors.Single(m => m.Name == TestStatics.sensor_name);
 
-            await _subscriptionLogic.DeleteSensorAsync(sensor, TestStatics.device_id, subscription_User);
+            SensorModel sensor1 = device.Sensors.Single(m => m.Name == TestStatics.sensor_name);
+            await _subscriptionLogic.DeleteSensorAsync(sensor1, TestStatics.device_id, subscription_User);
+
+            SensorModel sensor2 = device.Sensors.Single(m => m.Name == TestStatics.sensor2_name);
+            await _subscriptionLogic.DeleteSensorAsync(sensor2, TestStatics.device_id, subscription_User);
 
             device = await _subscriptionLogic.GetDeviceAsync(TestStatics.device_id, subscription_User, false);
             Assert.AreEqual(0, device.Sensors.Count);

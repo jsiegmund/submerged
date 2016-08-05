@@ -17,5 +17,9 @@ namespace Repsaj.Submerged.Common.Models
     {
         public static readonly string TEMPERATURE = "temperature";
         public static readonly string PH = "pH";
+        public static readonly string STOCKFLOAT = "stockfloat";
+        public static readonly string MOISTURE = "moisture";
+        public static readonly string FLOW = "flow";
     }
+
 }

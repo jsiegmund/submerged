@@ -50,12 +50,10 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             // that was saved in table storage
             if (enabled == true)
             {
-                rule.pHMax = null;
-                rule.pHMin = null;
-                rule.Temperature1Max = null;
-                rule.Temperature1Min = null;
-                rule.Temperature2Max = null;
-                rule.Temperature2Min = null;
+                foreach (var sensorRule in rule.SensorRules)
+                {
+                    sensorRule.Threshold = null;
+                }
             }
 
             await PersistRulesToBlobStorageAsync(blobList);
@@ -112,7 +110,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 new DeviceRuleTableEntity(incomingRule.DeviceID, incomingRule.RuleId)
                 {
                     DataField = incomingRule.DataField,
-                    Threshold = (double)incomingRule.Threshold,
+                    Threshold = incomingRule.Threshold,
                     Operator = incomingRule.Operator,
                     Enabled = incomingRule.EnabledState,
                     RuleOutput = incomingRule.RuleOutput,
@@ -136,6 +134,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         {
             IEnumerable<DeviceRuleTableEntity> queryResults = await GetAllRulesFromTable();
             Dictionary<string, DeviceRuleBlobEntity> blobEntityDictionary = new Dictionary<string, DeviceRuleBlobEntity>();
+
             foreach (DeviceRuleTableEntity rule in queryResults)
             {
                 DeviceRuleBlobEntity entity = null;
@@ -149,72 +148,9 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                     entity = blobEntityDictionary[rule.PartitionKey];
                 }
 
-                if (rule.Enabled)
-                {
-                    if (rule.DataField == DeviceRuleDataFields.Temperature1 && 
-                        rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.Temperature1Max = rule.Threshold;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature1 &&
-                         rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.Temperature1Min = rule.Threshold;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature2 &&
-                         rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.Temperature2Max = rule.Threshold;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature2 &&
-                        rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.Temperature2Min = rule.Threshold;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.pH &&
-                         rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.pHMax = rule.Threshold;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.pH &&
-                        rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.pHMin = rule.Threshold;
-                    }
-                }
-                else
-                {
-                    if (rule.DataField == DeviceRuleDataFields.Temperature1 &&
-                        rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.Temperature1Max = null;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature1 &&
-                         rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.Temperature1Min = null;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature2 &&
-                         rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.Temperature2Max = null;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.Temperature2 &&
-                        rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.Temperature2Min = null;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.pH &&
-                         rule.Operator == DeviceRuleOperators.GreaterThen)
-                    {
-                        entity.pHMax = null;
-                    }
-                    else if (rule.DataField == DeviceRuleDataFields.pH &&
-                        rule.Operator == DeviceRuleOperators.LessThen)
-                    {
-                        entity.pHMin = null;
-                    }
-                }
+                object threshold = rule.Enabled ? (object)rule.Threshold : null;
+                SensorRuleEntity sensorRule = new SensorRuleEntity(rule.DataField, threshold, rule.Operator);
+                entity.SensorRules.Add(sensorRule);
             }
 
             return blobEntityDictionary.Values.ToList();
@@ -292,7 +228,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
             CloudBlobContainer container = await BlobStorageHelper.BuildBlobContainerAsync(_storageAccountConnectionString, _deviceRulesBlobStoreContainerName);
 
             JsonSerializerSettings settings = new JsonSerializerSettings();
-            settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+            //settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
 
             string updatedJson = JsonConvert.SerializeObject(blobList, settings);
             DateTime saveDate = DateTime.UtcNow.AddMinutes(blobSaveMinutesInTheFuture);

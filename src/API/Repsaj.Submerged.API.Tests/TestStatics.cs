@@ -24,11 +24,17 @@ namespace Repsaj.Submerged.API.Tests
         public static readonly string module_connectionString = "[TEST] Module connection string";
         public static readonly string module_moduleType = ModuleTypes.SENSORS;
 
-        public static readonly string sensor_name = "[TEST] Sensor Name";
+        public static readonly string sensor_name = "[TEST] Temperature Sensor";
         public static readonly string sensor_displayName = "[TEST] Sensor Display Name";
         public static readonly string sensor_description = "[TEST] Sensor Description";
         public static readonly string sensor_type = SensorTypes.TEMPERATURE;
         public static readonly string[] sensor_pinConfig = new string[] { "D0" };
+
+        public static readonly string sensor2_name = "[TEST] Water Sensor";
+        public static readonly string sensor2_displayName = "[TEST] Water Sensor Display Name";
+        public static readonly string sensor2_description = "[TEST] Water Sensor Description";
+        public static readonly string sensor2_type = SensorTypes.MOISTURE;
+        public static readonly string[] sensor2_pinConfig = new string[] { "A0" };
 
         public static readonly int relay_number = 0;
         public static readonly string relay_name = "[TEST] Relay Name";
