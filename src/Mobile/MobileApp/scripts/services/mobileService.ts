@@ -195,14 +195,8 @@
                 if (this.mobileServiceClient) {
                     console.log("registering with Azure for GCM notifications");
                     var deviceTag = "deviceid:" + this.sharedService.settings.getDeviceId();
-                    var template = '{ "mytemplate" : { "body": { "data" : { "message" : "$(message)" } }, "headers" : [], "tags" : ["' + deviceTag + '"] } }';
-//                    var template = '{ "data" : {"message":"$(message)", "id": "$(id)", "title": "$(title)"}}';
-//                    var template = '{ "data" : { "message" : "$(message)", "tags" : ["' + deviceTag + '"] } }';
 
-                    //var hub = new WindowsAzure.NotificationHub(this.mobileServiceClient);
-
-
-                    this.mobileServiceClient.push.register('gcm', this.registrationId, template, null, this.registrationCallback);
+                    this.mobileServiceClient.push.register('gcm', this.registrationId, null, null, this.registrationCallback);
                     console.log('mobile service push registered with tag ' + deviceTag);
 
                     this.updateNotificationRegistration(this.registrationId);
