@@ -59,9 +59,9 @@
         settings: ISettings;
 
         save(): void;
-        init(mobileService: IMobileService): ng.IPromise<{}>;
-        loadSettings(mobileService: IMobileService): ng.IPromise<ISettings>;
-        loadSubscriptionFromCloud(mobileService: IMobileService): ng.IPromise<ISettings>;
+        init(dataService: IDataService): ng.IPromise<{}>;
+        loadSettings(dataService: IDataService): ng.IPromise<ISettings>;
+        loadSubscriptionFromCloud(dataService: IDataService): ng.IPromise<ISettings>;
     }
 
     export class SharedService implements ISharedService {
@@ -87,15 +87,15 @@
             this.settings.globalizationInfo = globalizationInfoObj;
         }
 
-        public init(mobileService: IMobileService): ng.IPromise<{}> {
+        public init(dataService: IDataService): ng.IPromise<{}> {
             var globalizationPromise = this.loadGlobalizationSettings();
-            var settingsPromise = this.loadSubscriptionFromCloud(mobileService);
+            var settingsPromise = this.loadSubscriptionFromCloud(dataService);
 
-            var deferred = this.$q.defer<ISettings>();
+            var deferred = this.$q.defer<{}>();
 
             // wait before everything has loaded before returning the actual settings object
             this.$q.all([globalizationPromise, settingsPromise]).then(function (result) {
-                deferred.resolve(result.values[1]);
+                deferred.resolve();
             }, (error) => {
                 console.log("Failed initializing shared settings: " + error);
                 deferred.reject(error);
@@ -136,12 +136,12 @@
             return deferred.promise;
         }
 
-        public loadSubscriptionFromCloud(mobileService: IMobileService): ng.IPromise<ISettings> {
+        public loadSubscriptionFromCloud(dataService: IDataService): ng.IPromise<ISettings> {
             console.log("loadSubscriptionFromCloud");
 
             var deferred = this.$q.defer<ISettings>();
 
-            this.loadFromCloud(mobileService).then((subscription: Models.SubscriptionModel) => {
+            this.loadFromCloud(dataService).then((subscription: Models.SubscriptionModel) => {
                 this.setSubscription(subscription, true);
                 deferred.resolve(this.settings);
             });
@@ -149,12 +149,12 @@
             return deferred.promise;
         }
 
-        public loadSettings(mobileService: IMobileService): ng.IPromise<ISettings> {
+        public loadSettings(dataService: IDataService): ng.IPromise<ISettings> {
             return this.loadFromFile().then(((subscription: Models.SubscriptionModel) => {
                 this.setSubscription(subscription, false);
                 return this.settings;
             }), ((reason: any) => {
-                return this.loadSubscriptionFromCloud(mobileService);
+                return this.loadSubscriptionFromCloud(dataService);
             }));
         }
 
@@ -179,35 +179,15 @@
             return deferred.promise;
         }
 
-        private loadFromCloud(mobileService: IMobileService): ng.IPromise<Models.SubscriptionModel> {
+        private loadFromCloud(dataService: IDataService): ng.IPromise<Models.SubscriptionModel> {
             var deferred = this.$q.defer<Models.SubscriptionModel>();
 
-            this.loadSubscription(mobileService).then(function(subscription) {
+            dataService.getSubscription().then(function(subscription) {
                 // build a new settings object and save the subscription in it
                 deferred.resolve(subscription);
             }, function (err) {
                 deferred.reject();
             });
-
-            return deferred.promise;
-        }
-
-        loadSubscription(mobileService: IMobileService): ng.IPromise<Models.SubscriptionModel> {
-            var deferred = this.$q.defer<Models.SubscriptionModel>();
-            var apiUrl = "subscription";
-            mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /subscription to load the subscription details: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve(success.result);
-                }
-            }));
 
             return deferred.promise;
         }

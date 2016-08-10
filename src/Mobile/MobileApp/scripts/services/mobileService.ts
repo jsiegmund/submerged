@@ -5,7 +5,7 @@
     export interface IMobileService {
         login(force?: boolean): ng.IPromise<{}>;
         logout(): ng.IPromise<{}>;
-        registerPush(): void;
+        initPushRegistration(): void;
         unregisterPush(): void;
         invokeApi(apiName: string, options: {}, callback: IApiCallback),
         getHeaders(): ng.IPromise<any[]>;
@@ -172,20 +172,20 @@
                 }
             });
 
-            this.pushRegistration.on('registration', ((data) => {
+            this.pushRegistration.on('registration', (data) => {
                 this.registrationId = data.registrationId;
                 this.registerPush();
-            }));
+            });
 
-            this.pushRegistration.on('notification', ((data) => {
+            this.pushRegistration.on('notification', (data) => {
                 if (data && data.message && data.message.length > 0) {
                     alert(data.message);
                 }
-            }));
+            });
 
-            this.pushRegistration.on('error', ((err) => {
+            this.pushRegistration.on('error', (err) => {
                 console.log('Push registration returned an error: ' + err);
-            }));
+            });
         }
 
         registerPush(): void {
@@ -194,11 +194,45 @@
                 console.log("gcm id " + this.registrationId);
                 if (this.mobileServiceClient) {
                     console.log("registering with Azure for GCM notifications");
-                    //var template_subscription = '{ "data" : {"message":"$(message)","subscription":"#(subscription)"}}';
-                    this.mobileServiceClient.push.register('gcm', this.registrationId, null, null, this.registrationCallback);
+                    var deviceTag = "deviceid:" + this.sharedService.settings.getDeviceId();
+                    var template = '{ "mytemplate" : { "body": { "data" : { "message" : "$(message)" } }, "headers" : [], "tags" : ["' + deviceTag + '"] } }';
+//                    var template = '{ "data" : {"message":"$(message)", "id": "$(id)", "title": "$(title)"}}';
+//                    var template = '{ "data" : { "message" : "$(message)", "tags" : ["' + deviceTag + '"] } }';
+
+                    //var hub = new WindowsAzure.NotificationHub(this.mobileServiceClient);
+
+
+                    this.mobileServiceClient.push.register('gcm', this.registrationId, template, null, this.registrationCallback);
+                    console.log('mobile service push registered with tag ' + deviceTag);
+
+                    this.updateNotificationRegistration(this.registrationId);
                 }
             }
         }
+
+        updateNotificationRegistration(registrationId: string): ng.IPromise<{}> {
+            var deferred = this.$q.defer<Models.SubscriptionModel>();
+            var apiUrl = "notifications?registrationId=" + registrationId;
+
+            this.mobileServiceClient.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /notifications to set notification registration: " + error);
+                    deferred.reject();
+                }
+                else {
+                    console.log("Successfully updated device registration properties via the back-end.");
+                    deferred.resolve(success.result);
+                }
+            });
+
+            return deferred.promise;
+
+        }
+
 
         unregisterPush(): void {
             console.log("unregistering for push messages");

@@ -31,7 +31,7 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
         })
 
         .state("analytics", <ng.ui.IState>{
-            url: "/anaytics",
+            url: "/analytics",
             templateUrl: "app/views/analytics.html",
             title: "Submerged Analytics",
             controller: "AnalyticsController",

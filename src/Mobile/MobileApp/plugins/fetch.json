@@ -111,9 +111,17 @@
     "cordova-plugin-ms-azure-mobile-apps": {
         "source": {
             "type": "registry",
-            "id": "cordova-plugin-ms-azure-mobile-apps@2.0.0-beta4"
+            "id": "cordova-plugin-ms-azure-mobile-apps"
         },
         "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-sqlite-storage": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-sqlite-storage"
+        },
+        "is_top_level": false,
         "variables": {}
     }
 }

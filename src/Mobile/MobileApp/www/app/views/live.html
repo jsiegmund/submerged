@@ -3,7 +3,7 @@
         <sm-loading-indicator ng-show="vm.loading" ng-cloak>Please wait a short moment whilst we're loading the latest available telemetry data...</sm-loading-indicator>
         <div ng-cloak layout-margin ng-hide="vm.loading">
 
-            <div layout-margin ng-repeat="sensor in vm.sensors">
+            <div layout-margin ng-repeat="sensor in vm.sensors | filter:vm.filterSensors">
                 <md-card layout layout-fill layout-padding ng-click="vm.openDetails(sensor.name)">
                     <div layout="row" layout-fill>
                         <div layout="column">

@@ -17,11 +17,23 @@
 
             this.dataService.getSensors(this.deviceId).then(
                 (sensors) => {
-                    this.processData(<Models.SensorRuleModel[]>sensors);      // process the last known data for display
+                    this.processSensors(<Models.SensorRuleModel[]>sensors);      // process the last known data for display
                 });
         }
 
-        processData(sensors: Models.SensorRuleModel[]): void {
+        filterSensors() {
+            return function (sensor: Models.SensorModel) {
+                if (sensor == null)
+                    return false;
+                else if (sensor.sensorType === Statics.SENSORTYPES.PH ||
+                    sensor.sensorType === Statics.SENSORTYPES.TEMPERATURE)
+                    return true;
+                else
+                    return false;
+            }
+        }
+
+        processSensors(sensors: Models.SensorRuleModel[]): void {
 
             for (var sensor of sensors) {
                 switch (sensor.sensorType) {

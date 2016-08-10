@@ -15,7 +15,7 @@
     <section>
         <md-subheader class="md-no-sticky"><strong>Sensor thresholds</strong></md-subheader>
         <div layout-margin>
-            <div ng-repeat="sensor in vm.sensors" class="md-body-1">
+            <div ng-repeat="sensor in vm.sensors | filter:vm.filterSensors()" class="md-body-1">
                 <b>{{sensor.displayName}}</b>
                 <div layout="row">
                     <div layout="column" flex="5" layout-align="center center">{{sensor.minThreshold}}</div>

@@ -10,11 +10,132 @@
 
         getTankLogs(tankId: string): ng.IPromise<Models.TankLogModel[]>;
         saveTankLog(newLog: Models.TankLogModel): ng.IPromise<{}>;
+
+        getModules(deviceId: string): ng.IPromise<Models.ModuleModel[]>;  
+
+        getTelemetry(deviceId: string): ng.IPromise<any>;
+        getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<any>;
+
+        getData(rangeType: string, date: Date, deviceId: string): ng.IPromise<Models.AnalyticsDataModel>;
+
+        getSubscription(): ng.IPromise<Models.SubscriptionModel>;  
     }
 
     export class DataService implements IDataService {
-        constructor(private mobileService: IMobileService, private $q: ng.IQService) {
+        
+        timezoneOffsetSeconds: number;
 
+        constructor(private mobileService: IMobileService, private $q: ng.IQService, private sharedService: Services.ISharedService) {
+            this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
+        }
+
+        getSubscription(): ng.IPromise<Models.SubscriptionModel> {
+            var deferred = this.$q.defer<Models.SubscriptionModel>();
+            var apiUrl = "subscription";
+
+            this.mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /subscription to load the subscription details: " + error);
+                    deferred.reject();
+                }
+                else {
+                    deferred.resolve(success.result);
+                }
+            });
+
+            return deferred.promise;
+        }
+
+
+        getData(rangeType: string, date: Date, deviceId: string): ng.IPromise<Models.AnalyticsDataModel> {
+            var apiUrl = "data/" + rangeType + "?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
+            var deferred = this.$q.defer<Models.AnalyticsDataModel>();
+
+            this.mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    console.log("Failure getting data from API: " + error);
+                    deferred.reject();
+                }
+                else {
+                    var result: Models.AnalyticsDataModel = success.result;
+                    deferred.resolve(result);
+                }
+            });
+
+            return deferred.promise;
+        }
+
+        getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<any> {
+            var apiUrl = "data/threehours?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
+            var deferred = this.$q.defer<any>();
+
+            this.mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /data/threehours: " + error);
+                    deferred.reject();
+                }
+                else {
+                    deferred.resolve(success.result);
+                }
+            });
+
+            return deferred.promise;
+        }
+
+        getTelemetry(deviceId: string): ng.IPromise<Models.TelemetryModel> {
+            var apiUrl = "data/latest?deviceId=" + deviceId;
+            var deferred = this.$q.defer<Models.TelemetryModel>();
+
+            this.mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /data/latest: " + error);
+                    deferred.reject();
+                }
+                else {
+                    var result: Models.TelemetryModel = success.result;
+                    deferred.resolve(result);
+                }
+            });
+
+            return deferred.promise;
+        }       
+
+        getModules(deviceId: string): ng.IPromise<Models.ModuleModel[]> {
+            var apiUrl = "modules?deviceId=" + deviceId;
+            var deferred = this.$q.defer<Models.ModuleModel[]>();
+
+            // get the latest available data record to show untill it's updated
+            this.mobileService.invokeApi(apiUrl, {
+                body: null,
+                method: "post"
+            }, (error, success) => {
+                if (error) {
+                    // do nothing
+                    console.log("Error calling /modules: " + error);
+                    deferred.reject();
+                }
+                else {
+                    var result: Models.ModuleModel[] = success.result;
+                    deferred.resolve(result);      // process the last known data for display
+                }
+            });
+
+            return deferred.promise;
         }
 
         saveSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<{}> {
@@ -24,7 +145,7 @@
             this.mobileService.invokeApi(apiUrl, {
                 body: sensors,
                 method: "post"
-            }, ((error, success) => {
+            }, (error, success) => {
                 if (error) {
                     // do nothing
                     console.log("Error calling /sensors/save to save the sensor configuration: " + error);
@@ -33,7 +154,7 @@
                 else {
                     deferred.resolve();
                 }
-            }).bind(this));
+            });
 
             return deferred.promise;
         }
@@ -45,7 +166,7 @@
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
-            }, ((error, success) => {
+            }, (error, success) => {
                 if (error) {
                     // do nothing
                     console.log("Error calling /data/sensors to get the sensor configuration: " + error);
@@ -55,7 +176,7 @@
                     var result: Models.SensorModel[] = success.result;
                     deferred.resolve(result);
                 }
-            }).bind(this));
+            });
 
             return deferred.promise;
         }
@@ -67,7 +188,7 @@
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
-            }, ((error, success) => {
+            }, (error, success) => {
                 if (error) {
                     console.log("Error calling /control/maintenance/toggle to toggle maintenance state: " + error);
                     deferred.reject();
@@ -75,7 +196,7 @@
                 else {
                     deferred.resolve();
                 }
-            }).bind(this));
+            });
 
 
             return deferred.promise;
@@ -88,7 +209,7 @@
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
-            }, ((error, success) => {
+            }, (error, success) => {
                 if (error) {
                     console.log("Error calling /control/setrelay to toggle relay state: " + error);
                     deferred.reject();
@@ -96,7 +217,7 @@
                 else {
                     deferred.resolve();
                 }
-            }).bind(this));
+            });
 
             return deferred.promise;
         }
@@ -108,7 +229,7 @@
             this.mobileService.invokeApi(apiUrl, {
                 body: null,
                 method: "post"
-            }, ((error, success) => {
+            }, (error, success) => {
                 if (error) {
                     console.log("Error calling /control/relays to get relay configuration: " + error);
                     deferred.reject();
@@ -117,7 +238,7 @@
                     var result: Models.RelayModel[] = success.result;
                     deferred.resolve(result);
                 }
-            }).bind(this));
+            });
 
             return deferred.promise;
         }

@@ -32,8 +32,8 @@ namespace Submerged.Controllers {
         leakText: string;
         leakClass: string;
 
-        sensorData: boolean;
-        leakData: boolean;
+        sensorDataPresent: boolean;
+        leakDataPresent: boolean;
 
         modules: Submerged.Models.ModuleModel[];
         sensors: Submerged.Models.SensorModel[];
@@ -41,17 +41,17 @@ namespace Submerged.Controllers {
         timeoutId: any;
 
         deviceId: string
-        timezoneOffsetSeconds: number;
+        //timezoneOffsetSeconds: number;
 
         //static $inject = ['sharedService', 'mobileService', 'signalRService', '$state', '$scope', '$timeout', '$sce'];
 
         constructor(private sharedService: Submerged.Services.ISharedService, private mobileService: Submerged.Services.IMobileService,
             private signalRService: Submerged.Services.ISignalRService,
             private $state: ng.ui.IState, private $scope: ng.IRootScopeService, private $timeout: ng.ITimeoutService,
-            private $sce: ng.ISCEService) {
+            private $sce: ng.ISCEService, private dataService: Services.IDataService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
-            this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
+            //this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
 
             // get the settings stored in local storage; when empty refresh from cloud
             var settings = sharedService.settings;
@@ -95,24 +95,19 @@ namespace Submerged.Controllers {
             }
         };
 
+        filterSensors = function (sensor) {
+            return sensor.reading != null;
+        }
+
         loadSensors(): void {
-            var apiUrl = "sensors?deviceId=" + this.deviceId;
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to get sensors data: " + error);
-                }
-                else {
-                    var sensors: Models.SensorModel[] = success.result;
+            this.dataService.getSensors(this.deviceId).then(
+                (sensors) => {
                     this.processSensors(sensors);      // process the last known data for display
 
                     this.sharedService.settings.subscription.sensors = sensors;
-                    this.sharedService.save();    
+                    this.sharedService.save();
                 }
-            }).bind(this));
+            );
         }
 
         formatSensorValue(sensor: Models.SensorModel, value: any): any {
@@ -136,37 +131,22 @@ namespace Submerged.Controllers {
 
         loadLastThreeHours(): void {
             var date = new Date();
-            var url = "data/threehours?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
 
-             this.mobileService.invokeApi(url, {
-                body: null,
-                method: "post"
-            }, function (error, success) {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/threehours: " + error);
+            this.dataService.getTelemetryLastThreeHours(this.deviceId, date).then(
+                (data) => {
+                    this.processThreeHours(data);
                 }
-                else {
-                    this.processThreeHours(success.result);
-                }
-            }.bind(this));
+            );
         }
 
         loadLatestTelemetry(): void {
             // get the latest available data record to show untill it's updated
-            this.mobileService.invokeApi("data/latest?deviceId=" + this.deviceId, {
-                body: null,
-                method: "post"
-            }, function (error, success) {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/latest: " + error);
-                }
-                else {
-                    this.processTelemetry(success.result);      // process the last known data for display
+            this.dataService.getTelemetry(this.deviceId).then(
+                (telemetry) => {
+                    this.processTelemetry(telemetry);       // process the last known data for display
                     this.startSignalR();         // start signalR when the data is received 
                 }
-            }.bind(this));
+            );      
         }
 
         processSensors(sensors: Models.SensorModel[]): void {
@@ -175,14 +155,11 @@ namespace Submerged.Controllers {
 
         processThreeHours(data: Models.AnalyticsDataModel): void
         {
-            var temperature1Sensor: Models.SensorModel = this.sensors.firstOrDefault({ name: "temperature1" });
-            this.renderChart(data.dataLabels, data.dataSeries[0], "temperature1_chart");
-
-            var temperature2Sensor: Models.SensorModel = this.sensors.firstOrDefault({ name: "temperature2" });
-            this.renderChart(data.dataLabels, data.dataSeries[1], "temperature2_chart");
-
-            var pHSensor: Models.SensorModel = this.sensors.firstOrDefault({ name: "pH" });
-            this.renderChart(data.dataLabels, data.dataSeries[2], "pH_chart");
+            for (var i = 0; i < data.serieLabels.length; i++) {
+                var sensorName = data.serieLabels[i];
+                var sensorModel: Models.SensorModel = this.sensors.firstOrDefault({ name: sensorName });
+                this.renderChart(data.dataLabels, data.dataSeries[i], sensorName + "_chart");
+            }
         }
 
         renderChart(dataLabels: any[], data: any[], elementId: string): void {
@@ -230,48 +207,35 @@ namespace Submerged.Controllers {
             chart.draw(dataTable, options);
         }
 
-        processTelemetry(data): void {
-            this.sensorData = data.temperature1 != null;
-            this.leakData = data.leakDetected != null;
+        processTelemetry(telemetry: Models.TelemetryModel): void {
+            this.sensorDataPresent = telemetry.sensorData != null && telemetry.sensorData.length > 0;
+
+            var leakData = telemetry.sensorData.where({ sensorName: "LeakDetected" });
+            this.leakDataPresent = leakData != null && leakData.length > 0;
 
             this.loading = false;
-            this.$scope.$apply();
 
             // when the timestamp is set (blob stored data); use it, otherwise timestamp = now
-            if (data.timestamp != null)
-                this.start(data.timestamp);
+            if (telemetry.eventEnqueuedUTCTime != null)
+                this.start(telemetry.eventEnqueuedUTCTime.valueOf());
             else
                 this.start(new Date().valueOf());
 
-            for (var property in data) {
-                if (data.hasOwnProperty(property)) {
-                    // find a sensor by the name of the property
-                    var sensor: Models.SensorModel = this.sensors.firstOrDefault({ name: property });
-                    if (sensor != null) {
-                        sensor.reading = data[property];
-                    }
+            for (var sensorItem of telemetry.sensorData) {
+                // find a sensor by the name of the property
+                var sensor: Models.SensorModel = this.sensors.firstOrDefault({ name: sensorItem.sensorName });
+                if (sensor != null) {
+                    sensor.reading = sensorItem.value;
                 }
             }
         };
 
         loadModuleData(): void {
-
             this.loading = true;
 
-            // get the latest available data record to show untill it's updated
-            this.mobileService.invokeApi("modules?deviceId=" + this.deviceId, {
-                body: null,
-                method: "post"
-            }, function (error, success) {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /modules: " + error);
-                }
-                else {
-                    this.processModules(success.result);      // process the last known data for display
-                }
-            }.bind(this));
-
+            this.dataService.getModules(this.deviceId).then(
+                (modules) => { this.processModules(modules); }
+            );
         };
 
         processModules = function (modules) {

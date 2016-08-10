@@ -24,7 +24,8 @@
         //static $inject = ['shared', 'mobileService', '$scope', '$stateParams', '$timeout'];
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService,
-            private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService) {
+            private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService,
+            private dataService: Services.IDataService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
             this.timezoneOffset = sharedService.settings.globalizationInfo.server_offset_seconds;
@@ -139,35 +140,24 @@
             var date = this.pickedDate;
             var selectedTab = this.selectedTabName();
 
-            // toISOString already converts the date 
-            var resourceUri = "data/" + selectedTab + "?deviceId=" + this.deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffset;
-
             console.log("Requesting data from back-end API");
 
-            this.mobileService.invokeApi(resourceUri, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    console.log("Failure getting data from API: " + error);
-                }
-                else {
-                    var reportModel = success.result;
+            this.dataService.getData(selectedTab, date, this.deviceId).then(
+                (data) => {
                     var columnName = "";
 
-                    var temp1Sensor = this.sensors.firstOrDefault({ name: "temperature1" });
-                    this.renderChart(reportModel.dataLabels, reportModel.dataSeries[0], temp1Sensor, selectedTab);
-                    var temp2Sensor = this.sensors.firstOrDefault({ name: "temperature2" });
-                    this.renderChart(reportModel.dataLabels, reportModel.dataSeries[1], temp2Sensor, selectedTab);
-                    var pHSensor = this.sensors.firstOrDefault({ name: 'pH' });
-                    this.renderChart(reportModel.dataLabels, reportModel.dataSeries[2], pHSensor, selectedTab);
+                    for (var i = 0; i < data.serieLabels.length; i++) {
+                        var sensorName = data.serieLabels[i];
+                        var sensor = this.sensors.firstOrDefault({ name: sensorName });
+                        this.renderChart(data.dataLabels, data.dataSeries[i], sensor, selectedTab);
+                    }
 
                     console.log("data loaded, setting loadedTabData to " + this.selectedTabIndex);
                     this.loadedTabData = this.selectedTabIndex;
 
                     this.loading = false;
                 }
-            }).bind(this));            
+            );
         }
     }
 
