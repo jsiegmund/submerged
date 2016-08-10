@@ -8,13 +8,6 @@
       "connection": "repsaj-neptune-eventhub-ruleout"
     },
     {
-      "type": "notificationHub",
-      "name": "notification",
-      "hubName": "repsaj-neptune-notifications",
-      "connection": "repsaj-neptune-notifications_NOTIFICATIONHUB",
-      "direction": "out"
-    },
-    {
       "type": "blob",
       "name": "outputBlob",
       "path": "functions/ruleout/timers",
