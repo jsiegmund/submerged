@@ -153,6 +153,7 @@
     <Compile Include="Models\GroupedTelemetryModel.cs" />
     <Compile Include="Models\InitialDeviceConfig.cs" />
     <Compile Include="Models\SecurityKeys.cs" />
+    <Compile Include="Models\SensorTelemetryModel.cs" />
     <Compile Include="Models\SubscriptionModelConstants.cs" />
     <Compile Include="Models\TableStorageResponse.cs" />
     <Compile Include="Models\TankLogTableEntity.cs" />

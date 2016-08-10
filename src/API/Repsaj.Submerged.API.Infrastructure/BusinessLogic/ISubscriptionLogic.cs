@@ -55,5 +55,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         Task<bool> ValidateDeviceOwnerAsync(string deviceId, string owner);
         Task SendDeviceConfigurationMessage(string deviceId);
         Task<DeviceModel> SetMaintenance(string deviceId, bool inMaintenance, string owner);
+
+        Task UpdateNotificationInstallation(string installationId, string registrationId, string owner);
     }
 }

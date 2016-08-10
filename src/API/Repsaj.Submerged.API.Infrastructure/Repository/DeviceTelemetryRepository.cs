@@ -352,76 +352,7 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 stream.Position = 0;
                 reader = new StreamReader(stream);
 
-                IEnumerable<StrDict> strdicts = ParsingHelper.ParseCsv(reader).ToDictionaries();
-                DeviceTelemetryModel model;
-                string str;
-                double number;
-                bool boolean;
-                foreach (StrDict strdict in strdicts)
-                {
-                    model = new DeviceTelemetryModel();
-
-                    if (strdict.TryGetValue("deviceid", out str))
-                    {
-                        model.DeviceId = str;
-                    }
-
-                    if (strdict.TryGetValue("temperature1", out str) &&
-                        double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.Temperature1 = number;
-                    }
-
-                    if (strdict.TryGetValue("temperature2", out str) &&
-                        double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.Temperature2 = number;
-                    }
-
-                    if (strdict.TryGetValue("ph", out str) &&
-                        double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.pH = number;
-                    }
-
-                    if (strdict.TryGetValue("leakdetected", out str) &&
-                        Boolean.TryParse(
-                            str,
-                            out boolean))
-                    {
-                        model.LeakDetected = boolean;
-                    }
-
-                    if (strdict.TryGetValue("leaksensors", out str))
-                    {
-                        model.LeakSensors = str;
-                    }
-
-                    DateTimeOffset date;
-                    if (strdict.TryGetValue("eventenqueuedutctime", out str) &&
-                        DateTimeOffset.TryParse(
-                            str,
-                            CultureInfo.InvariantCulture,
-                            DateTimeStyles.AllowWhiteSpaces,
-                            out date))
-                    {
-                        model.EventEnqueuedUTCTime = date;
-                    }
-
-                    models.Add(model);
-                }
+                models = ParsingHelper.ParseJson<DeviceTelemetryModel>(reader).ToList();               
             }
             finally
             {
@@ -636,119 +567,10 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                 stream.Position = 0;
                 reader = new StreamReader(stream);
 
-                IEnumerable<StrDict> strdicts = ParsingHelper.ParseCsv(reader).ToDictionaries();
-                DeviceTelemetrySummaryModel model;
-                DateTimeOffset datetime;
-                double number;
-                string str;
-                foreach (StrDict strdict in strdicts)
-                {
-                    model = new DeviceTelemetrySummaryModel();
+                models = ParsingHelper.ParseJson<DeviceTelemetrySummaryModel>(reader).ToList();
 
-                    if (strdict.TryGetValue("deviceid", out str))
-                    {
-                        model.DeviceId = str;
-                    }
-
-                    if (strdict.TryGetValue("averagetemperature1", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.AverageTemp1 = number;
-                    }
-
-                    if (strdict.TryGetValue("minimumtemperature1", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MinimumTemp1 = number;
-                    }
-
-                    if (strdict.TryGetValue("maxtemperature1", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MaximumTemp1 = number;
-                    }
-
-                    if (strdict.TryGetValue("averagetemperature2", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.AverageTemp2 = number;
-                    }
-
-                    if (strdict.TryGetValue("minimumtemperature2", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MinimumTemp2 = number;
-                    }
-
-                    if (strdict.TryGetValue("maxtemperature2", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MaximumTemp2 = number;
-                    }
-
-                    if (strdict.TryGetValue("averageph", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.AveragePH = number;
-                    }
-
-
-                    if (strdict.TryGetValue("minimumph", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MinimumPH = number;
-                    }
-
-                    if (strdict.TryGetValue("maxph", out str) &&
-                       double.TryParse(
-                            str,
-                            NumberStyles.Float,
-                            CultureInfo.InvariantCulture,
-                            out number))
-                    {
-                        model.MaximumPH = number;
-                    }
-
-                    if (strdict.TryGetValue("outtime", out str) &&
-                       DateTimeOffset.TryParse(
-                            str,
-                            out datetime))
-                    {
-                        model.OutTime = datetime;
-                    }
-
+                foreach (var model in models)
+                { 
                     // Translate LastModified to local time zone.  DateTimeOffsets 
                     // don't do this automatically.  This is for equivalent behavior 
                     // with parsed DateTimes.
@@ -757,8 +579,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
                     {
                         model.Timestamp = blob.Properties.LastModified.Value.DateTime;
                     }
-
-                    models.Add(model);
                 }
             }
             finally

@@ -9,8 +9,6 @@ namespace Repsaj.Submerged.Common.Models
     public class GroupedTelemetryModel
     {
         public int Key { get; set; }
-        public double? Temperature1 { get; set; }
-        public double? Temperature2 { get; set; }
-        public double? pH { get; set; }
+        public IEnumerable<SensorTelemetryModel> SensorData { get; set; }
     }
 }

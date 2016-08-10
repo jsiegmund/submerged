@@ -156,6 +156,7 @@
     <Compile Include="Models\DeviceModule.cs" />
     <Compile Include="Models\DevicePropertyMetadata.cs" />
     <Compile Include="Models\DevicePropertyValueModel.cs" />
+    <Compile Include="Models\DeviceInstallation.cs" />
     <Compile Include="Models\PropertyType.cs" />
     <Compile Include="Repository\ActionRepository.cs" />
     <Compile Include="Repository\IActionRepository.cs" />
@@ -183,9 +184,11 @@
     <Compile Include="Repository\IDeviceRulesRepository.cs" />
     <Compile Include="Repository\IDeviceTelemetryRepository.cs" />
     <Compile Include="Repository\IIotHubRepository.cs" />
+    <Compile Include="Repository\INotificationHubRepository.cs" />
     <Compile Include="Repository\IotHubRepository.cs" />
     <Compile Include="Repository\ISubscriptionRepository.cs" />
     <Compile Include="Repository\ITankLogRepository.cs" />
+    <Compile Include="Repository\NotificationHubRepository.cs" />
     <Compile Include="Repository\SubscriptionRepository.cs" />
     <Compile Include="Repository\TankLogRepository.cs" />
     <Compile Include="Strings.Designer.cs">

@@ -14,65 +14,60 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
         int offset = (int)Math.Round(TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).TotalMinutes) * -1;
 
         [TestMethod]
-        public void Load_DeviceTelemetryReportDataLastThreeHoursAsync()
+        public async Task Load_DeviceTelemetryReportDataLastThreeHoursAsync()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 var telemetryLogic = autoMock.Create<DeviceTelemetryLogic>();
                 DateTime timestamp = DateTime.UtcNow;
-                Task<DeviceTelemetryReportModel> task = telemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, timestamp, offset);
-                task.Wait();
-                Assert.IsNotNull(task.Result);
+                DeviceTelemetryReportModel result = await telemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(TestConfigHelper.DeviceId, timestamp, offset);
+                Assert.IsNotNull(result);
             }
         }
 
         [TestMethod]
-        public void Load_DeviceSummaryDataPerHour()
+        public async Task Load_DeviceSummaryDataPerHour()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 var telemetryLogic = autoMock.Create<DeviceTelemetryLogic>();
                 DateTime timestamp = DateTime.UtcNow;
-                Task<DeviceTelemetryReportModel> task = telemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(TestConfigHelper.DeviceId, timestamp, offset);
-                task.Wait();
-                Assert.IsNotNull(task.Result);
+                DeviceTelemetryReportModel result = await telemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(TestConfigHelper.DeviceId, timestamp, offset);
+                Assert.IsNotNull(result);
             }
         }
 
         [TestMethod]
-        public void Load_DeviceSummaryDataPerDay()
+        public async Task Load_DeviceSummaryDataPerDay()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 var telemetryLogic = autoMock.Create<DeviceTelemetryLogic>();
-                DateTime test = DateTime.UtcNow;
-                Task<DeviceTelemetryReportModel> task = telemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(TestConfigHelper.DeviceId, test, offset);
-                task.Wait();
-                Assert.IsNotNull(task.Result);
+                DateTime test = DateTime.UtcNow.AddDays(-1);
+                DeviceTelemetryReportModel result = await telemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(TestConfigHelper.DeviceId, test, offset);
+                Assert.IsNotNull(result);
             }
         }
 
         [TestMethod]
-        public void Load_DeviceSummaryDataPerWeek()
+        public async Task Load_DeviceSummaryDataPerWeek()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 var telemetryLogic = autoMock.Create<DeviceTelemetryLogic>();
-                Task<DeviceTelemetryReportModel> task = telemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(TestConfigHelper.DeviceId, DateTime.UtcNow, offset);
-                task.Wait();
-                Assert.IsNotNull(task.Result);
+                DeviceTelemetryReportModel result = await telemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(TestConfigHelper.DeviceId, DateTime.UtcNow, offset);
+                Assert.IsNotNull(result);
             }
         }
 
         [TestMethod]
-        public void Load_DeviceSummaryDataPerMonth()
+        public async Task Load_DeviceSummaryDataPerMonth()
         {
             using (var autoMock = AutoMock.GetLoose())
             {
                 var telemetryLogic = autoMock.Create<DeviceTelemetryLogic>();
-                Task<DeviceTelemetryReportModel> task = telemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(TestConfigHelper.DeviceId, DateTime.UtcNow, offset);
-                task.Wait();
-                Assert.IsNotNull(task.Result);
+                DeviceTelemetryReportModel result = await telemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(TestConfigHelper.DeviceId, DateTime.UtcNow, offset);
+                Assert.IsNotNull(result);
             }
         }
     }

@@ -26,10 +26,11 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         private readonly IDeviceRulesLogic _deviceRulesLogic;
         private readonly ISecurityKeyGenerator _securityKeyGenerator;
         private readonly IDeviceLogic _deviceLogic;
+        private readonly INotificationHubRepository _notificationHubRepository;
 
         public SubscriptionLogic(ISubscriptionRepository subscriptionRepository, IConfigurationProvider configProvider,
             IIotHubRepository iotHubRepository, IDeviceRulesLogic deviceRulesLogic, ISecurityKeyGenerator securityKeyGenerator,
-            IDeviceLogic deviceLogic)
+            IDeviceLogic deviceLogic, INotificationHubRepository notificationHubRepository)
         {
             _subscriptionRepository = subscriptionRepository;
             _configProvider = configProvider;
@@ -37,6 +38,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             _deviceRulesLogic = deviceRulesLogic;
             _securityKeyGenerator = securityKeyGenerator;
             _deviceLogic = deviceLogic;
+            _notificationHubRepository = notificationHubRepository;
         }
 
         public async Task<bool> ValidateDeviceOwnerAsync(string deviceId, string userId)
@@ -727,6 +729,21 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             // toggle the maintenance property on the model and save it
             device.DeviceProperties.IsInMaintenance = inMaintenance;
             return await UpdateDeviceAsync(device, owner);
+        }
+
+        public async Task UpdateNotificationInstallation(string installationId, string registrationId, string owner)
+        {
+            // fetch the subscription for the user
+            var subscription = await this.GetSubscriptionAsync(owner);
+
+            // create the list of tags that this device should subscribe to 
+            List<string> tags = new List<string>();
+
+            tags.Add(String.Format("subscription:{0}", subscription.Id));
+            foreach (var device in subscription.Devices)
+                tags.Add(String.Format("deviceid:{0}", device.DeviceProperties.DeviceID));
+
+            await _notificationHubRepository.CreateOrUpdateInstallationAsync(installationId, registrationId, tags);
         }
     }
 }

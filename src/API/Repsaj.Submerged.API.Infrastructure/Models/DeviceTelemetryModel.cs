@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repsaj.Submerged.Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,12 +9,8 @@ namespace Repsaj.Submerged.Infrastructure.Models
 {
     public class DeviceTelemetryModel
     {
-        public double? Temperature1 { get; set; }
-        public double? Temperature2 { get; set; }
-        public double? pH { get; set; }
-        public bool? LeakDetected { get; set; }
-        public string LeakSensors { get; set; }
         public string DeviceId { get; set; }
         public DateTimeOffset? EventEnqueuedUTCTime { get; set; }
+        public SensorTelemetryModel[] SensorData { get; set; }
     }
 }

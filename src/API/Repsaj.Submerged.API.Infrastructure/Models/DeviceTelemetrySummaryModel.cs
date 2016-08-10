@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Repsaj.Submerged.Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,14 +12,7 @@ namespace Repsaj.Submerged.Infrastructure.Models
         public string DeviceId { get; set; }
         public DateTimeOffset? OutTime { get; set; }
         public DateTimeOffset? Timestamp { get; set; }
-        public double? AverageTemp1 { get; set; }
-        public double? MinimumTemp1 { get; set; }
-        public double? MaximumTemp1 { get; set; }
-        public double? AverageTemp2 { get; set; }
-        public double? MinimumTemp2 { get; set; }
-        public double? MaximumTemp2 { get; set; }
-        public double? AveragePH { get; set; }
-        public double? MinimumPH { get; set; }
-        public double? MaximumPH { get; set; }
+        public string SensorName { get; set; }
+        public double AvgSensorValue { get; set; }
     }
 }

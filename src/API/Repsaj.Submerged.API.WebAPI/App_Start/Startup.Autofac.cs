@@ -101,6 +101,7 @@ namespace Repsaj.Submerged.API
 
             //Repositories
             builder.RegisterType<IotHubRepository>().As<IIotHubRepository>();
+            builder.RegisterType<NotificationHubRepository>().As<INotificationHubRepository>();
             //builder.RegisterType<DeviceRegistryRepository>().As<IDeviceRegistryListRepository>();
             builder.RegisterType<DeviceRegistryRepository>().As<IDeviceRegistryCrudRepository>();
             builder.RegisterType<DeviceRulesRepository>().As<IDeviceRulesRepository>();

@@ -12,6 +12,31 @@ namespace Repsaj.Submerged.Common.Helpers
     public static class ParsingHelper
     {
         /// <summary>
+        /// Parses a TextReader's contents to Json represented objects
+        /// </summary>
+        /// <typeparam name="T">The type of object stored (parsed per line)</typeparam>
+        /// <param name="reader">The TextReader with contents to parse</param>
+        /// <returns>An object of type T for each row in the CSV</returns>
+        public static IEnumerable<T> ParseJson<T>(TextReader textReader)
+        {
+            if (textReader == null)
+            {
+                throw new ArgumentNullException("textReader");
+            }
+
+            var result = new List<T>();            
+            string line;
+
+            while ((line = textReader.ReadLine()) != null)
+            {
+                T parsedObject = Newtonsoft.Json.JsonConvert.DeserializeObject<T>(line);
+                result.Add(parsedObject);
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Parses a TextReader's contents as a CSV.
         /// </summary>
         /// <param name="textReader">

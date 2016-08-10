@@ -310,6 +310,7 @@
     <Compile Include="Controllers\ApiControllerWithHub.cs" />
     <Compile Include="Controllers\DeviceController.cs" />
     <Compile Include="Controllers\ModulesController.cs" />
+    <Compile Include="Controllers\NotificationsController.cs" />
     <Compile Include="Controllers\SensorsController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\TankLogController.cs" />

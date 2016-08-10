@@ -33,9 +33,6 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerHourAsync(string deviceId, DateTimeOffset loadUntilUTC, int timeOffsetSeconds)
         {
-            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
-            model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
-
             DateTimeOffset startUTC = loadUntilUTC.AddHours(-1);
             DateTimeOffset endUTC = loadUntilUTC;
 
@@ -46,8 +43,6 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 int hour = i % 60;
                 labels.Add(hour.ToString().PadLeft(2, '0'));
             }
-
-            model.DataLabels = labels.ToArray();
 
             // fetch the data from the repository, startin on minTime and adding one day
             IEnumerable<DeviceTelemetryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetryAsync(deviceId, startUTC, endUTC);
@@ -63,24 +58,36 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                        select new GroupedTelemetryModel
                        {
                            Key = g.Key,
-                           Temperature1 = g.Average(d => d.Temperature1),
-                           Temperature2 = g.Average(d => d.Temperature2),
-                           pH = g.Average(d => d.pH)
+                           SensorData = g.SelectMany(d => d.SensorData)
+                                         .Where(sensor => sensor.Value is Nullable<double>)
+                                         .GroupBy(sensor => sensor.SensorName)
+                                         .Select(g2 => new SensorTelemetryModel(g2.Key, g2.Average(x => (double?)x.Value)))
                        };
-            
+
             var dataSeries = MiscHelper.PadTelemetryData(data, startUTC.Minute, 60, 60);
+
+            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
+            model.SerieLabels = GetSerieLabels(data);
+            model.DataLabels = labels.ToArray();
             model.DataSeries = dataSeries;
 
             return model;
+        }       
+        
+        private IEnumerable<string> GetSerieLabels(IEnumerable<GroupedTelemetryModel> data)
+        {
+            // fetch the serie labels from the first element in the array
+            // TODO: handle situations where subsequent elements contain more sensors
+            return data.SelectMany(d => d.SensorData)
+                       .Select(d => d.SensorName)
+                       .Distinct();
         }
 
         public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataLastThreeHoursAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
         {
             DateTimeOffset localDate = dateUTC.AddSeconds(timeOffsetSeconds);
 
-            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
-            model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
-            model.DataLabels = new string[] {
+            string[] dataLabels = new string[] {
                 localDate.AddHours(-3).ToString("HH:mm"),
                 localDate.AddHours(-2.5).ToString("HH:mm"),
                 localDate.AddHours(-2).ToString("HH:mm"),
@@ -102,9 +109,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             // project the data to find half-hour segments 
             var projectedData = telemetryData.Select(d => new {
-                pH = d.pH,
-                Temperature1 = d.Temperature1,
-                Temperature2 = d.Temperature2,
+                SensorData = d.SensorData,
                 Segment = MiscHelper.ProjectHalfHourSegments(windowUTCStart.UtcDateTime, d.EventEnqueuedUTCTime.Value.UtcDateTime)
             });
 
@@ -114,25 +119,28 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                        select new GroupedTelemetryModel
                        {
                            Key = g.Key,
-                           Temperature1 = g.Average(d => d.Temperature1),
-                           Temperature2 = g.Average(d => d.Temperature2),
-                           pH = g.Average(d => d.pH)
+                           SensorData = g.SelectMany(d => d.SensorData)
+                                         .Where(sensor => sensor.Value is Nullable<double>)
+                                         .GroupBy(sensor => sensor.SensorName)
+                                         .Select(g2 => new SensorTelemetryModel(g2.Key, g2.Average(x => (double?)x.Value)))
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, 0, 6);
+
+            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
+            model.SerieLabels = GetSerieLabels(data);
+            model.DataLabels = dataLabels;
             model.DataSeries = dataSeries;
 
             return model;
         }
 
-        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerDayAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
+        public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerDayAsync(string deviceId, DateTimeOffset startDateUTC, int timeOffsetSeconds)
         {
-            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
-            model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
-            model.DataLabels = new string[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23" };
+            string[] dataLabels = new string[] { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23" };
 
             // calculate the day in the users timezone 
-            DateTimeOffset localDate = dateUTC.AddSeconds(timeOffsetSeconds).UtcDateTime.Date;
+            DateTimeOffset localDate = startDateUTC.AddSeconds(timeOffsetSeconds).UtcDateTime.Date;
 
             // now shift the UTC window to compensate for the offset between UTC and local time
             DateTimeOffset windowUTCStart = localDate.AddSeconds(timeOffsetSeconds * -1);
@@ -146,12 +154,16 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
-                           Temperature1 = g.Average(d => d.AverageTemp1),
-                           Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePH)
+                           SensorData = from r in g
+                                        group r by r.SensorName into g2
+                                        select new SensorTelemetryModel(g2.Key, g2.Average(x => x.AvgSensorValue))
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, 0, 24);
+
+            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
+            model.SerieLabels = GetSerieLabels(data);
+            model.DataLabels = dataLabels;
             model.DataSeries = dataSeries;
 
             return model;
@@ -159,9 +171,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
     
         public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerWeekAsync(string deviceId, DateTimeOffset minTimeUTC, int timeOffsetSeconds)
         {
-            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
-            model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
-            model.DataLabels = new string[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+            string[] dataLabels = new string[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
             // calculate the monday of this week, timestamp 00:00
             DateTime monday = minTimeUTC.Date;
@@ -175,16 +185,20 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, monday, sunday);
 
             var data = from t in telemetryData
-                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds).Day into g
+                       group t by t.OutTime.Value.AddSeconds(timeOffsetSeconds).Hour into g
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
-                           Temperature1 = g.Average(d => d.AverageTemp1),
-                           Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePH)
+                           SensorData = from r in g
+                                        group r by r.SensorName into g2
+                                        select new SensorTelemetryModel(g2.Key, g2.Average(x => x.AvgSensorValue))
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, monday.Day, 7);
+
+            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
+            model.SerieLabels = GetSerieLabels(data);
+            model.DataLabels = dataLabels;
             model.DataSeries = dataSeries;
 
             return model;
@@ -193,18 +207,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         public async Task<DeviceTelemetryReportModel> LoadDeviceTelemetryReportDataPerMonthAsync(string deviceId, DateTimeOffset dateUTC, int timeOffsetSeconds)
         {
-            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
-            model.SerieLabels = new string[] { "Temperature 1", "Temperature 2", "pH" };
-
-            List<string> label = new List<string>();
+            List<string> dataLabels = new List<string>();
 
             int daysInMonth = DateTime.DaysInMonth(dateUTC.Year, dateUTC.Month);
             for (int i = 0; i < daysInMonth; i++)
             {
-                label.Add(i.ToString().PadLeft(2, '0'));
+                dataLabels.Add(i.ToString().PadLeft(2, '0'));
             }
-
-            model.DataLabels = label.ToArray();
 
             DateTime start = new DateTime(dateUTC.Year, dateUTC.Month, 1);
             DateTime end = new DateTime(dateUTC.Year, dateUTC.Month, daysInMonth);
@@ -213,16 +222,20 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             IEnumerable<DeviceTelemetrySummaryModel> telemetryData = await _deviceTelemetryRepository.LoadDeviceTelemetrySummaryAsync(deviceId, start, end);
 
             var data = from t in telemetryData
-                       group t by t.Timestamp.Value.AddSeconds(timeOffsetSeconds).Day into g
+                       group t by t.OutTime.Value.AddSeconds(timeOffsetSeconds).Hour into g
                        select new GroupedTelemetryModel()
                        {
                            Key = g.Key,
-                           Temperature1 = g.Average(d => d.AverageTemp1),
-                           Temperature2 = g.Average(d => d.AverageTemp2),
-                           pH = g.Average(d => d.AveragePH)
+                           SensorData = from r in g
+                                        group r by r.SensorName into g2
+                                        select new SensorTelemetryModel(g2.Key, g2.Average(x => x.AvgSensorValue))
                        };
 
             var dataSeries = MiscHelper.PadTelemetryData(data, 1, daysInMonth);
+
+            DeviceTelemetryReportModel model = new DeviceTelemetryReportModel();
+            model.SerieLabels = GetSerieLabels(data);
+            model.DataLabels = dataLabels.ToArray();
             model.DataSeries = dataSeries;
 
             return model;
