@@ -1,0 +1,17 @@
+﻿<md-card layout layout-fill layout-padding ng-click="eventHandler()">
+    <div layout="row" layout-fill>
+        <div layout="column">
+            <div class="md-title">{{sensor.displayName}}</div>
+            <p class="md-body-1">
+                {{sensor.description}}<br />
+                Range: <span ng-bind-html="formatSensorValue(sensor, sensor.minThreshold)"></span> - <span ng-bind-html="formatSensorValue(sensor, sensor.maxThreshold)"></span>
+            </p>
+            <div style="width: 220px; height: 45px; overflow:hidden;">
+                <div id="{{sensor.name}}_chart"></div>
+            </div>
+        </div>
+        <div flex layout="column" layout-align="center end">
+            <md-button class="{{calculateSensorClass(sensor)}}"><span ng-bind-html="formatSensorValue(sensor, sensor.reading)"></span></md-button>
+        </div>
+    </div>
+</md-card>

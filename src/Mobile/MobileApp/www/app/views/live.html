@@ -4,23 +4,7 @@
         <div ng-cloak layout-margin ng-hide="vm.loading">
 
             <div layout-margin ng-repeat="sensor in vm.sensors | filter:vm.filterSensors">
-                <md-card layout layout-fill layout-padding ng-click="vm.openDetails(sensor.name)">
-                    <div layout="row" layout-fill>
-                        <div layout="column">
-                            <div class="md-title">{{sensor.displayName}}</div>
-                            <p class="md-body-1">
-                                {{sensor.description}}<br />
-                                Range: <span ng-bind-html="vm.formatSensorValue(sensor, sensor.minThreshold)"></span> - <span ng-bind-html="vm.formatSensorValue(sensor, sensor.maxThreshold)"></span>
-                            </p>
-                            <div style="width: 220px; height: 45px; overflow:hidden;">
-                                <div id="{{sensor.name}}_chart"></div>
-                            </div>
-                        </div>
-                        <div flex layout="column" layout-align="center end">
-                            <md-button class="{{vm.calculateSensorClass(sensor)}}"><span ng-bind-html="vm.formatSensorValue(sensor, sensor.reading)"></span></md-button>
-                        </div>
-                    </div>
-                </md-card>
+                <sm-sensor-generic data-sensor="sensor" data-ng-click="vm.openDetails(sensor.name)" />
             </div>
 
             <div layout="column" layout-margin layout-fill ng-show="vm.lastUpdated" layout-align="center center">
@@ -28,6 +12,24 @@
             </div>
 
         </div>
+    </md-tab>
+
+    <md-tab label="Stock">
+        <div layout-margin ng-hide="vm.loading">
+            <div layout-margin ng-repeat="sensor in vm.sensors | filter:vm.filterStock">
+                <sm-sensor-stock-float data-sensor="sensor" />
+            </div>
+        </div>
+        <sm-loading-indicator ng-show="vm.loading" ng-cloak>We're getting information about your configured stock sensors, hold on...</sm-loading-indicator>
+    </md-tab>
+
+    <md-tab label="Leaks">
+        <div layout-margin ng-hide="vm.loading">
+            <div layout-margin ng-repeat="sensor in vm.sensors | filter:vm.filterMoisture">
+                <sm-sensor-moisture data-sensor="sensor" />
+            </div>
+        </div>
+        <sm-loading-indicator ng-show="vm.loading" ng-cloak>We're getting information about your configured moisture sensors, hold on...</sm-loading-indicator>
     </md-tab>
 
     <md-tab label="Modules">

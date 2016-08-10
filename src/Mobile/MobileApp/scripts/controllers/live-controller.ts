@@ -48,7 +48,7 @@ namespace Submerged.Controllers {
         constructor(private sharedService: Submerged.Services.ISharedService, private mobileService: Submerged.Services.IMobileService,
             private signalRService: Submerged.Services.ISignalRService,
             private $state: ng.ui.IState, private $scope: ng.IRootScopeService, private $timeout: ng.ITimeoutService,
-            private $sce: ng.ISCEService, private dataService: Services.IDataService) {
+            private dataService: Services.IDataService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
             //this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
@@ -86,17 +86,27 @@ namespace Submerged.Controllers {
         loadData(): void {
             this.loading = true;
 
-            if (this.selectedTabIndex == 0) {
+            if (this.selectedTabIndex == 3) {
+                this.loadModuleData();
+            }
+            else {
                 this.loadLatestTelemetry();
                 this.loadLastThreeHours();
             }
-            else if (this.selectedTabIndex == 1) {
-                this.loadModuleData();
-            }
         };
 
-        filterSensors = function (sensor) {
-            return sensor.reading != null;
+        filterStock = function (sensor: Models.SensorModel) {
+            return sensor.sensorType === Statics.SENSORTYPES.STOCKFLOAT;
+        }
+
+        filterMoisture = function (sensor: Models.SensorModel) {
+            return sensor.sensorType === Statics.SENSORTYPES.MOISTURE;
+        }
+
+        filterSensors = function (sensor: Models.SensorModel) {
+            return sensor.sensorType != Statics.SENSORTYPES.STOCKFLOAT &&
+                   sensor.sensorType != Statics.SENSORTYPES.MOISTURE &&
+                   sensor.reading != null;
         }
 
         loadSensors(): void {
@@ -108,25 +118,6 @@ namespace Submerged.Controllers {
                     this.sharedService.save();
                 }
             );
-        }
-
-        formatSensorValue(sensor: Models.SensorModel, value: any): any {
-            var result: string = "";
-            if (value != null) {
-                switch (sensor.sensorType) {
-                    case "temperature":
-                        result = value.toFixed(1) + '&deg;';
-                        break;
-                    case "pH":
-                        result = value.toFixed(2);
-                        break;
-                    default:
-                        result = value.toString();
-                        break;
-                }
-            }
-
-            return this.$sce.trustAsHtml(result);
         }
 
         loadLastThreeHours(): void {
@@ -252,29 +243,6 @@ namespace Submerged.Controllers {
             this.$scope.$apply();
         }
 
-        calculateSensorClass(sensor: Models.SensorModel) {
-            if (sensor != null && sensor.reading != null) {
-
-                // find the low and high rules for this sensor
-                var lowValue = sensor.minThreshold;
-                var highValue = sensor.maxThreshold;
-
-                var deviation = (highValue - lowValue) * 0.1;
-                var orangeLowValue = lowValue + deviation;
-                var orangeHighValue = highValue - deviation;
-
-                if (sensor.reading < orangeHighValue && sensor.reading > orangeLowValue)
-                    return "md-fab npt-kpigreen";
-                else if (sensor.reading < lowValue || sensor.reading > highValue)
-                    return "md-fab npt-kpired";
-                else
-                    return "md-fab npt-kpiorange";
-            }
-            else {
-                return "md-fab npt-kpigray";
-            }
-        }
-
         openDetails = function (item) {
             this.$state.go('analytics', {
                 tab: "day",
@@ -356,281 +324,3 @@ namespace Submerged.Controllers {
 
     angular.module("ngapp").controller("LiveController", LiveController);
 }
-
-//angular.module("ngapp").controller("LiveController", function (shared, mobileService, signalr, $state, $scope, $timeout) {
-//    var vm = this;
-
-//    // initialization of the local viewmodel data
-//    vm.leakDetected = false;
-//    vm.leakSensors = "";
-//    vm.lastUpdated = null;
-//    vm.loading = true;
-//    vm.selectedTabIndex = 0;
-//    vm.counterStarted = false;
-
-
-//    // start loading the data 
-//    loadData();
-
-//    function loadRules() {
-//        var apiUrl = "rules?deviceId=" + shared.deviceInfo.deviceId;
-//        mobileService.invokeApi(apiUrl, {
-//            body: null,
-//            method: "post"
-//        }, function (error, success) {
-//            if (error) {
-//                // do nothing
-//                console.log("Error calling /rules to get device rules: " + error);
-//            }
-//            else {
-//                processRules(success.result);      // process the last known data for display
-//            }
-//        });
-//    }
-
-//    function processRules(rules) {
-//        var sensorRules = rules.where({ name: "temperature1" });
-//        if (sensorRules.length == 2) {
-//            vm.temperature1Low = sensorRules[0].threshold;
-//            vm.temperature1High = sensorRules[1].threshold;
-//        }
-//        sensorRules = rules.where({ name: "temperature2" });
-//        if (sensorRules.length == 2) {
-//            vm.temperature2Low = sensorRules[0].threshold;
-//            vm.temperature2High = sensorRules[1].threshold;
-//        }
-//        sensorRules = rules.where({ name: "pH" });
-//        if (sensorRules.length == 2) {
-//            vm.pHLow = sensorRules[0].threshold;
-//            vm.pHHigh = sensorRules[1].threshold;
-//        }
-//    }
-
-//    function calculateKpiClass(sensor, value) {
-//        if (settings.rules != null) {
-//            var sensorRules = settings.rules.where({ name: sensor });
-
-//            // find the low and high rules for this sensor
-//            var lowValue = sensorRules[0].threshold;
-//            var highValue = sensorRules[1].threshold;
-
-//            var deviation = (highValue - lowValue) * 0.1;
-//            var orangeLowValue = lowValue + deviation;
-//            var orangeHighValue = highValue - deviation;
-
-//            if (value < orangeHighValue && value > orangeLowValue)
-//                return "md-fab npt-kpigreen";
-//            else if (value < lowValue || value > highValue)
-//                return "md-fab npt-kpired";
-//            else
-//                return "md-fab npt-kpiorange";
-//        }
-//        else {
-//            return "md-fab npt-kpiorange";
-//        }
-
-//    }
-
-//    vm.getModuleCss = function (status) {
-
-//    };
-
-//    $scope.$on("resume", function (event, data) {
-//        console.log("Received resume event in live controller");
-//        // when the application gets resumed, we need to restart signalR 
-//        $.connection.hub.stop();
-//        startSignalR();
-
-//        // reload the 
-//        loadData();
-//    })
-
-//    $scope.$watch("vm.selectedTabIndex", function (newValue, oldValue) {
-//        loadData();
-//    });
-
-//    var openDetails = function (item) {
-//        $state.go('analytics', {
-//            tab: "day",
-//            sensor: item
-//        });
-//    };
-
-//    vm.openDetails = openDetails;
-
-//    var processModules = function (modules) {
-//        for (var module of modules) {
-//            if (module.status == "Disconnected")
-//                module.cssClass = "npt-kpired";
-//            else
-//                module.cssClass = "npt-kpigreen";
-//        }
-
-//        vm.modules = modules;
-
-//        vm.loading = false;
-//        $scope.$apply();
-//    }
-
-//    var processData = function (data) {
-//        // set the data object when it hasn't been set yet
-//        if (data.temperature1 != null) {
-//            vm.temperature1 = data.temperature1.toFixed(1);
-//            vm.temperature1Class = calculateKpiClass("temperature1", vm.temperature1);
-//        }
-
-//        if (data.temperature2 != null) {
-//            vm.temperature2 = data.temperature2.toFixed(1);
-//            vm.temperature2Class = calculateKpiClass("temperature2", vm.temperature2);
-//        }
-
-//        if (data.pH != null) {
-//            vm.pH = data.pH.toFixed(2);
-//            vm.phClass = calculateKpiClass("pH", vm.pH);
-//        }
-
-//        if (data.leakDetected != null) {
-//            vm.leakDetected = data.leakDetected;
-//            vm.leakText = data.leakDetected ? "!!" : "OK";
-//            vm.leakClass = data.leakDetected ? "md-fab npt-kpired" : "md-fab npt-kpigreen";
-//            vm.leakSensors = data.leakSensors;
-//        }
-
-//        vm.sensorData = data.temperature1 != null;
-//        vm.leakData = data.leakDetected != null;
-
-//        vm.loading = false;
-//        $scope.$apply();
-
-//        // when the timestamp is set (blob stored data); use it, otherwise timestamp = now
-//        if (data.timestamp != null)
-//            start(data.timestamp);
-//        else
-//            start(new Date());
-//    };
-
-//    function loadData() {
-//        if (vm.selectedTabIndex == 0)
-//            loadLatestTelemetry();
-//        else if (vm.selectedTabIndex == 1)
-//            loadModuleData();
-//    }
-
-//    function loadModuleData() {
-//        if (vm.modules != null) {
-//            return;
-//        }
-//        else {
-//            vm.loading = true;
-
-//            // get the latest available data record to show untill it's updated
-//            mobileService.invokeApi("data/modules?deviceId=" + shared.deviceInfo.deviceId, {
-//                body: null,
-//                method: "post"
-//            }, function (error, success) {
-//                if (error) {
-//                    // do nothing
-//                    console.log("Error calling /data/latest: " + error);
-//                }
-//                else {
-//                    processModules(success.result);      // process the last known data for display
-//                }
-//            });
-//        }
-//    }
-
-//    function loadLatestTelemetry() {
-//        // get the latest available data record to show untill it's updated
-//        mobileService.invokeApi("data/latest?deviceId=" + shared.deviceInfo.deviceId, {
-//            body: null,
-//            method: "post"
-//        }, function (error, success) {
-//            if (error) {
-//                // do nothing
-//                console.log("Error calling /data/latest: " + error);
-//            }
-//            else {
-//                processData(success.result);      // process the last known data for display
-//                startSignalR();         // start signalR when the data is received 
-//            }
-//        });
-//    };
-
-//    function startSignalR() {
-//        signalr().then(function () {
-//            var liveHubProxy = $.connection.liveHub;
-
-//            liveHubProxy.client.sendLiveData = processData;
-
-//            $.connection.hub.start()
-//                .done(function () { console.log('Now connected, connection ID=' + $.connection.hub.id); })
-//                .fail(function (err) {
-//                    console.log('Could not connect: ' + err);
-//                    // connecting might have failed due to expired login. Force login to refresh token,
-//                    // the disconnect event handler will try again after 5 seconds
-//                    mobileService.login(true);
-//                });
-
-//            // attach disconnected listener and automatically restart the connection
-//            $.connection.hub.disconnected(function () {
-//                setTimeout(function () {
-//                    $.connection.hub.start();
-//                }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
-//            });
-
-//            $scope.$on("$destroy", function () {
-//                console.log("Stopping signalR hub since the user is leaving this view.");
-//                $.connection.hub.stop();
-//            });
-//        });
-//    }
-
-//    var timeoutId: number = null;
-//    var lastUpdated: number;
-
-//    function start(timestamp) {
-//        lastUpdated = Date.parse(timestamp);
-
-//        if (!vm.counterStarted) {
-//            timeoutId = $timeout(onTimeout, 1000);
-//            vm.counterStarted = true;
-//        }
-//    }
-
-//    function stop() {
-//        $timeout.cancel(timeoutId);
-//        vm.counterStarted = false;
-//    }
-
-//    function onTimeout() {
-//        var dif: number;
-//        dif = new Date().valueOf() - lastUpdated;
-
-//        var seconds = Math.floor((dif / 1000) % 60);
-//        var minutes = Math.floor(((dif / (60000)) % 60));
-//        var hours = Math.floor(((dif / (3600000)) % 24));
-//        var days = Math.floor(((dif / (3600000)) / 24) % 30);
-//        var months = Math.floor(((dif / (3600000)) / 24 / 30) % 12);
-//        var years = Math.floor((dif / (3600000)) / 24 / 365);
-
-//        var text = null;
-
-//        if (years > 0)
-//            text = years.toString() + " years";
-//        else if (months > 0)
-//            text = months.toString() + " months";
-//        else if (days > 0)
-//            text = days.toString() + " days";
-//        else if (hours > 0)
-//            text = hours.toString() + " hours";
-//        else if (minutes > 0)
-//            text = minutes.toString() + " minutes";
-//        else
-//            text = seconds.toString() + " seconds";
-
-//        vm.lastUpdated = text;
-
-//        timeoutId = $timeout(onTimeout, 1000);
-//    }
-
-//});
