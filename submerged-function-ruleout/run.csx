@@ -48,7 +48,7 @@ private async static Task ProcessNotifications(string input, IBinder binder, Tra
     else if (eventData.readingtype == "EventsMissing")
         message = String.Format("Device {0} hasn't sent any data since {1}. Connection problems?", eventData.deviceid, eventData.sensorvalue);
     else
-        message = String.Format("Sensor {0} is reading {1:0.0}, threshold ({2}) is {3:0.0}.", eventData.sensorname, eventData.sensorvalue, eventData.@operator, eventData.threshold);
+        message = String.Format("Sensor {0} is reading {1:0.0}, threshold is {2:0.0}.", eventData.sensorname, eventData.sensorvalue, eventData.threshold);
         
     string devicetag = "deviceid:" + eventData.deviceid;
     message = $"{{'data':{{'message':'{message}'}} }}";
