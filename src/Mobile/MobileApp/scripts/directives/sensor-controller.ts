@@ -3,28 +3,37 @@
     export interface ISensorController {
         formatSensorValue(sensor: Models.SensorModel, value: any): any;
         calculateSensorClass(sensor: Models.SensorModel): string;
+        renderChart(dataLabels: any[], data: any[], elementId: string): void;
     }
 
     export class SensorController implements ISensorController {
         static $inject = ['$sce'];
-        constructor(private $sce: ng.ISCEService) {
+
+        public sensors: Models.SensorModel[];
+        private deviceId: string;
+
+        constructor(private $sce: ng.ISCEService, private telemetryService: Services.ITelemetryService) {
             // $location and toaster are now properties of the controller
         }
 
         formatSensorValue = (sensor: Models.SensorModel, value: any): any => {
             var result: string = "";
-            if (value != null) {
-                switch (sensor.sensorType) {
-                    case "temperature":
-                        result = value.toFixed(1) + '&deg;';
-                        break;
-                    case "pH":
-                        result = value.toFixed(2);
-                        break;
-                    default:
-                        result = value.toString();
-                        break;
-                }
+            switch (sensor.sensorType) {
+                case "temperature":
+                    result = value.toFixed(1) + '&deg;';
+                    break;
+                case "pH":
+                    result = value.toFixed(2);
+                    break;
+                case "stockfloat":
+                    result = value != true ? "LEVEL OK" : "LEVEL LOW";
+                    break;
+                case "moisture":
+                    result = value != true ? "DRY" : "WET";
+                    break;
+                default:
+                    result = value.toString();
+                    break;
             }
 
             return this.$sce.trustAsHtml(result);
@@ -54,9 +63,9 @@
                 result = sensor.reading === okState;
 
             if (result)
-                return "md-fab npt-kpigreen";
+                return "npt-kpigreen";
             else
-                return "md-fab npt-kpired";
+                return "npt-kpired";
         }
 
         calculateSensorClassByThreshold = (sensor: Models.SensorModel): string => {
@@ -79,5 +88,56 @@
             else
                 return "md-fab npt-kpiorange";
         }
+
+        renderChart = (dataLabels: any[], data: any[], elementId: string): void => {
+
+            var dataTable: google.visualization.DataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string');
+            dataTable.addColumn('number');
+
+            for (var i = 0; i < data.length; i++) {
+                dataTable.addRow([dataLabels[i], data[i]]);
+            }
+
+            var options = <google.visualization.AreaChartOptions>{
+                axisTitlesPosition: 'none',
+                isStacked: false,
+                displayExactValues: false,
+                curveType: 'function',
+                tooltip: <google.visualization.ChartTooltip>{
+                    trigger: 'none',
+                },
+                legend: <google.visualization.ChartLegend>{
+                    position: 'none'
+                },
+                vAxis: <google.visualization.ChartAxis>{
+                    gridlines: {
+                        count: 2,
+                    },
+                },
+                hAxis: <google.visualization.ChartAxis>{
+                    gridlines: {
+                        count: 6,
+                    },
+                },
+                series: {
+                    0: {
+                        targetAxisIndex: 1
+                    }
+                },
+                chartArea: {
+                    width: '85%',
+                    left: 0
+                },
+                height: 45,
+                width: 200
+            };
+
+            var element = document.getElementById(elementId);
+            var chart = new google.visualization.AreaChart(element);
+            chart.draw(dataTable, options);
+        }
+
+
     }
 }

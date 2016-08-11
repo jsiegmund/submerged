@@ -5,7 +5,7 @@
 namespace Submerged.Services {
 
     export interface ISignalRService {
-        init(): ng.IPromise<{}>;
+        init(callback: (data: any) => void): ng.IPromise<{}>;
     }
 
     export class SignalRService {
@@ -13,19 +13,41 @@ namespace Submerged.Services {
         constructor(private mobileService: IMobileService, private $q: ng.IQService) {
         }
 
-        init(): ng.IPromise<{}> {
+        init(callback: (data:any) => void): ng.IPromise<{}> {
             var deferred = this.$q.defer();
 
             console.log("Getting authentication headers for SignalR authentication.");
-            this.mobileService.getHeaders().then(function (headers) {
+            this.mobileService.getHeaders().then((headers) => {
 
                 // set bearer authentication for signalR requests
                 console.log("Setting signalR headers for authorization");
                 jQuery.signalR.ajaxDefaults.headers = headers;
 
-                deferred.resolve();
+                jQuery.connection.hub.start()
+                    .done(() => {
+                        console.log('Now connected, connection ID=' + jQuery.connection.hub.id);
 
-            }, function (error) {
+                        // attach the callback
+                        var liveHubProxy = jQuery.connection.liveHub;
+                        liveHubProxy.client.sendLiveData = callback;
+
+                        deferred.resolve();
+                    })
+                    .fail((err) => {
+                        console.log('Could not connect: ' + err);
+                        // connecting might have failed due to expired login. Force login to refresh token,
+                        // the disconnect event handler will try again after 5 seconds
+                        this.mobileService.login(true);
+                        deferred.reject();
+                    });
+
+                // attach disconnected listener and automatically restart the connection
+                jQuery.connection.hub.disconnected(() => {
+                    setTimeout(() => {
+                        jQuery.connection.hub.start();
+                    }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
+                });
+            }, (error) => {
                 console.log("Mobile service login failed: " + error);
             });
 

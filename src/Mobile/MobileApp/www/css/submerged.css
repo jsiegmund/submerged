@@ -54,3 +54,17 @@ md-list.md-default-theme md-list-item > md-icon, md-list md-list-item > md-icon 
 md-input-container {
     margin: 8px 0;
 }
+
+
+form > md-datepicker {
+    position: relative;
+    left: -16px;
+}
+
+form > .md-datepicker-input-container {
+    margin-left: 0;
+}
+
+form > .md-datepicker-button.md-icon-button {
+    margin-right: 0;
+}

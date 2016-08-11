@@ -1,13 +1,11 @@
-﻿<md-card layout layout-fill layout-padding ng-click="vm.openDetails(sensor.name)">
+﻿<md-card layout layout-fill>
     <div layout="row" layout-fill>
-        <div layout="column">
-            <div class="md-title">{{sensor.displayName}}</div>
-            <p class="md-body-1">
-                {{sensor.description}}<br />
-            </p>
+        <div layout="column" style="padding: 8px">
+            <span class="md-title">{{sensor.displayName}}</span>
+            <span class="md-body-1">{{sensor.description}}</span>
         </div>
         <div flex layout="column" layout-align="center end">
-            <md-button class="{{vm.calculateSensorClass(sensor)}}"><span ng-bind-html="vm.formatSensorValue(sensor, sensor.reading)"></span></md-button>
+            <md-button class="{{calculateSensorClass(sensor)}}"><span ng-bind-html="formatSensorValue(sensor, sensor.reading)"></span></md-button>
         </div>
     </div>
 </md-card>

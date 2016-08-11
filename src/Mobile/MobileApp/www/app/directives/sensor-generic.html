@@ -6,9 +6,7 @@
                 {{sensor.description}}<br />
                 Range: <span ng-bind-html="formatSensorValue(sensor, sensor.minThreshold)"></span> - <span ng-bind-html="formatSensorValue(sensor, sensor.maxThreshold)"></span>
             </p>
-            <div style="width: 220px; height: 45px; overflow:hidden;">
-                <div id="{{sensor.name}}_chart"></div>
-            </div>
+            <div style="width: 200px; height: 45px; overflow:hidden;" id="{{sensor.name}}_chart"></div>
         </div>
         <div flex layout="column" layout-align="center end">
             <md-button class="{{calculateSensorClass(sensor)}}"><span ng-bind-html="formatSensorValue(sensor, sensor.reading)"></span></md-button>
