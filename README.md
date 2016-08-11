@@ -9,7 +9,7 @@ Submerged is an opensource .NET based framework for connecting your aquarium to 
 
 # What does it do?
 
-Submerged is meant to help you monitor your aquarium in every way you want to. At the moment, I use it to monitor temperature, pH and leakage. Based on those readings you can set triggers so your phone notifies you as soon as things go south for whatever reason. It's also possible to control hardware such as relays to switch power sockets on / off. And I'm planning on adding a lot more functionality such as an intelligent log which alerts you when your stock solutions or CO2 bottle need replacing.
+Submerged is meant to help you monitor your aquarium in every way you want to. At the moment, I use it to monitor things like temperature, pH and leakage. Based on those readings you can set triggers so your phone notifies you as soon as things go south for whatever reason. It's also possible to control hardware such as relays to switch power sockets on / off. And I'm planning on adding a lot more functionality such as an intelligent log which alerts you when your stock solutions or CO2 bottle need replacing.
 
 # Overview
 
@@ -30,9 +30,22 @@ Here's roughly what each component does:
 * **Azure DocumentDB** is used to store information about the subscriptions, tanks, sensors and all stuff we need to run the service.
 * Lastly, a Cordova mobile app allows you to read out telemetry data, control relays and do all kinds of other stuff.
 
+# Supported functionality
+The current list of functionality includes:
+* **Sensors**: 
+ * Temperature (DS18B20)
+ * pH (Atlas EZO pH)
+ * Flow (hall effect flow sensors) 
+ * Leakage (generic moisture sensors)
+ * Stock solution level (level switch sensors) 
+* **Notifications**: all of the sensors which output data can be monitored against min/max thresholds. A notification is sent to your mobile device as soon as one of the sensor reports an out of bound value. 
+* **Relays**: using your mobile app, you can control relays inside of your cabinet remotely. Maintenance mode allows to easily switch multiple relays on/off when performing tank maintenance. 
+* **Live data**: the measured data can be monitored live using the mobile app for smartphone.
+* **Analytics**: all data is aggregated and stored. This allows you to view long-term statics of your tank per hour, day, week or month. 
+
 # How do I use it?
 
-At the moment, the sources are here for you to use under the Apache 2.0 License. The solution, with some personal alterations, is based on the remote monitoring example provided by the Azure IoT team. To run the entire solution, you'll need both the hardware ([here](hardware.md)) as well as an Azure subscription to run the back-end. The goal is to make this service multi-tenant and available to anyone who wants to use it. In that case you only have to arrange the hardware, but at the moment the project isn't there yet.
+At the moment, the sources are here for you to use under the Apache 2.0 License. To run the entire solution, you'll need both the hardware ([here](hardware.md)) as well as an Azure subscription to run the back-end. If you don't want to run the Azure back-end yourself, please get in touch so I can add you yo my subscription. The end goal is to create a multi-tenant back-end so that you only need to plug in the hardware that you use.
 
 More information on how I built this and how you configure the back-end parts can be found in this blog series: <http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/>.
 
@@ -40,9 +53,9 @@ More information on how I built this and how you configure the back-end parts ca
 
 Yes, please! I'm very much looking for enthusiasts who'd like to help build this out more. There's plenty of stuff to do. Here's a todo list:
 
-* Implement true multi-tenancy
 * Implement additional sensors / modules
 * Implement some of the missing features, such as the intelligent journal
+* Test the mobile app for iPhone, currently only Android is being used / tested
 * Build a web based entry point for management / extensive resporting / etc
 * Implement additional unit tests
 * Any other awesome additions I didn't think of
