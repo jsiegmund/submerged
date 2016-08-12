@@ -13,15 +13,15 @@ Submerged is meant to help you monitor your aquarium in every way you want to. A
 
 # Supported functionality
 The current list of functionality includes:
-* **Sensors**: 
+* **Monitoring Sensors**: 
  * Temperature (DS18B20)
  * pH (Atlas EZO pH)
  * Flow (hall effect flow sensors) 
  * Leakage (generic moisture sensors)
  * Stock solution level (level switch sensors) 
-* **Notifications**: all of the sensors which output data can be monitored against min/max thresholds. A notification is sent to your mobile device as soon as one of the sensor reports an out of bound value. 
-* **Relays**: using your mobile app, you can control relays inside of your cabinet remotely. Maintenance mode allows to easily switch multiple relays on/off when performing tank maintenance. 
-* **Live data**: the measured data can be monitored live using the mobile app for smartphone.
+* **Getting Notifications**: all of the sensors which output data can be monitored against min/max thresholds. A notification is sent to your mobile device as soon as one of the sensor reports an out of bound value. 
+* **Controlling Relays**: using your mobile app, you can control relays inside of your cabinet remotely. Maintenance mode allows to easily switch multiple relays on/off when performing tank maintenance. 
+* **Live data**: the measured data can be monitored live using the mobile app for smartphone. Internet connection required. 
 * **Analytics**: all data is aggregated and stored. This allows you to view long-term statics of your tank per hour, day, week or month. 
 
 # How do I use it?
