@@ -2,7 +2,7 @@
 
 angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
 
-    $urlRouterProvider.otherwise("/login");
+    $urlRouterProvider.otherwise("/settings");
 
     $stateProvider
 
@@ -50,6 +50,38 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
         .state("settings", <ng.ui.IState>{
             url: "/settings",
             templateUrl: "app/views/settings.html",
+            title: "Submerged Settings",
+            controller: "SettingsController",
+            controllerAs: "vm"
+        })
+
+        .state("settings-device", <ng.ui.IState>{
+            url: "/settings/device",
+            templateUrl: "app/views/settings-device.html",
+            title: "Submerged Settings",
+            controller: "SettingsController",
+            controllerAs: "vm"
+        })
+
+        .state("settings-sensor", <ng.ui.IState>{
+            url: "/settings/sensor",
+            templateUrl: "app/views/settings-sensor.html",
+            title: "Submerged Settings",
+            controller: "SettingsSensorController",
+            controllerAs: "vm"
+        })
+
+        .state("settings-relay", <ng.ui.IState>{
+            url: "/settings/relay",
+            templateUrl: "app/views/settings-relay.html",
+            title: "Submerged Settings",
+            controller: "SettingsController",
+            controllerAs: "vm"
+        })
+
+        .state("settings-module", <ng.ui.IState>{
+            url: "/settings/module",
+            templateUrl: "app/views/settings-module.html",
             title: "Submerged Settings",
             controller: "SettingsController",
             controllerAs: "vm"

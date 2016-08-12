@@ -68,3 +68,10 @@ form > .md-datepicker-input-container {
 form > .md-datepicker-button.md-icon-button {
     margin-right: 0;
 }
+
+.sm-addbutton {
+    position: fixed; 
+    bottom: 10px;
+    right: 10px;
+    color: white;
+}

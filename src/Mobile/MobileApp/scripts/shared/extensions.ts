@@ -1,5 +1,5 @@
 ﻿interface Array<T> {
-    select(expr: any): Array<T>;
+    select(expr: any): any;
     where(filter: any): Array<T>;
     firstOrDefault(func: any): T;
     first(): T;

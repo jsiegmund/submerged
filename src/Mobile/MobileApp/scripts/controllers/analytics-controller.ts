@@ -53,23 +53,10 @@
         }
 
         loadSensors(): void {
-            var apiUrl = "sensors?deviceId=" + this.deviceId;
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, ((error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to get sensors data: " + error);
-                }
-                else {
-                    var sensors: Models.SensorModel[] = success.result;
-                    this.processSensors(sensors);      // process the last known data for display
-
-                    this.sharedService.settings.subscription.sensors = sensors;
-                    this.sharedService.save();
-                }
-            }).bind(this));
+            this.dataService.getSensors(this.deviceId).then((sensors) => {
+                var sensors: Models.SensorModel[] = sensors;
+                this.processSensors(sensors);      // process the last known data for display
+            });
         }
         
         processSensors(sensors: Models.SensorModel[]): void {

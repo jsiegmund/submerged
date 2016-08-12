@@ -1,0 +1,62 @@
+﻿<md-content layout-padding>
+    
+    <form name="sensorForm" novalidate ng-submit="sensorForm.$valid && vm.save()">
+
+        <section layout="column">
+            <md-input-container flex>
+                <label>Display Name</label>
+                <input type="text" ng-model="vm.sensor.displayName" required />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Description</label>
+                <input type="text" ng-model="vm.sensor.description" required />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Type</label>
+                <md-select ng-model="vm.sensor.sensorType" required>
+                    <md-option ng-repeat="sensorType in vm.sensorTypes" value="{{sensorType.name}}">
+                        {{sensorType.displayName}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+        </section>
+
+        <section ng-show="vm.showThresholds">
+            <md-subheader class="md-primary">Thresholds</md-subheader>
+            <div class="md-padding md-body-1">
+                Use the below sliders to change your notification settings. Use the toggle to switch the threshold on/off. These values are also used for the Live view.
+            </div>
+            <div layout="row">
+                <div layout="column" flex="5" layout-align="center center">{{vm.sensor.minThreshold}}</div>
+                <div layout="column" flex layout-align="center center">
+                    <md-slider min="{{vm.minThreshold}}" max="{{vm.maxThreshold}}" step="{{vm.step}}" ng-model="vm.sensor.minThreshold" style="width: 90%;">
+                    </md-slider>
+                </div>
+                <div layout="column" flex="10" layout-align="end center">
+                    <md-switch ng-model="vm.sensor.minThresholdEnabled"></md-switch>
+                </div>
+            </div>
+            <div layout="row">
+                <div layout="column" flex="5" layout-align="center center">{{vm.sensor.maxThreshold}}</div>
+                <div layout="column" flex layout-align="center center">
+                    <md-slider min="{{vm.minThreshold}}" max="{{vm.maxThreshold}}" step="{{vm.step}}" ng-model="vm.sensor.maxThreshold" style="width: 90%;">
+                    </md-slider>
+                </div>
+                <div layout="column" flex="10" layout-align="end center">
+                    <md-switch ng-model="vm.sensor.maxThresholdEnabled"></md-switch>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action buttons -->
+        <div layout="row" layout-padding layout-align="end center" flex="none">
+            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+            <md-button type="submit" class="md-raised md-primary">SAVE</md-button>
+        </div>
+
+    </form>
+
+</md-content>

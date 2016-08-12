@@ -56,22 +56,20 @@
 
             // get the settings stored in local storage; when empty refresh from cloud
             var settings = this.sharedService.settings;
-            if (settings.subscription.sensors == null || settings.subscription.sensors.length == 0) {
+            var subscriptionSensors = settings.subscription.getAllSensors();
+            if (subscriptionSensors == null || subscriptionSensors.length == 0) {
                 this.dataService.getSensors(this.deviceId).then(
                     (sensors) => {
                         this.sensors = sensors;
                         deferred.resolve();
 
                         this.processSensors(sensors);      // process the last known data for display
-
-                        this.sharedService.settings.subscription.sensors = sensors;
-                        this.sharedService.save();
                     },
                     () => { deferred.reject(); }
                 );
             }
             else {
-                this.processSensors(settings.subscription.sensors);
+                this.processSensors(subscriptionSensors);
                 deferred.resolve();
             }
 

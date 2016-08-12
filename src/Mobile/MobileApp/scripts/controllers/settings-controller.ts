@@ -1,60 +1,98 @@
 ﻿namespace Submerged.Controllers {
 
+    class ModuleDisplayModel extends Models.ModuleModel {
+        sensorCount: number;
+    }
+
     export class SettingsController {
         loading: boolean = true;
         saving: boolean = false;
 
-        sensors: any[];
+        tanks: Models.TankModel[];
+        devices: Models.DeviceModel[];
+        sensorTypes: any[];
+
+        selectedTabIndex: number;
+
+        selectedDevice: Models.DeviceModel;
+        selectedSensor: Models.SensorModel;
+        selectedRelay: Models.RelayModel;
+        selectedModule: Models.ModuleModel;
+
         indexedRules = [];
 
         deviceId: string;
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
             private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService,
-            private dataService: Services.IDataService) {
+            private $q: ng.IQService, private settingsService: Services.ISettingsService) {
 
             this.deviceId = sharedService.settings.getDeviceId();
 
-            this.dataService.getSensors(this.deviceId).then(
-                (sensors) => {
-                    this.processSensors(<Models.SensorRuleModel[]>sensors);      // process the last known data for display
-                });
+            this.selectedDevice = settingsService.selectedDevice;
+            this.selectedSensor = settingsService.selectedSensor;
+            this.selectedRelay = settingsService.selectedRelay;
+            this.selectedModule = settingsService.selectedModule;
+            this.sensorTypes = settingsService.getSensorTypes();
+
+            this.loadData();
         }
 
-        filterSensors() {
+        openDevice(device: Models.DeviceModel) {
+            this.settingsService.selectDevice(device);
+            this.$location.path("/settings/device");
+        }
+
+        newModule() {
+            this.settingsService.selectModule(new Models.ModuleModel());
+            this.$location.path("/settings/module");
+        }
+
+        openModule(module: Models.ModuleModel) {
+            this.settingsService.selectModule(module);
+            this.$location.path("/settings/module");
+        }
+
+        newRelay() {
+            this.settingsService.selectRelay(new Models.RelayModel());
+            this.$location.path("/settings/relay");
+        }
+
+        openRelay(relay: Models.RelayModel) {
+            this.settingsService.selectRelay(relay);
+            this.$location.path("/settings/relay");
+        }
+
+        newSensor() {
+            this.settingsService.selectSensor(new Models.SensorModel());
+            this.$location.path("/settings/sensor");
+        }
+
+        openSensor(sensor: Models.SensorModel) {
+            this.settingsService.selectSensor(sensor);
+            this.$location.path("/settings/sensor");
+        }
+
+        sensorBySensorType = function (type: string) {
             return function (sensor: Models.SensorModel) {
-                if (sensor == null)
-                    return false;
-                else if (sensor.sensorType === Statics.SENSORTYPES.PH ||
-                    sensor.sensorType === Statics.SENSORTYPES.TEMPERATURE)
-                    return true;
-                else
-                    return false;
+                return sensor.sensorType === type;
             }
         }
 
-        processSensors(sensors: Models.SensorRuleModel[]): void {
+        loadData(): void {
+            this.loading = true;
 
-            for (var sensor of sensors) {
-                switch (sensor.sensorType) {
-                    case "temperature":
-                        sensor.minimumValue = 10;
-                        sensor.maximumValue = 40;
-                        sensor.step = 1;
-                        break;
-                    case "pH":
-                        sensor.minimumValue = 5.5;
-                        sensor.maximumValue = 8;
-                        sensor.step = 0.1;
-                        break;
-                }
-            }
+            this.settingsService.loadSettings().then((settings) => {
 
-            this.sensors = sensors;
-            this.loading = false;
-            this.$scope.$apply();
+                this.tanks = settings.subscription.tanks;
+                this.devices = settings.subscription.devices;
+
+                this.loading = false;
+            },
+                () => { this.loading = false; }
+            );
         }
-
+        
         showSimpleToast(text: string): void {
             this.$mdToast.show(
                 this.$mdToast.simple()
@@ -63,98 +101,7 @@
                     .hideDelay(3000)
             );
         }
-
-        save(): void {
-            this.saving = true;
-
-            this.sharedService.settings.subscription.sensors = this.sensors;
-            this.sharedService.save();
-
-            this.dataService.saveSensors(this.deviceId, this.sharedService.settings.subscription.sensors).then(
-                () => { this.saving = false; },
-                () => { this.showSimpleToast("Sorry, settings were not saved."); }
-            );
-        }
     }
 
     angular.module("ngapp").controller("SettingsController", SettingsController);
 }
-
-//"use strict";
-
-//angular.module("ngapp").controller("SettingsController", function (shared, mobileService, fileService, $scope, $location, $mdToast) {
-//    var vm = this;
-
-//    vm.loading = true;
-//    vm.saving = false;
-
-//    function processData(data) {
-//        vm.rules = data;
-//        vm.loading = false;
-//        $scope.$apply();
-//    }
-
-//    var indexedRules = [];
-
-//    vm.rulesToFilter = function () {
-//        indexedRules = [];
-//        return vm.rules;
-//    }
-
-//    vm.groupRules = function (rule) {
-//        var ruleIsNew = indexedRules.indexOf(rule.name) == -1;
-//        if (ruleIsNew) {
-//            indexedRules.push(rule.name);
-//        }
-//        return ruleIsNew;
-//    }
-
-//    var showSimpleToast = function (text) {
-//        $mdToast.show(
-//            $mdToast.simple()
-//                .textContent(text)
-//                .position("top right")
-//                .hideDelay(3000)
-//        );
-//    };
-
-//    vm.save = function () {
-//        vm.saving = true;
-
-//        var settings = shared.settings;
-//        settings.rules = vm.rules;
-//        settings.save();
-
-//        var apiUrl = "rules/save?deviceId=" + shared.deviceInfo.deviceId;
-//        mobileService.invokeApi(apiUrl, {
-//            body: settings.rules,
-//            method: "post"
-//        }, function (error, success) {
-//            vm.saving = false;
-
-//            if (error) {
-//                // do nothing
-//                showSimpleToast("Sorry, settings were not saved.");
-//            }
-//        });
-//    }
-
-//    function init() {
-
-//        var apiUrl = "rules?deviceId=" + shared.deviceInfo.deviceId;
-//        mobileService.invokeApi(apiUrl, {
-//            body: null,
-//            method: "post"
-//        }, function (error, success) {
-//            if (error) {
-//                // do nothing
-//                console.log("Error calling /rules to get device rules: " + error);
-//            }
-//            else {
-//                processData(success.result);      // process the last known data for display
-//            }
-//        });
-//    }
-
-//    init();
-//});

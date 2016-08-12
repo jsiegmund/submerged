@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Mobile.Server.Config;
 using Repsaj.Submerged.API.Helpers;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,22 @@ namespace Repsaj.Submerged.API.Controllers
         {
             var modules = await _subscriptionLogic.GetModulesAsync(deviceId, AuthenticationHelper.UserId);
             return Ok(modules);
+        }
+
+        [Route("")]
+        [HttpPut]
+        public async Task<IHttpActionResult> SaveSensor(string deviceId, [FromBody]ModuleModel module)
+        {
+            try
+            {
+                await _subscriptionLogic.UpdateModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
+            return Ok();
         }
     }
 }

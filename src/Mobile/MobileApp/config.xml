@@ -127,4 +127,5 @@
   </plugin>
   <plugin name="cordova-plugin-hockeyapp" version="2.2.2" />
   <plugin name="cordova-plugin-ms-azure-mobile-apps" version="2.0.0-rc1" />
+  <plugin name="cordova-sqlite-storage" version="1.4.6" />
 </widget>

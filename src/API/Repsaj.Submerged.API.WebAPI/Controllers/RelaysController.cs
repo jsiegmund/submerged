@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Mobile.Server.Config;
 using Repsaj.Submerged.API.Helpers;
-using Repsaj.Submerged.API.Models;
 using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
@@ -14,14 +13,14 @@ using System.Web.Http;
 namespace Repsaj.Submerged.API.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/sensors")]
+    [RoutePrefix("api/relays")]
     [MobileAppController]
     [System.Web.Mvc.OutputCache(CacheProfile = "NoCacheProfile")]
-    public class SensorsController : ApiController
+    public class RelaysController : ApiController
     {
         private readonly ISubscriptionLogic _subscriptionLogic;
 
-        public SensorsController(ISubscriptionLogic subscriptionLogic)
+        public RelaysController(ISubscriptionLogic subscriptionLogic)
         {
             _subscriptionLogic = subscriptionLogic;
         }
@@ -29,7 +28,7 @@ namespace Repsaj.Submerged.API.Controllers
         [Route("")]
         [HttpPost]
         [HttpGet]
-        public async Task<IHttpActionResult> Sensors(string deviceId)
+        public async Task<IHttpActionResult> Relays(string deviceId)
         {
             var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
             return Ok(sensorModels);
@@ -38,11 +37,11 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpPut]
-        public async Task<IHttpActionResult> SaveSensor(string deviceId, [FromBody]SensorModel sensor)
+        public async Task<IHttpActionResult> SaveRelay(string deviceId, [FromBody]RelayModel relay)
         {
             try
             {
-                await _subscriptionLogic.UpdateSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+                await _subscriptionLogic.UpdateRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
             }
             catch (Exception ex)
             {
@@ -50,26 +49,6 @@ namespace Repsaj.Submerged.API.Controllers
             }
 
             return Ok();
-        }
-        
-        [Route("save")]
-        [HttpPost]
-        [HttpGet]
-        public async Task<IHttpActionResult> SaveSensors(string deviceId, [FromBody]SensorModel[] updatedSensors)
-        {
-            try
-            {
-                foreach(var updatedSensor in updatedSensors)
-                {
-                    await _subscriptionLogic.UpdateSensorAsync(updatedSensor, deviceId, AuthenticationHelper.UserId);
-                }
-
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return InternalServerError();
-            }
         }
     }
 }
