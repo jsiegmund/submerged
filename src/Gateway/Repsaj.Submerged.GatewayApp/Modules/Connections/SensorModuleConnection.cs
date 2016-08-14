@@ -112,5 +112,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 //MinimalEventSource.Log.LogError("Could not translate received bytes from Arduino into telemetry message: " + ex.ToString());
             }
         }
+
+        public override void SwitchRelay(string name, bool high)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

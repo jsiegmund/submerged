@@ -31,5 +31,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             sensorData.Add(new SensorTelemetryModel("leakSensors", ""));
             return sensorData;
         }
+
+        public override void SwitchRelay(string name, bool high)
+        {
+            
+        }
     }
 }

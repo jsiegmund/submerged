@@ -134,10 +134,10 @@ namespace Repsaj.Submerged.GatewayApp.Device
         }
 
         #region Command Processor Callbacks
-        private async void SwitchRelayProcessor_RelaySwitched(int relayNumber, bool relayState)
+        private async void SwitchRelayProcessor_RelaySwitched(string relayName, bool relayState)
         {
             // update the relay 
-            UpdateRelayData(relayNumber, relayState);
+            UpdateRelayData(relayName, relayState);
 
             // when successful; save the altered device model to store state
             await _configurationRepository.SaveDeviceModel(this._deviceModel);
@@ -205,9 +205,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
             SensorsUpdated?.Invoke(connectedSensorData);
         }
 
-        private void UpdateRelayData(int relayNumber, bool relayState)
+        private void UpdateRelayData(string relayName, bool relayState)
         {
-            Relay relay = _deviceModel.Relays.SingleOrDefault(r => r.RelayNumber == relayNumber);
+            Relay relay = _deviceModel.Relays.SingleOrDefault(r => r.Name == relayName);
 
             if (relay != null)
             {

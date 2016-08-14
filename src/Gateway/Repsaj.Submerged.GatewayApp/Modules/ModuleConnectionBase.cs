@@ -28,6 +28,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
         public abstract IEnumerable<SensorTelemetryModel> RequestSensorData();
+        public abstract void SwitchRelay(string name, bool high);
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
@@ -53,6 +54,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         {
             this._device = device;
             this.ModuleName = name;
+
+
         }
 
         private dynamic _deviceProperties;

@@ -625,8 +625,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
 
             // verify the relay doesn't exist already 
-            if (device.Relays.Exists(r => r.RelayNumber == relay.RelayNumber) || 
-                device.Relays.Exists(r => r.Name == relay.Name))
+            if (device.Relays.Exists(r => r.Name == relay.Name))
                 throw new SubscriptionValidationException(Strings.ValidationRelayExists);
 
             device.Relays.Add(relay);
@@ -641,10 +640,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
 
-            RelayModel existingRelay = device.Relays.FirstOrDefault(s => s.RelayNumber == updatedRelay.RelayNumber);
+            RelayModel existingRelay = device.Relays.FirstOrDefault(s => s.Name == updatedRelay.Name);
 
             if (existingRelay == null)
-                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, updatedRelay.RelayNumber));
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, updatedRelay.Name));
 
             device.Relays.Remove(existingRelay);
             device.Relays.Add(updatedRelay);
@@ -653,24 +652,25 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return updatedRelay;
         }
 
-        public async Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId, string owner)
+        public async Task<RelayModel> UpdateRelayStateAsync(string name, bool state, string deviceId, string owner)
         {
             DeviceModel device = await GetDeviceAsync(deviceId, owner);
 
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
 
-            RelayModel relay = device.Relays.FirstOrDefault(s => s.RelayNumber == relayNumber);
+            RelayModel relay = device.Relays.FirstOrDefault(s => s.Name == name);
 
             if (relay == null)
-                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, relay.RelayNumber));
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, relay.Name));
 
             if (relay.State != state)
             {
                 relay.State = state;
 
                 Dictionary<string, object> commandParams = new Dictionary<string, object>();
-                commandParams.Add("RelayNumber", relayNumber);
+                commandParams.Add("Module", relay.Module);
+                commandParams.Add("RelayNamer", name);
                 commandParams.Add("RelayState", state);
 
                 await _deviceLogic.SendCommandAsync(deviceId, DeviceCommandTypes.SWITCH_RELAY, commandParams);
@@ -688,10 +688,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (device == null)
                 throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
 
-            RelayModel existingRelay = device.Relays.FirstOrDefault(s => s.RelayNumber == relay.RelayNumber);
+            RelayModel existingRelay = device.Relays.FirstOrDefault(s => s.Name == relay.Name);
 
             if (existingRelay == null)
-                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, existingRelay.RelayNumber));
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationRelayUnknown, existingRelay.Name));
 
             device.Relays.Remove(existingRelay);
             await UpdateDeviceAsync(device, owner);
@@ -713,17 +713,17 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             await _deviceRulesLogic.OverrideDeviceRules(deviceId, inMaintenance);
 
             // fetch all relays that have been configured to toggle on maintenance and toggle them accordingly
-            var relaysToToggle = device.Relays.Where(r => r.ToggleForMaintenance).Select(r => r.RelayNumber);
-            foreach (int relayNumber in relaysToToggle)
+            var relaysToToggle = device.Relays.Where(r => r.ToggleForMaintenance).Select(r => r.Name);
+            foreach (string relayName in relaysToToggle)
             {
-                var relay = device.Relays.Single(r => r.RelayNumber == relayNumber);
+                var relay = device.Relays.Single(r => r.Name == relayName);
 
                 // update our local model (otherwise the update device call later on will undo all changes)
                 bool newState = !relay.State;
                 relay.State = newState;
 
                 // call the update relay to send the device command out
-                await UpdateRelayStateAsync(relay.RelayNumber, newState, deviceId, owner);
+                await UpdateRelayStateAsync(relay.Name, newState, deviceId, owner);
             }
 
             // toggle the maintenance property on the model and save it

@@ -9,6 +9,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
     public class Module
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public string ConnectionString { get; set; }
         public string ModuleType { get; set; }
         public string Status { get; set; }

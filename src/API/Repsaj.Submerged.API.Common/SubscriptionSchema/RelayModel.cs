@@ -8,19 +8,19 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
 {
     public class RelayModel
     {
-        public int RelayNumber { get; set; }
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public Boolean State { get; set; }
         public int? OrderNumber { get; set; }
         public string Module { get; set; }
         public bool ToggleForMaintenance { get; set; }
         public string[] PinConfig { get; set; } 
 
-        public static RelayModel BuildModel(int relayNumber, string name, string moduleName, string[] pinConfig)
+        public static RelayModel BuildModel(string name, string displayName, string moduleName, string[] pinConfig)
         {
             RelayModel relay = new RelayModel();
-            relay.RelayNumber = relayNumber;
             relay.Name = name;
+            relay.DisplayName = displayName;
             relay.State = true;
             relay.Module = moduleName;
             relay.PinConfig = pinConfig;            

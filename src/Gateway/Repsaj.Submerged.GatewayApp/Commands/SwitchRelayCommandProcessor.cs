@@ -15,7 +15,7 @@ namespace RemoteArduino.Commands
     public class SwitchRelayCommandProcessor : ICommandProcessor
     {
         IModuleConnectionFactory _moduleConnectionFactory;
-        public event Action<int, bool> RelaySwitched;
+        public event Action<string, bool> RelaySwitched;
 
         public SwitchRelayCommandProcessor(IModuleConnectionFactory connectionFactory)
         {
@@ -32,28 +32,26 @@ namespace RemoteArduino.Commands
                 {
                     dynamic parameters = command.Command.Parameters;
 
-                    int? relayNumber = parameters.RelayNumber;
+                    string moduleName = parameters.ModuleName;
+                    string relayName = parameters.RelayName;
                     bool? relayState = parameters.RelayState;
 
-                    // TODO: should include the module name in the command payload
-                    string moduleName = "Cabinet Module";// parameters.ModuleName;
-
-                    if (relayNumber == null || relayState == null)
+                    if (relayName == null || relayState == null)
                         return CommandProcessingResult.CannotComplete;
 
                     // fire an event which notifies the device manager of the relay switch 
                     // this is done before it's actually switched so the state is still saved even when the 
                     // module might be disconnected at this point
-                    RelaySwitched(relayNumber.Value, relayState.Value);
+                    RelaySwitched(relayName, relayState.Value);
 
-                    CabinetModuleConnection connection = (CabinetModuleConnection)_moduleConnectionFactory.GetModuleConnection(moduleName);
+                    IModuleConnection connection = _moduleConnectionFactory.GetModuleConnection(moduleName);
 
                     // if the module could not be found or is not connected, return cannot complete
                     if (connection == null || connection.ModuleStatus != ModuleConnectionStatus.Connected)
                         return CommandProcessingResult.CannotComplete;
 
                     // execute the command, switch the relay
-                    connection.SwitchRelay(relayNumber.Value, relayState.Value);
+                    connection.SwitchRelay(relayName, relayState.Value);
                 }
                 catch (Exception)
                 {

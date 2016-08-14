@@ -88,7 +88,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         private IModuleConnection CreateConnection(Module module, DeviceInformation device, Sensor[] sensors, Relay[] relays)
         {
             if (module.ModuleType == ModuleTypes.CABINET)
-                return new CabinetModuleConnection(device, module.Name);
+                return new CabinetModuleConnection(device, module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.SENSORS)
                 return new SensorModuleConnection(device, module.Name);
             else if (module.ModuleType == ModuleTypes.FIRMATA)

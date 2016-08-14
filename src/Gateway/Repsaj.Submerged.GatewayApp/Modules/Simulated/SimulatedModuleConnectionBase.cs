@@ -25,6 +25,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
         }
 
         public abstract IEnumerable<SensorTelemetryModel> RequestSensorData();
+        public abstract void SwitchRelay(string name, bool high);
 
         public string StatusAsText
         {

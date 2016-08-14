@@ -9,16 +9,18 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
     public class ModuleModel
     {
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public string ConnectionString { get; set; }
         public string ModuleType { get; set; }
         public string Status { get; set; }
         public int? DisplayOrder { get; set; }
 
-        public static ModuleModel BuildModule(string name, string connectionstring, string moduleType)
+        public static ModuleModel BuildModule(string name, string displayName, string connectionstring, string moduleType)
         {
             ModuleModel model = new ModuleModel()
             {
                 Name = name,
+                DisplayName = displayName,
                 ConnectionString = connectionstring,
                 ModuleType = moduleType
             };

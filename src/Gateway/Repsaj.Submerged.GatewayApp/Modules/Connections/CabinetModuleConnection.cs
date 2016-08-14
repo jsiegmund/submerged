@@ -2,6 +2,7 @@
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.Gateway.Common.Arduino;
 using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
@@ -17,6 +18,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
     public class CabinetModuleConnection : ModuleConnectionBase
     {
+        // track information about the relays and sensors connected to this module
+        Sensor[] _sensors;
+        Relay[] _relays;
+
         public override string ModuleType
         {
             get
@@ -40,39 +45,28 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
         byte leakageThreshold = 200;
 
-        public CabinetModuleConnection(DeviceInformation device, string name) : base(device, name)
+        public CabinetModuleConnection(DeviceInformation device, string name, Sensor[] sensors, Relay[] relays) : base(device, name)
         {
-
+            this._sensors = sensors;
+            this._relays = relays;
         }
 
-        public void SwitchRelay(int relayNumber, bool high)
+        public override void SwitchRelay(string relayName, bool high)
         {
+            // find the relay by name
+            Relay relay = this._relays.SingleOrDefault(r => r.Name == relayName);
+
+            if (relay == null)
+                throw new ArgumentException($"No relay was found with name {relayName}");
+
             try
             {
-                // the PinState of the relays is not intuitive because the default state of the relay is ON, 
-                // so for switching the relay OFF we need to set the pin HIGH and vice versa
-                switch (relayNumber)
+                foreach (string pinName in relay.PinConfig)
                 {
-                    case 1:
-                        _arduino.pinMode(relayPin1, Microsoft.Maker.RemoteWiring.PinMode.OUTPUT);
-                        _arduino.digitalWrite(relayPin1, high ? PinState.LOW : PinState.HIGH);
-                        break;
-                    case 2:
-                        _arduino.pinMode(relayPin2, Microsoft.Maker.RemoteWiring.PinMode.OUTPUT);
-                        _arduino.digitalWrite(relayPin2, high ? PinState.LOW : PinState.HIGH);
-                        break;
-                    case 3:
-                        _arduino.pinMode(relayPin3, Microsoft.Maker.RemoteWiring.PinMode.OUTPUT);
-                        _arduino.digitalWrite(relayPin3, high ? PinState.LOW : PinState.HIGH);
-                        break;
-                    case 4:
-                        _arduino.pinMode(relayPin4, Microsoft.Maker.RemoteWiring.PinMode.OUTPUT);
-                        _arduino.digitalWrite(relayPin4, high ? PinState.LOW : PinState.HIGH);
-                        break;
+                    byte pin = ArduinoPinMapper.GetPinNumber(pinName);
+                    _arduino.pinMode(pin, Microsoft.Maker.RemoteWiring.PinMode.OUTPUT);
+                    _arduino.digitalWrite(pin, high ? PinState.LOW : PinState.HIGH);
                 }
-
-                string pinState = high ? "HIGH" : "LOW";
-                //MinimalEventSource.Log.LogInfo($"Switched relay {relayNumber} to state {pinState} because of cloud command");
             }
             catch (Exception ex)
             {

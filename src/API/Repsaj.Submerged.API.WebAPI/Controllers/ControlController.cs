@@ -39,9 +39,9 @@ namespace Repsaj.Submerged.API.Controllers
         [Route("setrelay")]
         [HttpPost]
         [HttpGet]
-        public async Task<IHttpActionResult> SetRelay(string deviceId, int relayNumber, bool state)
+        public async Task<IHttpActionResult> SetRelay(string deviceId, string name, bool state)
         {
-            await _subscriptionLogic.UpdateRelayStateAsync(relayNumber, state, deviceId, AuthenticationHelper.UserId);
+            await _subscriptionLogic.UpdateRelayStateAsync(name, state, deviceId, AuthenticationHelper.UserId);
             return Ok();
         }
 

@@ -8,8 +8,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
 {
     public class Relay
     {
-        public int RelayNumber { get; set; }
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public Boolean? State { get; set; }
         public int? OrderNumber { get; set; }
         public string Module { get; set; }

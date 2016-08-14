@@ -47,7 +47,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         Task<IEnumerable<RelayModel>> GetRelaysAsync(string deviceId, string owner);
         Task<RelayModel> AddRelayAsync(RelayModel relay, string deviceId, string owner);
         Task<RelayModel> UpdateRelayAsync(RelayModel updatedRelay, string deviceId, string owner);
-        Task<RelayModel> UpdateRelayStateAsync(int relayNumber, bool state, string deviceId, string owner);
+        Task<RelayModel> UpdateRelayStateAsync(string name, bool state, string deviceId, string owner);
         Task DeleteRelayAsync(RelayModel relay, string deviceId, string owner);
 
 

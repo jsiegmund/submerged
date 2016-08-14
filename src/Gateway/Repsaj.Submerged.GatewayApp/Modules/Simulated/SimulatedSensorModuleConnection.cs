@@ -45,5 +45,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
 
             return sensorData;
         }
+
+        public override void SwitchRelay(string name, bool high)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
