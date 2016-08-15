@@ -30,8 +30,15 @@ namespace Repsaj.Submerged.API.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> UpdateDeviceInfo([FromBody]dynamic deviceInfo)
         {
-            await _subscriptionLogic.UpdateDeviceFromDeviceInfoPacketAsync(deviceInfo);
-            return Ok();
+            try
+            {
+                await _subscriptionLogic.UpdateDeviceFromDeviceInfoPacketAsync(deviceInfo);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("updaterequest")]
@@ -40,11 +47,18 @@ namespace Repsaj.Submerged.API.Controllers
         [AllowAnonymous]
         public async Task<IHttpActionResult> UpdateRequest([FromBody]dynamic updateRequest)
         {
-            if (updateRequest == null || updateRequest.DeviceID == null)
-                return BadRequest("The request didn't contain a valid DeviceID");
+            try
+            {
+                if (updateRequest == null || updateRequest.DeviceID == null)
+                    return BadRequest("The request didn't contain a valid DeviceID");
 
-            await _subscriptionLogic.SendDeviceConfigurationMessage((string)updateRequest.DeviceID);
-            return Ok();
+                await _subscriptionLogic.SendDeviceConfigurationMessage((string)updateRequest.DeviceID);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
     }
 }

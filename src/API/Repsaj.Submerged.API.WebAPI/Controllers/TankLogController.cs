@@ -27,27 +27,49 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("")]
-        [HttpPost]
-        public async Task<IHttpActionResult> Post(TankLog log)
-        {
-            await _tankLogLogic.SaveTankLogAsync(log);
-            return Ok();
-        }
-
-        [Route("")]
         [HttpGet]
         public async Task<IHttpActionResult> Get(Guid tankId)
         {
-            var result = await _tankLogLogic.GetTankLogAsync(tankId);
-            return Ok(result);
+            try
+            {
+                var result = await _tankLogLogic.GetTankLogAsync(tankId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
+
+        [Route("")]
+        [HttpPost]
+        public async Task<IHttpActionResult> Post(TankLog log)
+        {
+            try
+            {
+                await _tankLogLogic.SaveTankLogAsync(log);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+        }
+
 
         [Route("")]
         [HttpDelete]
         public async Task<IHttpActionResult> Delete(Guid tankId, Guid logId)
         {
-            await _tankLogLogic.DeleteTankLogAsync(tankId, logId);
-            return Ok();
+            try
+            {
+                await _tankLogLogic.DeleteTankLogAsync(tankId, logId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
     }
 }

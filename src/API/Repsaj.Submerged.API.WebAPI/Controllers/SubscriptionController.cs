@@ -29,8 +29,15 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> GetSubscription()
         {
-            var deviceData = await _subscriptionLogic.GetSubscriptionAsync(AuthenticationHelper.UserId);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _subscriptionLogic.GetSubscriptionAsync(AuthenticationHelper.UserId);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
     }
 }

@@ -29,48 +29,91 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Latest(string deviceId)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadLatestDeviceTelemetryAsync(deviceId);
-            return Ok(deviceData);
+            try
+            {
+
+                var deviceData = await _deviceTelemetryLogic.LoadLatestDeviceTelemetryAsync(deviceId);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("threehours")]
         [HttpGet]
         public async Task<IHttpActionResult> LastThreeHours(string deviceId, DateTime date, int offset = 0)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(deviceId, date, offset);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(deviceId, date, offset);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("hour")]
         [HttpGet]
         public async Task<IHttpActionResult> Hour(string deviceId, DateTime date, int offset = 0)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(deviceId, date, offset);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(deviceId, date, offset);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("day")]
         [HttpGet]
         public async Task<IHttpActionResult> Day(string deviceId, DateTime date, int offset = 0)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(deviceId, date, offset);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(deviceId, date, offset);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("week")]
         [HttpGet]
         public async Task<IHttpActionResult> Week(string deviceId, DateTime date, int offset = 0)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(deviceId, date, offset);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(deviceId, date, offset);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("month")]
         [HttpGet]
         public async Task<IHttpActionResult> Month(string deviceId, DateTime date, int offset = 0)
         {
-            var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(deviceId, date, offset);
-            return Ok(deviceData);
+            try
+            {
+                var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(deviceId, date, offset);
+                return Ok(deviceData);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
     }
 }

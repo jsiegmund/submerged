@@ -29,8 +29,15 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Modules(string deviceId)
         {
-            var modules = await _subscriptionLogic.GetModulesAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(modules);
+            try
+            {
+                var modules = await _subscriptionLogic.GetModulesAsync(deviceId, AuthenticationHelper.UserId);
+                return Ok(modules);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("")]

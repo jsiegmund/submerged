@@ -304,7 +304,6 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="App_Start\Startup.MobileApp.cs" />
     <Compile Include="App_Start\Startup.SignalR.cs" />
-    <Compile Include="Controllers\CommandController.cs" />
     <Compile Include="Controllers\ControlController.cs" />
     <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\ApiControllerWithHub.cs" />
@@ -316,7 +315,6 @@
     <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Controllers\TanksController.cs" />
     <Compile Include="Controllers\TankLogController.cs" />
-    <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Filters\ErrorHandlingFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

@@ -32,8 +32,15 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Relays(string deviceId)
         {
-            var relays = await _subscriptionLogic.GetRelaysAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(relays);
+            try
+            {
+                var relays = await _subscriptionLogic.GetRelaysAsync(deviceId, AuthenticationHelper.UserId);
+                return Ok(relays);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
         }
 
         [Route("setrelay")]
@@ -41,7 +48,15 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> SetRelay(string deviceId, string name, bool state)
         {
-            await _subscriptionLogic.UpdateRelayStateAsync(name, state, deviceId, AuthenticationHelper.UserId);
+            try
+            {
+                await _subscriptionLogic.UpdateRelayStateAsync(name, state, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
             return Ok();
         }
 
@@ -50,7 +65,15 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> ToggleMaintenance(string deviceId, bool inMaintenance)
         {
-            await _subscriptionLogic.SetMaintenance(deviceId, inMaintenance, AuthenticationHelper.UserId);
+            try
+            {
+                await _subscriptionLogic.SetMaintenance(deviceId, inMaintenance, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
             return Ok();
         }
 
