@@ -49,7 +49,6 @@
         constructor(private dataService: Services.IDataService,
             private $q: ng.IQService, private fileService: Services.IFileService) {
 
-            this.load();
         }
 
         getSelectedDeviceId(): string {
@@ -68,28 +67,26 @@
 
             if (this.subscription == undefined || forceRefresh) {
 
-                var loadFromCloud = () => {
-                    this.loadFromCloud().then((subscription) => {
-                        this.subscription = subscription;
-                        this.saveSubscriptionFile();
-                        deferred.resolve(this.subscription);
-                    }, () => {
-                        deferred.reject();
-                    });
-                };
+                var errorCallback = () => { deferred.reject(); };
 
                 // when not forced to refresh; first try a local file restore
                 // otherwise; always load from the cloud first
                 if (!forceRefresh) {
                     this.loadFromFile().then((subscription) => {
-                        this.subscription = subscription;
                         deferred.resolve(this.subscription);
-                    }, loadFromCloud);
+                    }, () => {
+                        console.log("Failure loading subscription from file, reverting to cloud");
+                        this.loadFromCloud().then((subscription) => {
+                            deferred.resolve(subscription);
+                        }, errorCallback);
+                    });
                 } else {
-                    loadFromCloud();
+                    this.loadFromCloud().then((subscription) => {
+                        deferred.resolve(subscription);
+                    }, errorCallback);
                 }
             } else {
-                console.log("subscription loaded from local instance");
+                console.log("Subscription loaded from local instance, no refresh");
                 deferred.resolve(this.subscription);
             }
 
@@ -102,13 +99,16 @@
 
             this.fileService.getJsonFile<Models.SubscriptionModel>(this.file, folder).then(
                 (subscription) => {
-                    if (subscription != null) {
+                    if (subscription) {
+                        console.log("Subscription loaded from file");
+                        this.subscription = subscription;
                         deferred.resolve(subscription);
                     } else {
+                        console.log("Subscription not loaded from file (null)");
                         deferred.reject();
                     }
-                },
-                () => {
+                }, (err) => {
+                    console.log("Subscription not loaded from file. Error: " + err);
                     deferred.reject();
                 }
             );
@@ -119,10 +119,20 @@
         private loadFromCloud(): ng.IPromise<Models.SubscriptionModel> {
             var deferred = this.$q.defer<Models.SubscriptionModel>();
 
-            this.dataService.getSubscription().then((subscription) => {
-                this.subscription = subscription;
-                deferred.resolve(subscription);
-            });
+            this.dataService.getSubscription().then(
+                (subscription) => {
+                    if (subscription) {
+                        console.log("Subscription loaded from the cloud");
+                        this.subscription = subscription;
+                        deferred.resolve(subscription);
+                    } else {
+                        console.log("Subscription not loaded from the cloud (null)");
+                        deferred.reject();
+                    }
+                }, (err) => {
+                    console.log("Subscription not loaded from the cloud. Error: " + err);
+                    deferred.reject();
+                });
 
             return deferred.promise;
         }

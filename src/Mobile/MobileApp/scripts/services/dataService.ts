@@ -105,7 +105,7 @@
 
         getSensors(deviceId: string): ng.IPromise<Models.SensorModel[]> {
             var apiUrl = "sensors?deviceId=" + deviceId;
-            return this.apiFunctionCall<Models.SensorModel[]>(apiUrl, "post", null);
+            return this.apiFunctionCall<Models.SensorModel[]>(apiUrl, "get", null);
         }
 
         toggleMaintenance(deviceId: string, maintenanceMode: boolean): ng.IPromise<void> {

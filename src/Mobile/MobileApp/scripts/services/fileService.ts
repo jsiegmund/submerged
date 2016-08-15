@@ -1,4 +1,13 @@
-﻿namespace Submerged.Services {
+﻿interface FileReaderEventTarget extends EventTarget {
+    result: string
+}
+
+interface FileReaderEvent extends ProgressEvent {
+    target: FileReaderEventTarget;
+    getMessage(): string;
+}
+
+namespace Submerged.Services {
 
     export interface IFileService {
         getJsonFile<T>(filename: string, folder: string): ng.IPromise<T>;
@@ -22,41 +31,22 @@
             var deferred = this.$q.defer();
 
             if (!this.emulated) {
-                console.log(`Resolving file ${filename} in folder ${folder}`);
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
-                    fs.root.getFile(filename, { create: true }, (fileEntry) => {
-                        fileEntry.file((file: any) => {
-                            return this.readFile(fileEntry);
-                        }, (err: any) => {
-                            deferred.reject(err);
-                        });
-                    }, (err) => { deferred.reject(err); });
-                });
-            }
-            else {
-                deferred.resolve(null);
-            }
 
-            return deferred.promise;
-        }
+                var errorCallback = (error) => {
+                    console.log("FileService error callback on read.");
+                    deferred.reject();
+                };
 
-        storeJsonFile(filename: string, folder: string, obj: any): ng.IPromise<void> {
-            var json_data = JSON.stringify(obj);
-            console.log(`Resolving file ${filename} in folder ${folder}`);
-            var deferred = this.$q.defer<void>();
+                this.requestFileSystem().then((fs) => {
+                    return this.getFileEntry(fs, filename, { create: true });
+                }, errorCallback).then((fileEntry: FileEntry) => {
+                    return this.getFile(fileEntry);
+                }, errorCallback).then((file: File) => {
+                    return this.readFile(file);
+                }, errorCallback).then((obj: any) => {
+                    deferred.resolve(obj);
+                }, errorCallback);
 
-            if (!this.emulated) {
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
-                    fs.root.getFile(filename, { create: false }, (fileEntry) => {
-
-                        // Create a new Blob and write it to log.txt.
-                        var blob = new Blob([json_data], { type: 'text/plain' });
-                        this.writeFile(fileEntry, blob);
-
-                        deferred.resolve();
-
-                    }, (error: FileError) => { deferred.reject(error); });
-                }, (error: FileError) => { deferred.reject(error); });
             }
             else {
                 deferred.resolve();
@@ -65,52 +55,120 @@
             return deferred.promise;
         }
 
-        readFile(fileEntry): ng.IPromise<any> {
-            var deferred = this.$q.defer<any>();
+        storeJsonFile(filename: string, folder: string, obj: any): ng.IPromise<void> {
+            var json_data = JSON.stringify(obj);
+            var deferred = this.$q.defer<void>();
 
-            fileEntry.file((file) => {
-                var reader = new FileReader();
+            if (!this.emulated) {
 
-                reader.onloadend = function () {
-                    console.log("Successful file read: " + this.result);
+                var errorCallback = (error) => {
+                    console.log("FileService error callback on write.");
+                    deferred.reject();
+                }
 
-                    if (this.result.length > 0) {
-                        var obj = JSON.parse(this.result);
-                        deferred.resolve(obj);
-                    }
-                    else {
-                        deferred.resolve(null);
-                    }
-                };
+                this.requestFileSystem().then((fs) => {
+                    return this.getFileEntry(fs, filename, { create: true });
+                }, errorCallback).then((fileEntry) => {
+                    return this.createWriter(fileEntry);
+                }, errorCallback).then((writer) => {
+                    return this.writeFile(writer, obj);
+                }, errorCallback).then(() => {
+                    deferred.resolve();
+                }, errorCallback);
 
-                reader.readAsText(file);
-
-            }, () => { deferred.reject; });
+            }
+            else {
+                deferred.resolve();
+            }
 
             return deferred.promise;
         }
 
-        writeFile(fileEntry, dataObj): ng.IPromise<void> {
+        createWriter(fileEntry: FileEntry): ng.IPromise<FileWriter> {
+            var deferred = this.$q.defer<FileWriter>();
+
+            fileEntry.createWriter((writer) => {
+                deferred.resolve(writer);
+            }, (error: FileError) => {
+                deferred.reject(error);
+            });
+
+            return deferred.promise;
+        }
+
+        writeFile(fileWriter: FileWriter, dataObj): ng.IPromise<void> {
             var deferred = this.$q.defer<void>();
 
-            // Create a FileWriter object for our FileEntry (log.txt).
-            fileEntry.createWriter(function (fileWriter) {
+            fileWriter.onwriteend = function () {
+                deferred.resolve();
+            };
 
-                fileWriter.onwriteend = function () {
-                    deferred.resolve();
-                };
+            fileWriter.onerror = function (e) {
+                deferred.reject();
+            };
 
-                fileWriter.onerror = function (e) {
-                    deferred.reject();
-                };
+            fileWriter.write(dataObj);
 
-                // If data object is not passed in,
-                // create a new Blob instead.
-                if (!dataObj) {
-                    dataObj = new Blob(['some file data'], { type: 'text/plain' });
+            return deferred.promise;
+        }
+
+        readFile(file: File): ng.IPromise<any> {
+            var deferred = this.$q.defer<any>();
+            var reader = new FileReader();
+
+            reader.onloadend = (event: FileReaderEvent) => {
+                console.log("onloadend");
+                if (event.target.result.length > 0) {
+                    var obj = JSON.parse(event.target.result);
+                    console.log("resolving object");
+                    deferred.resolve(obj);
                 }
+                else {
+                    console.log("resolving null");
+                    deferred.resolve(null);
+                }
+            };
 
-                fileWriter.write(dataObj);
+            reader.onerror = function () {
+                console.log("read error");
+                deferred.reject();
+            };
+
+            reader.readAsText(file);
+            return deferred.promise;
+        }
+
+        getFile(fileEntry: FileEntry): ng.IPromise<File> {
+            var deferred = this.$q.defer<File>();
+
+            fileEntry.file((file) => {
+                deferred.resolve(file);
+            }, (error: FileError) => {
+                deferred.reject(error);
+            });
+
+            return deferred.promise;
+        }
+
+        getFileEntry(fs: FileSystem, filename: string, options?: Flags): ng.IPromise<FileEntry> {
+            var deferred = this.$q.defer<FileEntry>();
+
+            fs.root.getFile(filename, options, (fileEntry) => {
+                deferred.resolve(fileEntry);
+            }, (error: FileError) => {
+                deferred.reject(error);
+            });
+
+            return deferred.promise;
+        }
+
+        requestFileSystem(): ng.IPromise<FileSystem> {
+            var deferred = this.$q.defer<FileSystem>();
+
+            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
+                deferred.resolve(fs);
+            }, (error: FileError) => {
+                deferred.reject(error);
             });
 
             return deferred.promise;

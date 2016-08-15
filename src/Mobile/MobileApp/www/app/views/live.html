@@ -4,7 +4,7 @@
         <div ng-cloak layout-margin ng-hide="vm.loading">
 
             <div layout-margin ng-repeat="sensor in vm.sensors | filter:vm.filterSensors">
-                <sm-sensor-generic data-sensor="sensor" data-ng-click="vm.openDetails(sensor.name)" />
+                <sm-sensor-generic data-sensor="sensor"/>
             </div>
 
             <div layout="column" layout-margin layout-fill ng-show="vm.lastUpdated" layout-align="center center">

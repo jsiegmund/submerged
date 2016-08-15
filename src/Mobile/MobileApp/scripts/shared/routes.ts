@@ -2,16 +2,16 @@
 
 angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function ($stateProvider: ng.ui.IStateProvider, $urlRouterProvider: ng.ui.IUrlRouterProvider) {
 
-    $urlRouterProvider.otherwise("/settings");
+    $urlRouterProvider.otherwise("/login");
 
     var defaultResolve = {
         SHARED_INIT: ['sharedService', function (sharedService: Submerged.Services.ISharedService) {
             console.log("Loading SharedService from route resolve");
-            return sharedService.init();
+            return sharedService.init().then(() => { console.log("ROUTES: LOADED SHAREDSERVICE"); });
         }],
         SUBSCRIPTION_INIT: ['subscriptionService', function (subscriptionService: Submerged.Services.ISubscriptionService) {
             console.log("Loading SubscriptionService from route resolve");
-            return subscriptionService.load(false);
+            return subscriptionService.load(false).then(() => { console.log("ROUTES: LOADED SUBSCRIPTION"); });
         }]
     };
 

@@ -63,7 +63,7 @@ namespace Submerged.Services {
                 this.globalizationInfo.dst_offset = pattern.dst_offset;
                 this.globalizationInfo.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
 
-                console.log("Successfully loaded settings.");
+                console.log("Successfully loaded globalization settings.");
                 this.loaded = true;
 
                 deferred.resolve();

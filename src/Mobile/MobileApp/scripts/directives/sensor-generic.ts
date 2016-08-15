@@ -3,7 +3,7 @@
     interface ISensorGenericScope extends ng.IScope {
         formatSensorValue(sensor: Models.SensorModel, value: any): any;
         calculateSensorClass(sensor: Models.SensorModel): string;
-        eventHandler: any;
+        openDetails: any;
     }
 
     class SensorGeneric implements ng.IDirective {
@@ -14,7 +14,7 @@
         public controller = SensorController;
         public controllerAs = 'vm';
         public scope = {
-            sensor: '=',
+            sensor: '='
         };
 
         constructor(private telemetryService: Services.ITelemetryService) {
@@ -23,7 +23,7 @@
         link = ($scope: ISensorGenericScope, element, attrs, controller: ISensorController) => {
             $scope.formatSensorValue = controller.formatSensorValue;
             $scope.calculateSensorClass = controller.calculateSensorClass;
-            $scope.eventHandler = attrs.ngClick;
+            $scope.openDetails = controller.openDetails;
 
             $scope.$watch(() => { return this.telemetryService.threeHoursData; }, (newValue, oldValue) => {
                 if (newValue != undefined && newValue != null) {

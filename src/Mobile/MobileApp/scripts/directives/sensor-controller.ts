@@ -3,18 +3,26 @@
     export interface ISensorController {
         formatSensorValue(sensor: Models.SensorModel, value: any): any;
         calculateSensorClass(sensor: Models.SensorModel): string;
+        openDetails(sensor: Models.SensorModel): void;
         renderChart(dataLabels: any[], data: any[], elementId: string): void;
     }
 
     export class SensorController implements ISensorController {
-        static $inject = ['$sce'];
+        //static $inject = ['$sce'];
 
         public sensors: Models.SensorModel[];
         private deviceId: string;
 
-        constructor(private $sce: ng.ISCEService, private telemetryService: Services.ITelemetryService) {
+        constructor(private $sce: ng.ISCEService, private $state: ng.ui.IStateService, private telemetryService: Services.ITelemetryService) {
             // $location and toaster are now properties of the controller
         }
+
+        openDetails = (sensor: Models.SensorModel) => {
+            this.$state.go('analytics', {
+                tab: "day",
+                sensor: sensor
+            });
+        };
 
         formatSensorValue = (sensor: Models.SensorModel, value: any): any => {
             var result: string = "";

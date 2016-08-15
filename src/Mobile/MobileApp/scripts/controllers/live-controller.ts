@@ -115,13 +115,6 @@ namespace Submerged.Controllers {
             this.loading = false;
         }
 
-        openDetails = function (item) {
-            this.$state.go('analytics', {
-                tab: "day",
-                sensor: item
-            });
-        };
-
         resetLastLoad(timestamp: number): void {
             if (this.timeoutId) {
                 this.$timeout.cancel(this.timeoutId);

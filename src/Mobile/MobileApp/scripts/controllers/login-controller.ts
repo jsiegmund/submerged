@@ -10,17 +10,19 @@
             private sharedService: Services.ISharedService, private dataService: Services.IDataService,
             private subscriptionService: Services.ISubscriptionService, private $q: ng.IQService) {
 
-            this.ensureLogin().then(
-                () => {
-                    return this.initialization();
-                }
-                , this.errorHandler).then(
-                () => {
-                    navigator.splashscreen.hide();
-                    this.mobileService.initPushRegistration();
-                    this.redirect();
-                }
-                , this.errorHandler);
+            console.log("Login: Starting login procedure, ensuring login");
+            this.ensureLogin().then(() => {
+                console.log("Login: Initializing services");
+                return this.serviceInitialization();
+            }, this.errorHandler).then(() => {
+                console.log("Login: push registration initialization");
+                navigator.splashscreen.hide();
+                this.mobileService.initPushRegistration();
+            }, this.errorHandler).finally(() => {
+                console.log("Login: initialization done, redirecting");
+                this.redirect();
+            });
+
         }
 
         errorHandler(err): void {
@@ -33,7 +35,7 @@
             return this.mobileService.login(true);
         }
 
-        initialization(): ng.IPromise<{}> {
+        serviceInitialization(): ng.IPromise<{}> {
             console.log("logincontroller.loadSettings");
 
             var q1 = this.sharedService.init();
@@ -43,7 +45,6 @@
         }
 
         redirect(): void {
-            console.log('MAIN logged in, changing path');
             this.$location.path("/live");
             this.loading = false;
         }
