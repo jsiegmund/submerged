@@ -254,7 +254,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
-                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, TestStatics.module_moduleType);
+                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, TestStatics.module_moduleType);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -269,7 +269,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
-                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, "WRONG");
+                ModuleModel cabinetModule = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, "WRONG");
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -284,8 +284,8 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             {
                 TestInjectors.InjectMockedSubscription(autoMock, true);
 
-                ModuleModel cabinetModule1 = ModuleModel.BuildModule("Cabinet Module", "Test module 1", ModuleTypes.CABINET);
-                ModuleModel cabinetModule2 = ModuleModel.BuildModule("Cabinet Module", "Test module 2", ModuleTypes.CABINET);
+                ModuleModel cabinetModule1 = ModuleModel.BuildModule("Cabinet Module", TestStatics.module_displayName, "Test module 1", ModuleTypes.CABINET);
+                ModuleModel cabinetModule2 = ModuleModel.BuildModule("Cabinet Module", TestStatics.module_displayName, "Test module 2", ModuleTypes.CABINET);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 await subscriptionLogic.AddModuleAsync(cabinetModule1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
@@ -374,7 +374,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, TestStatics.module_moduleType);
+                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, TestStatics.module_moduleType);
                 device.Modules.Add(module);
                 TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
@@ -399,7 +399,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                ModuleModel module = ModuleModel.BuildModule("Test Module", TestStatics.module_displayName, "", ModuleTypes.SENSORS);
                 device.Modules.Add(module);
                 TestInjectors.InjectMockedSubscription(autoMock, device);
                 TestInjectors.InjectDeviceRules(autoMock, null);
@@ -439,7 +439,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
 
-                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_description, TestStatics.module_moduleType);
+                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, TestStatics.module_moduleType);
                 device.Modules.Add(module);
                 SensorModel sensor = SensorModel.BuildSensor(TestStatics.sensor_name, TestStatics.sensor_description, TestStatics.sensor_type, module.Name, TestStatics.sensor_pinConfig);
                 device.Sensors.Add(sensor);
@@ -471,18 +471,18 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                ModuleModel module = ModuleModel.BuildModule("Test Module", "", ModuleTypes.SENSORS);
+                ModuleModel module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, ModuleTypes.SENSORS);
                 device.Modules.Add(module);
                 TestInjectors.InjectMockedSubscription(autoMock, device);
 
-                RelayModel relay1 = RelayModel.BuildModel(1, TestStatics.relay_name, module.Name, TestStatics.relay_pinConfig);
+                RelayModel relay1 = RelayModel.BuildModel(TestStatics.relay_name, TestStatics.relay_displayName, module.Name, TestStatics.relay_pinConfig);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
                 var relay = await subscriptionLogic.AddRelayAsync(relay1, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
 
                 Assert.IsNotNull(relay);
-                Assert.AreEqual(1, relay1.RelayNumber);
                 Assert.AreEqual(TestStatics.relay_name, relay1.Name);
+                Assert.AreEqual(TestStatics.relay_displayName, relay1.DisplayName);
                 Assert.AreEqual(module.Name, relay1.Module);
                 Assert.AreEqual(TestStatics.relay_pinConfig, relay1.PinConfig);
             }
@@ -497,7 +497,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 RelayModel relay = new RelayModel()
                 {
                     OrderNumber = 1,
-                    RelayNumber = 1,
+                    DisplayName = "Display Name",
                     State = true,
                     Name = "Test Module"
                 };
@@ -519,7 +519,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 RelayModel relay = new RelayModel()
                 {
                     OrderNumber = 1,
-                    RelayNumber = 1,
+                    DisplayName = "Display Name",
                     State = true,
                     Name = "Test Module"
                 };
@@ -527,7 +527,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 TestInjectors.InjectMockedSubscription(autoMock, device);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
-                await subscriptionLogic.UpdateRelayStateAsync(1, true, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
+                await subscriptionLogic.UpdateRelayStateAsync(relay.Name, true, TestConfigHelper.DeviceId, TestConfigHelper.SubscriptionUser);
             }
         }
 
@@ -540,7 +540,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 RelayModel relay = new RelayModel()
                 {
                     OrderNumber = 1,
-                    RelayNumber = 1,
+                    DisplayName = "Display Name",
                     State = true,
                     Name = "Test Module",
                     ToggleForMaintenance = true

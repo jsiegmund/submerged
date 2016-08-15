@@ -6,6 +6,7 @@
 
         getButtons(): CommandButton[];
         setButtons(buttons: CommandButton[]);
+        clearButtons(): void;
     }
 
     export class CommandButton {
@@ -45,6 +46,10 @@
 
         getButtons(): CommandButton[] {
             return this.buttons;
+        }
+
+        clearButtons(): void {
+            this.buttons.length = 0;
         }
     }
 

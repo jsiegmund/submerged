@@ -174,6 +174,13 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
         }
 
+        public async Task<IEnumerable<TankModel>> GetTanksAsync(string owner)
+        {
+            SubscriptionModel subscription = await GetSubscriptionAsync(owner);
+            return subscription.Tanks;
+
+        }
+
         public async Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner)
         {
             SubscriptionModel subscription = await GetSubscriptionAsync(owner);
@@ -184,7 +191,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             // check the tank isn't an existing one
-            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Id == tank.Id);
+            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Name == tank.Name);
             if (existingTank != null)
             {
                 throw new SubscriptionValidationException(owner);
@@ -211,7 +218,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             // check the tank isn't an existing one
-            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Id == updatedTank.Id);
+            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Name == updatedTank.Name);
             if (existingTank == null)
             {
                 throw new SubscriptionValidationException(Strings.ValidationTankNotFound);
@@ -233,7 +240,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             // check the tank isn't an existing one
-            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Id == tank.Id);
+            var existingTank = subscription.Tanks.SingleOrDefault(t => t.Name == tank.Name);
             if (existingTank == null)
             {
                 throw new SubscriptionValidationException(Strings.ValidationTankNotFound);
@@ -478,7 +485,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             if (device.Sensors.Exists(s => String.Equals(s.Name, sensor.Name)))
                 throw new SubscriptionValidationException(Strings.ValidationSensorExists);
             if (! device.Modules.Exists(m => String.Equals(m.Name, sensor.Module)))
-                throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
+                throw new SubscriptionValidationException(String.Format(Strings.ValidationModuleUnknown, sensor.Module));
 
             var sensorTypes = ReflectionHelper.GetStringMemberValues(typeof(SensorTypes));
             if (!sensorTypes.Contains(sensor.SensorType))

@@ -1,0 +1,57 @@
+﻿<md-content layout-padding>
+    <form name="relayForm" novalidate ng-submit="relayForm.$valid && vm.save()">
+
+        <section layout="column">
+
+            <md-input-container flex>
+                <label>Display Name</label>
+                <input type="text" ng-model="vm.relay.displayName" required />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Description</label>
+                <input type="text" ng-model="vm.relay.description" />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Pin configuration</label>
+                <md-select ng-model="vm.relay.pinConfig[0]" required>
+                    <md-option ng-repeat="pin in vm.pinConfigOptions" value="{{pin}}">
+                        {{pin}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Module</label>
+                <md-select ng-model="vm.relay.module" required>
+                    <md-option ng-repeat="module in vm.moduleOptions" value="{{module.name}}">
+                        {{module.displayName}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Order number</label>
+                <input type="number" ng-model="vm.relay.orderNumber" min="0" max="100" />
+            </md-input-container>
+
+            <div layout="row">
+                <div layout="column" flex layout-align="center start">
+                    <label for="toggleForMaintenance">Toggle on maintenance</label>
+                </div>
+                <div layout="column" flex="10" layout-align="end center">
+                    <md-switch id="toggleForMaintenance" ng-model="vm.relay.toggleForMaintenance" ng-aria-label="Enable this switch to toggle on maintenance mode"></md-switch>
+                </div>
+            </div>
+
+         </section>
+
+        <!-- Action buttons -->
+        <div layout="row" layout-padding layout-align="end center" flex="none">
+            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
+        </div>
+
+    </form>
+</md-content>

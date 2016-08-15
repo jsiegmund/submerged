@@ -77,7 +77,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
-            ModuleModel model = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, TestStatics.module_moduleType);
+            ModuleModel model = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, TestStatics.module_moduleType);
             var updatedSubscription = await _subscriptionLogic.AddModuleAsync(model, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
@@ -106,7 +106,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
         {
             SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
 
-            RelayModel model = RelayModel.BuildModel(TestStatics.relay_number, TestStatics.relay_name, TestStatics.module_name, TestStatics.relay_pinConfig);
+            RelayModel model = RelayModel.BuildModel(TestStatics.relay_name, TestStatics.relay_displayName, TestStatics.module_name, TestStatics.relay_pinConfig);
             RelayModel newModel = await _subscriptionLogic.AddRelayAsync(model, TestStatics.device_id, subscription_User);
 
             subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
@@ -119,7 +119,6 @@ namespace Repsaj.Submerged.API.Tests.Integration
             RelayModel relay = relays.SingleOrDefault(r => r.Name == TestStatics.relay_name);
 
             Assert.IsNotNull(relay);
-            Assert.AreEqual(TestStatics.relay_number, relay.RelayNumber);
             Assert.AreEqual(TestStatics.relay_name, relay.Name);
             Assert.AreEqual(TestStatics.module_name, relay.Module);
             CollectionAssert.AreEqual(TestStatics.relay_pinConfig, relay.PinConfig);

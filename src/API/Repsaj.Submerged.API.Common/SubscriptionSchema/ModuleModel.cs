@@ -10,6 +10,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public string Description { get; set; }
         public string ConnectionString { get; set; }
         public string ModuleType { get; set; }
         public string Status { get; set; }

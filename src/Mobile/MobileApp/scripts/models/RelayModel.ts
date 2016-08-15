@@ -4,5 +4,7 @@
         name: string;
         state: boolean;
         orderNumber: number;
+        toggleForMaintenance: boolean;
+        pinConfig: string[];
     }    
 }

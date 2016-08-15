@@ -25,10 +25,11 @@
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService,
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService,
-            private dataService: Services.IDataService) {
+            private dataService: Services.IDataService, private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = sharedService.settings.getDeviceId();
-            this.timezoneOffset = sharedService.settings.globalizationInfo.server_offset_seconds;
+            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.timezoneOffset = sharedService.globalizationInfo.server_offset_seconds;
+
             this.loadSensors();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {

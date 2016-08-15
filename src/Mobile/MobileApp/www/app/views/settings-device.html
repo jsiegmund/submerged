@@ -7,7 +7,7 @@
 </md-button>
 
 <md-button class="md-fab md-primary md-fab-bottom-right" aria-label="Add Module" ng-click="vm.newModule()" ng-show="vm.selectedTabIndex==2">
-    <md-icon md-svg-src="icons/ic_add_24px.svg"</md-icon>
+    <md-icon md-svg-src="icons/ic_add_24px.svg"></md-icon>
 </md-button>
 
 <md-tabs flex layout="column" layout-fill md-swipe-content="true" md-enable-disconnect="true" md-selected="vm.selectedTabIndex">
@@ -15,15 +15,17 @@
     <md-tab flex layout="column" label="Sensors">
         <md-tab-content flex layout-fill>
 
-            <section ng-repeat="sensorType in vm.sensorTypes">
+            <section ng-repeat="sensorType in vm.sensorTypes" ng-show="vm.showSensorSection(sensorType.name)">
                 <md-subheader class="md-primary">{{sensorType.displayName}}</md-subheader>
-                <div ng-repeat="sensor in vm.selectedDevice.sensors | filter:vm.sensorBySensorType(sensorType.name)" class="md-body-1">
-                    <md-card layout-padding ng-click="vm.openSensor(sensor)">
-                        <span class="md-title">{{sensor.displayName}}</span>
-                        <span>
-                        </span>
-                    </md-card>
-                </div>
+
+                <md-list>
+                    <md-list-item ng-repeat="sensor in vm.selectedDevice.sensors | filter:vm.sensorBySensorType(sensorType.name)" ng-click="vm.openSensor(sensor)" class="md-2-line">
+                        <div class="md-list-item-text" layout="column">
+                            <h3 class="md-title">{{sensor.displayName}}</h3>
+                            <h4>{{sensor.description}}</h4>
+                        </div>
+                    </md-list-item>
+                </md-list>
             </section>
 
         </md-tab-content>
@@ -32,14 +34,14 @@
     <md-tab flex layout="column" label="Relays">
         <md-tab-content flex layout-fill>
 
-            <div ng-repeat="relay in vm.selectedDevice.relays" class="md-body-1">
-                <md-card layout-padding>
-                    <span class="md-title">{{relay.displayName}}</span>
-                    <span>
-                    </span>
-                </md-card>
-            </div>
-
+            <md-list>
+                <md-list-item ng-repeat="relay in vm.selectedDevice.relays" ng-click="vm.openRelay(relay)" class="md-2-line">
+                    <div class="md-list-item-text" layout="column">
+                        <h3>{{relay.displayName}}</h3>
+                        <h4>{{relay.description}}</h4>
+                    </div>
+                </md-list-item>
+            </md-list>
 
         </md-tab-content>
     </md-tab>
@@ -47,14 +49,14 @@
     <md-tab flex layout="column" label="Modules">
         <md-tab-content flex layout-fill>
 
-            <div ng-repeat="modules in vm.selectedDevice.modules" class="md-body-1">
-                <md-card layout-padding>
-                    <span class="md-title">{{module.displayName}}</span>
-                    <span>
-
-                    </span>
-                </md-card>
-            </div>
+            <md-list>
+                <md-list-item ng-repeat="module in vm.selectedDevice.modules" ng-click="vm.openModule(module)" class="md-2-line">
+                    <div class="md-list-item-text" layout="column">
+                        <h3 class="md-title">{{module.displayName}}</h3>
+                        <h4>{{module.description}}</h4>
+                    </div>
+                </md-list-item>
+            </md-list>
 
         </md-tab-content>
     </md-tab>

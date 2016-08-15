@@ -7,10 +7,10 @@
         disabled: boolean = true;
 
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
-            private $state: ng.ui.IStateService, private dataService: Services.IDataService) {
+            private $state: ng.ui.IStateService, private dataService: Services.IDataService, private subscriptionService: Services.SubscriptionService) {
 
-            this.deviceId = sharedService.settings.getDeviceId();
-            this.maintenanceMode = sharedService.settings.getDevice().deviceProperties.isInMaintenance;
+            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.maintenanceMode = subscriptionService.getSelectedDevice().deviceProperties.isInMaintenance;
 
             this.loadRelays();
         }
@@ -24,7 +24,7 @@
 
         toggleMaintenance() {
             this.disabled = true;
-            this.sharedService.settings.getDevice().deviceProperties.isInMaintenance = this.maintenanceMode;
+            this.subscriptionService.getSelectedDevice().deviceProperties.isInMaintenance = this.maintenanceMode;
 
             this.dataService.toggleMaintenance(this.deviceId, this.maintenanceMode).then(
                 () => {
@@ -51,10 +51,10 @@
             );
         };
 
-        toggle(relayNumber: number, relayState: boolean) {
+        toggle(relayName: string, relayState: boolean) {
             this.disabled = true;
 
-            this.dataService.toggleRelay(this.deviceId, relayNumber, relayState).then(
+            this.dataService.toggleRelay(this.deviceId, relayName, relayState).then(
                 () => {
                     this.showSimpleToast("Toggle command sent!");
                     this.disabled = false;

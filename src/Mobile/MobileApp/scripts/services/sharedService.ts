@@ -1,4 +1,8 @@
-﻿namespace Submerged.Services {
+﻿interface Window {
+    ripple: any;
+}
+
+namespace Submerged.Services {
 
     export class ApiInfo {
         apiUrl: string;
@@ -19,173 +23,52 @@
         }
     }
 
-    export interface ISettings {
-        subscription: Models.SubscriptionModel;
-        apiInfo: ApiInfo;
-        globalizationInfo: GlobalizationInfo;
-
-        getDevice(): Models.DeviceModel;
-        getDeviceId(): string;
-    }
-
-    export class Settings implements ISettings {
-        subscription: Models.SubscriptionModel;
-        apiInfo: ApiInfo;
-        globalizationInfo: GlobalizationInfo;
-
-        constructor() {
-        }
-
-        getDevice(): Models.DeviceModel {
-            if (this.subscription != null &&
-                this.subscription.devices != null &&
-                this.subscription.devices.length > 0)
-                return this.subscription.devices[0];
-            else
-                return null;
-        }
-
-        getDeviceId(): string {
-            if (this.subscription != null &&
-                this.subscription.devices != null &&
-                this.subscription.devices.length > 0)
-                return this.subscription.devices[0].deviceProperties.deviceID;
-            else
-                return "";
-        }
-    }
-
     export interface ISharedService {
-        settings: ISettings;
+        emulated: boolean;
+        apiInfo: ApiInfo;
+        globalizationInfo: GlobalizationInfo;
 
-        save(): void;
-        init(dataService: IDataService): ng.IPromise<{}>;
-        loadSettings(dataService: IDataService): ng.IPromise<ISettings>;
-        loadSubscriptionFromCloud(dataService: IDataService): ng.IPromise<ISettings>;
+        init(): ng.IPromise<void>;
     }
 
     export class SharedService implements ISharedService {
 
-        settings: ISettings;
-        file: string = "subscription.json";
+        apiInfo: ApiInfo;
+        globalizationInfo: GlobalizationInfo;
+        emulated: boolean; 
 
-        static $inject = ['fileService', '$q' ];
+        loaded: boolean = false;
 
-        constructor(private fileService: IFileService, private $q: ng.IQService) {
+        constructor(private $q: ng.IQService) {
             console.log("Constructor of shared called");
-
-            this.settings = new Settings();
 
             var apiInfoObj = new ApiInfo();
             apiInfoObj.apiUrl = 'https://neptune-mobileapi.azurewebsites.net';
             apiInfoObj.baseUrl = apiInfoObj.apiUrl + '/api';
             apiInfoObj.signalRUrl = apiInfoObj.apiUrl;
             apiInfoObj.gcmSenderID = '532189147734';
-            this.settings.apiInfo = apiInfoObj;
+            this.apiInfo = apiInfoObj;
 
             var globalizationInfoObj = new GlobalizationInfo();
-            this.settings.globalizationInfo = globalizationInfoObj;
+            this.globalizationInfo = globalizationInfoObj;
+
+            this.emulated = window.parent && window.parent.ripple;
         }
 
-        public init(dataService: IDataService): ng.IPromise<{}> {
-            var globalizationPromise = this.loadGlobalizationSettings();
-            var settingsPromise = this.loadSubscriptionFromCloud(dataService);
-
-            var deferred = this.$q.defer<{}>();
-
-            // wait before everything has loaded before returning the actual settings object
-            this.$q.all([globalizationPromise, settingsPromise]).then(function (result) {
-                deferred.resolve();
-            }, (error) => {
-                console.log("Failed initializing shared settings: " + error);
-                deferred.reject(error);
-            });
-
-            return deferred.promise;
-        }
-
-        public save(): void {
-            var folder = window.cordova.file.applicationStorageDirectory;
-            this.fileService.storeJsonFile(this.file, folder, this.settings.subscription);
-        }
-
-        private setSubscription(subscription: Models.SubscriptionModel, save: boolean) {
-            console.log("setSettings");
-
-            this.settings.subscription = new Models.SubscriptionModel();
-            angular.copy(subscription, this.settings.subscription);
-
-            if (save)
-                this.save();
-        }
-
-        private loadGlobalizationSettings(): ng.IPromise<void> {
+        public init(): ng.IPromise<void> {
             var deferred = this.$q.defer<void>();
 
             navigator.globalization.getDatePattern((pattern) => {
-                console.log(`setting globalization info to utc_offset: ${pattern.utc_offset}.`);
-                this.settings.globalizationInfo.utc_offset = pattern.utc_offset;
-                this.settings.globalizationInfo.dst_offset = pattern.dst_offset;
-                this.settings.globalizationInfo.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
+                this.globalizationInfo.utc_offset = pattern.utc_offset;
+                this.globalizationInfo.dst_offset = pattern.dst_offset;
+                this.globalizationInfo.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
+
+                console.log("Successfully loaded settings.");
+                this.loaded = true;
+
                 deferred.resolve();
             }, (err) => {
                 console.log("Globalization error: " + err.message);
-                deferred.reject();
-            });
-
-            return deferred.promise;
-        }
-
-        public loadSubscriptionFromCloud(dataService: IDataService): ng.IPromise<ISettings> {
-            console.log("loadSubscriptionFromCloud");
-
-            var deferred = this.$q.defer<ISettings>();
-
-            this.loadFromCloud(dataService).then((subscription: Models.SubscriptionModel) => {
-                this.setSubscription(subscription, true);
-                deferred.resolve(this.settings);
-            });
-
-            return deferred.promise;
-        }
-
-        public loadSettings(dataService: IDataService): ng.IPromise<ISettings> {
-            return this.loadFromFile().then(((subscription: Models.SubscriptionModel) => {
-                this.setSubscription(subscription, false);
-                return this.settings;
-            }), ((reason: any) => {
-                return this.loadSubscriptionFromCloud(dataService);
-            }));
-        }
-
-        private loadFromFile(): ng.IPromise<Models.SubscriptionModel> {
-            var deferred = this.$q.defer<Models.SubscriptionModel>();
-            var folder = window.cordova.file.applicationStorageDirectory;
-
-            console.log(`Initializing settings from storage @ ${folder}.`);            
-            this.fileService.getJsonFile<Models.SubscriptionModel>(this.file, folder).then(
-                function (subscription) {
-                    if (subscription != null) {
-                        deferred.resolve(subscription);
-                    } else {
-                        deferred.reject();
-                    }
-                },
-                function () {
-                    deferred.reject();
-                }
-            );
-
-            return deferred.promise;
-        }
-
-        private loadFromCloud(dataService: IDataService): ng.IPromise<Models.SubscriptionModel> {
-            var deferred = this.$q.defer<Models.SubscriptionModel>();
-
-            dataService.getSubscription().then(function(subscription) {
-                // build a new settings object and save the subscription in it
-                deferred.resolve(subscription);
-            }, function (err) {
                 deferred.reject();
             });
 

@@ -4,6 +4,8 @@
         name: string;
         description: string;
         status: string;
+        orderNumber: number;
+        moduleType: string;
     }
     
 }

@@ -26,7 +26,6 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("")]
-        [HttpPost]
         [HttpGet]
         public async Task<IHttpActionResult> Relays(string deviceId)
         {
@@ -34,14 +33,45 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok(sensorModels);
         }
 
+        [Route("")]
+        [HttpPost]
+        public async Task<IHttpActionResult> AddRelay(string deviceId, [FromBody]RelayModel relay)
+        {
+            try
+            {
+                await _subscriptionLogic.AddRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
+            return Ok();
+        }
 
         [Route("")]
         [HttpPut]
-        public async Task<IHttpActionResult> SaveRelay(string deviceId, [FromBody]RelayModel relay)
+        public async Task<IHttpActionResult> UpdateRelay(string deviceId, [FromBody]RelayModel relay)
         {
             try
             {
                 await _subscriptionLogic.UpdateRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
+            return Ok();
+        }
+
+        [Route("")]
+        [HttpDelete]
+        public async Task<IHttpActionResult> DeleteRelay(string deviceId, [FromBody]RelayModel relay)
+        {
+            try
+            {
+                await _subscriptionLogic.DeleteRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
             }
             catch (Exception ex)
             {

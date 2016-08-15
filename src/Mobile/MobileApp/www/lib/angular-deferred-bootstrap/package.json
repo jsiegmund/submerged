@@ -1,0 +1,38 @@
+{
+  "name": "angular-deferred-bootstrap",
+  "version": "0.1.9",
+  "description": "Initialize your AngularJS app with constants loaded from the back-end.",
+  "main": "angular-deferred-bootstrap.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/philippd/angular-deferred-bootstrap"
+  },
+  "keywords": [
+    "angular",
+    "bootstrap"
+  ],
+  "author": "Philipp Denzler <philippd@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/philippd/angular-deferred-bootstrap/issues"
+  },
+  "homepage": "https://github.com/philippd/angular-deferred-bootstrap",
+  "jspm": {
+    "format": "global",
+    "registry": "github",
+    "dependencies": {
+      "angular": "github:angular/bower-angular@^1.2.1"
+    },
+    "shim": {
+      "angular-deferred-bootstrap": {
+        "deps": [
+          "angular"
+        ],
+        "exports": "deferredBootstrapper"
+      }
+    }
+  }
+}

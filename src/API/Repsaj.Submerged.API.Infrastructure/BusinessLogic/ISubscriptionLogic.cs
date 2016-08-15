@@ -17,6 +17,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
         Task DeleteSubscriptionAsync(Guid subscription_Id, string subscriptionUser);
 
 
+        Task<IEnumerable<TankModel>> GetTanksAsync(string owner);
         Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner);
         Task<SubscriptionModel> UpdateTankAsync(TankModel tank, string owner);
         Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string owner);

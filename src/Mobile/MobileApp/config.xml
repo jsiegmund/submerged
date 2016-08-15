@@ -113,7 +113,6 @@
   <preference name="Orientation" value="portrait" />
   <plugin name="cordova-plugin-ms-adal" version="0.7.1" />
   <plugin name="cordova-plugin-device" version="1.1.2" />
-  <plugin name="cordova-plugin-file" version="4.2.0" />
   <plugin name="cordova-plugin-globalization" version="1.0.3" />
   <plugin name="cordova-plugin-inappbrowser" version="1.4.0" />
   <plugin name="cordova-plugin-dialogs" version="1.2.1" />
@@ -128,4 +127,5 @@
   <plugin name="cordova-plugin-hockeyapp" version="2.2.2" />
   <plugin name="cordova-plugin-ms-azure-mobile-apps" version="2.0.0-rc1" />
   <plugin name="cordova-sqlite-storage" version="1.4.6" />
+  <plugin name="cordova-plugin-file" version="4.2.0" />
 </widget>

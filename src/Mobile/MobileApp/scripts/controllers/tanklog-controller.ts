@@ -4,7 +4,7 @@
         selected: boolean;
     }
 
-    export class TankLogController {
+    export class TankLogController extends BaseController {
 
         private logs: TankLogModel[];
         private newLog: TankLogModel;
@@ -14,18 +14,21 @@
         private logTypes: {}[];
 
         constructor(private sharedService: Services.ISharedService, private tankLogService: Services.ITankLogService, private $location: ng.ILocationService,
-            private menuService: Services.IMenuService, private $mdToast: ng.material.IToastService, private $q: ng.IQService) {
+            private menuService: Services.IMenuService, $mdToast: ng.material.IToastService, private $q: ng.IQService, subscriptionService: Services.ISubscriptionService) {
 
-            var tank = sharedService.settings.subscription.tanks.first();
+            super($mdToast);
 
-            this.newLog = new TankLogModel;
-            this.newLog.tankId = tank.id;
+            subscriptionService.load().then((subscription) => {
+                var tank = subscription.tanks.first();
+                this.newLog = new TankLogModel;
+                this.newLog.tankId = tank.name;
 
-            this.tankLogService.getTankLogs(tank.id).then((result) => {
-                this.logs = <TankLogModel[]>result;
-                this.loading = false;
-            }, (error) => {
-                this.loading = false;
+                this.tankLogService.getTankLogs(tank.name).then((result) => {
+                    this.logs = <TankLogModel[]>result;
+                    this.loading = false;
+                }, (error) => {
+                    this.loading = false;
+                });
             });
 
             this.logTypes = this.loadAllLogTypes();
@@ -65,7 +68,6 @@
             else
                 this.toggleLogSelected(log);                
         }
-
 
         deleteLogs() {
             var selected = this.logs.where({ selected: true });
@@ -128,14 +130,6 @@
             return results;
         }
 
-        showSimpleToast(text: string) {
-            this.$mdToast.show(
-                this.$mdToast.simple()
-                    .textContent(text)
-                    .position("bottom center")
-                    .hideDelay(3000)
-            );
-        };
 
         /**
          * Create filter function for a query string

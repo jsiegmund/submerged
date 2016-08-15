@@ -34,10 +34,5 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
 
             return sensor;
         }
-
-        public static object BuildSensor(string sensor_name, string sensor_description, string pH, string module_name, object sensor_pinConfig)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

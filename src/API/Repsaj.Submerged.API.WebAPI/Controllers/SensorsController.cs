@@ -27,7 +27,6 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("")]
-        [HttpPost]
         [HttpGet]
         public async Task<IHttpActionResult> Sensors(string deviceId)
         {
@@ -35,10 +34,25 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok(sensorModels);
         }
 
+        [Route("")]
+        [HttpPost]
+        public async Task<IHttpActionResult> AddSensor(string deviceId, [FromBody]SensorModel sensor)
+        {
+            try
+            {
+                await _subscriptionLogic.AddSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError();
+            }
+
+            return Ok();
+        }
 
         [Route("")]
         [HttpPut]
-        public async Task<IHttpActionResult> SaveSensor(string deviceId, [FromBody]SensorModel sensor)
+        public async Task<IHttpActionResult> UpdateSensor(string deviceId, [FromBody]SensorModel sensor)
         {
             try
             {
@@ -52,9 +66,8 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok();
         }
         
-        [Route("save")]
-        [HttpPost]
-        [HttpGet]
+        [Route("")]
+        [HttpPut]
         public async Task<IHttpActionResult> SaveSensors(string deviceId, [FromBody]SensorModel[] updatedSensors)
         {
             try
@@ -70,6 +83,22 @@ namespace Repsaj.Submerged.API.Controllers
             {
                 return InternalServerError();
             }
+        }
+
+        [Route("")]
+        [HttpDelete]
+        public async Task<IHttpActionResult> DeleteSensor(string deviceId, [FromBody]SensorModel sensor)
+        {
+            try
+            {
+                await _subscriptionLogic.DeleteSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+            }
+            catch (Exception)
+            {
+                return InternalServerError();
+            }
+
+            return Ok();
         }
     }
 }

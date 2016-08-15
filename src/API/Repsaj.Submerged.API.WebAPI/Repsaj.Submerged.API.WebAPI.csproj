@@ -314,6 +314,7 @@
     <Compile Include="Controllers\RelaysController.cs" />
     <Compile Include="Controllers\SensorsController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
+    <Compile Include="Controllers\TanksController.cs" />
     <Compile Include="Controllers\TankLogController.cs" />
     <Compile Include="Controllers\TestController.cs" />
     <Compile Include="Filters\ErrorHandlingFilter.cs" />

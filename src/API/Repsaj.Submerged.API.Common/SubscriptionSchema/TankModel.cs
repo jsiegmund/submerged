@@ -9,9 +9,10 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
 {
     public class TankModel
     {
-        public Guid Id { get; set; }
         public string Name { get; set; }
+        public string DisplayName { get; set; }
         public string Description { get; set; }
+        public int? OrderNumber { get; set; }
 
         public TankModel(string name, string description)
         {
@@ -19,11 +20,9 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
             this.Description = description;
         }
 
-
         public static TankModel BuildTank(string name, string description)
         {
             TankModel model = new TankModel(name, description);
-            model.Id = Guid.NewGuid();
             return model;
         }
     }

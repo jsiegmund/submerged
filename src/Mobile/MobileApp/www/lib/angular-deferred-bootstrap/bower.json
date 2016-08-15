@@ -1,0 +1,9 @@
+{
+  "name": "angular-deferred-bootstrap",
+  "version": "0.1.9",
+  "main": "./angular-deferred-bootstrap.js",
+  "dependencies": {
+    "angular": ">=1.2.1"
+  },
+  "ignore": []
+}

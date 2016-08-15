@@ -27,7 +27,6 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpGet]
-        [HttpPost]
         public async Task<IHttpActionResult> GetSubscription()
         {
             var deviceData = await _subscriptionLogic.GetSubscriptionAsync(AuthenticationHelper.UserId);

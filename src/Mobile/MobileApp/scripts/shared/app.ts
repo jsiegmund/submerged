@@ -3,7 +3,8 @@
 angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "ngCordova.plugins", "ngStorage", "angular-jwt", "pr.longpress"])
 
     .run(function ($rootScope: ng.IRootScopeService, $cordovaStatusbar: any, $location: ng.ILocationService,
-        sharedService: Submerged.Services.ISharedService, menuService: Submerged.Services.IMenuService) {
+        sharedService: Submerged.Services.ISharedService, subscriptionService: Submerged.Services.ISubscriptionService,
+        menuService: Submerged.Services.IMenuService) {
 
         document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -28,6 +29,7 @@ angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "n
                 newTitle = toState.title;
 
             menuService.setTitle(newTitle);
+            menuService.clearButtons();
         }
 
         /* Hijack Android Back Button (You Can Set Different Functions for Each View by Checking the $state.current) */

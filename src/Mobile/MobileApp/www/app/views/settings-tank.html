@@ -1,0 +1,30 @@
+﻿<md-content layout-padding>
+    <form name="tankForm" novalidate ng-submit="tankForm.$valid && vm.save()">
+
+        <section layout="column">
+
+            <md-input-container flex>
+                <label>Display Name</label>
+                <input type="text" ng-model="vm.tank.displayName" required />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Description</label>
+                <input type="text" ng-model="vm.tank.description" />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Order number</label>
+                <input type="number" ng-model="vm.tank.orderNumber" min="0" max="100" />
+            </md-input-container>
+
+        </section>
+
+        <!-- Action buttons -->
+        <div layout="row" layout-padding layout-align="end center" flex="none">
+            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
+        </div>
+
+    </form>
+</md-content>

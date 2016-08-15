@@ -10,7 +10,7 @@
 
             <md-input-container flex>
                 <label>Description</label>
-                <input type="text" ng-model="vm.sensor.description" required />
+                <input type="text" ng-model="vm.sensor.description" />
             </md-input-container>
 
             <md-input-container flex>
@@ -20,6 +20,29 @@
                         {{sensorType.displayName}}
                     </md-option>
                 </md-select>
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Pin configuration</label>
+                <md-select ng-model="vm.relay.pinConfig[0]" required>
+                    <md-option ng-repeat="pin in vm.pinConfigOptions" value="{{pin}}">
+                        {{pin}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Module</label>
+                <md-select ng-model="vm.sensor.module" required>
+                    <md-option ng-repeat="module in vm.moduleOptions" value="{{module.name}}">
+                        {{module.displayName}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Order number</label>
+                <input type="number" ng-model="vm.sensor.orderNumber" min="0" max="100" />
             </md-input-container>
 
         </section>
@@ -54,7 +77,7 @@
         <!-- Action buttons -->
         <div layout="row" layout-padding layout-align="end center" flex="none">
             <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
-            <md-button type="submit" class="md-raised md-primary">SAVE</md-button>
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
         </div>
 
     </form>

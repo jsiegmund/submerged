@@ -21,8 +21,8 @@
         private deviceId: string;
 
         constructor(private dataService: IDataService, private sharedService: ISharedService, private signalRService: ISignalRService,
-            private $q: ng.IQService) {
-            this.deviceId = sharedService.settings.getDeviceId();
+            private $q: ng.IQService, private subscriptionService: Services.ISubscriptionService) {
+            this.deviceId = subscriptionService.getSelectedDeviceId();
         }
 
         init(): ng.IPromise<void> {
@@ -55,23 +55,15 @@
             var deferred = this.$q.defer<void>();
 
             // get the settings stored in local storage; when empty refresh from cloud
-            var settings = this.sharedService.settings;
-            var subscriptionSensors = settings.subscription.getAllSensors();
-            if (subscriptionSensors == null || subscriptionSensors.length == 0) {
-                this.dataService.getSensors(this.deviceId).then(
-                    (sensors) => {
-                        this.sensors = sensors;
-                        deferred.resolve();
+            this.dataService.getSensors(this.deviceId).then(
+                (sensors) => {
+                    this.sensors = sensors;
+                    deferred.resolve();
 
-                        this.processSensors(sensors);      // process the last known data for display
-                    },
-                    () => { deferred.reject(); }
-                );
-            }
-            else {
-                this.processSensors(subscriptionSensors);
-                deferred.resolve();
-            }
+                    this.processSensors(sensors);      // process the last known data for display
+                },
+                () => { deferred.reject(); }
+            );
 
             return deferred.promise;
         }

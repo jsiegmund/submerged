@@ -7,11 +7,12 @@
         //static $inject = ['mobileService', '$location', 'sharedService'];
 
         constructor(private mobileService: Submerged.Services.IMobileService, private $location: ng.ILocationService,
-            private sharedService: Services.ISharedService, private dataService: Services.IDataService) {
+            private sharedService: Services.ISharedService, private dataService: Services.IDataService,
+            private subscriptionService: Services.ISubscriptionService, private $q: ng.IQService) {
 
             this.ensureLogin().then(
                 () => {
-                    return this.loadSettings();
+                    return this.initialization();
                 }
                 , this.errorHandler).then(
                 () => {
@@ -27,14 +28,18 @@
             console.log("Error occurred during login procedure: " + err);
         }        
 
-        ensureLogin(): ng.IPromise<{}> {
+        ensureLogin(): ng.IPromise<void> {
             console.log("logincontroller.ensureLogin");
             return this.mobileService.login(true);
         }
 
-        loadSettings(): ng.IPromise<{}> {
+        initialization(): ng.IPromise<{}> {
             console.log("logincontroller.loadSettings");
-            return this.sharedService.init(this.dataService);
+
+            var q1 = this.sharedService.init();
+            var q2 = this.subscriptionService.load(true);
+
+            return this.$q.all([q1, q2]);
         }
 
         redirect(): void {

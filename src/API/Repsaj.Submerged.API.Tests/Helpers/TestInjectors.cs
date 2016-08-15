@@ -109,7 +109,7 @@ namespace Repsaj.Submerged.API.Tests.Helpers
 
         public static ModuleModel InjectMockedModule(DeviceModel device)
         {
-            var module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_connectionString, ModuleTypes.CABINET);
+            var module = ModuleModel.BuildModule(TestStatics.module_name, TestStatics.module_displayName, TestStatics.module_connectionString, ModuleTypes.CABINET);
             device.Modules.Add(module);
 
             return module;

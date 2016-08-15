@@ -3,18 +3,29 @@
         toggleMaintenance(deviceId: string, maintenanceMode: boolean): ng.IPromise<void>;
 
         getSensors(deviceId: string): ng.IPromise<Models.SensorModel[]>;
-        saveSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void>;
-        saveSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
+        addSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
+        updateSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
+        updateSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void>;
+        deleteSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
 
         getRelays(deviceId: string): ng.IPromise<Models.RelayModel[]>;
-        saveRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void>;
-        toggleRelay(deviceId: string, relayNumber: number, relayState: boolean): ng.IPromise<void>;
+        addRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void>;
+        updateRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void>;
+        deleteRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void>;
+        toggleRelay(deviceId: string, relayName: string, relayState: boolean): ng.IPromise<void>;
 
         getTankLogs(tankId: string): ng.IPromise<Models.TankLogModel[]>;
         saveTankLog(newLog: Models.TankLogModel): ng.IPromise<void>;
 
         getModules(deviceId: string): ng.IPromise<Models.ModuleModel[]>;
-        saveModule(deviceId: string, module: Models.ModuleModel);
+        addModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void>;
+        updateModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void>;
+        deleteModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void>;
+
+        getTanks(): ng.IPromise<Models.TankModel[]>;
+        addTank(tank: Models.TankModel): ng.IPromise<void>;
+        updateTank(tank: Models.TankModel): ng.IPromise<void>;
+        deleteTank(tank: Models.TankModel): ng.IPromise<void>;
 
         getTelemetry(deviceId: string): ng.IPromise<any>;
         getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<any>;
@@ -28,324 +39,151 @@
         
         timezoneOffsetSeconds: number;
 
-        constructor(private mobileService: IMobileService, private $q: ng.IQService, private sharedService: Services.ISharedService) {
-            this.timezoneOffsetSeconds = sharedService.settings.globalizationInfo.server_offset_seconds;
+        constructor(private mobileService: IMobileService, private $q: ng.IQService, sharedService: Services.ISharedService) {
+            this.timezoneOffsetSeconds = sharedService.globalizationInfo.server_offset_seconds;
         }
 
         getSubscription(): ng.IPromise<Models.SubscriptionModel> {
-            var deferred = this.$q.defer<Models.SubscriptionModel>();
             var apiUrl = "subscription";
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /subscription to load the subscription details: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve(success.result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.SubscriptionModel>(apiUrl, "get", null);
         }
-
 
         getData(rangeType: string, date: Date, deviceId: string): ng.IPromise<Models.AnalyticsDataModel> {
             var apiUrl = "data/" + rangeType + "?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
-            var deferred = this.$q.defer<Models.AnalyticsDataModel>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    console.log("Failure getting data from API: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.AnalyticsDataModel = success.result;
-                    deferred.resolve(result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.AnalyticsDataModel>(apiUrl, "get", null);
         }
 
-        getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<any> {
+        getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<Models.AnalyticsDataModel> {
             var apiUrl = "data/threehours?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
-            var deferred = this.$q.defer<any>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/threehours: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve(success.result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.AnalyticsDataModel>(apiUrl, "get", null);
         }
 
         getTelemetry(deviceId: string): ng.IPromise<Models.TelemetryModel> {
             var apiUrl = "data/latest?deviceId=" + deviceId;
-            var deferred = this.$q.defer<Models.TelemetryModel>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/latest: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.TelemetryModel = success.result;
-                    deferred.resolve(result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.TelemetryModel>(apiUrl, "get", null);
         }       
 
         getModules(deviceId: string): ng.IPromise<Models.ModuleModel[]> {
             var apiUrl = "modules?deviceId=" + deviceId;
-            var deferred = this.$q.defer<Models.ModuleModel[]>();
-
-            // get the latest available data record to show untill it's updated
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /modules: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.ModuleModel[] = success.result;
-                    deferred.resolve(result);      // process the last known data for display
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.ModuleModel[]>(apiUrl, "get", null);
         }
 
-        saveModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void> {
+        addModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void> {
             var apiUrl = "modules?deviceId=" + deviceId;
-            var deferred = this.$q.defer<void>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: module,
-                method: "put"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to save a module: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<void>(apiUrl, "post", module);
         }
 
-        saveSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void> {
-            var apiUrl = "sensors/save?deviceId=" + deviceId;
-            var deferred = this.$q.defer<void>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: sensors,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors/save to save the sensor configuration: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
-
-            return deferred.promise;
+        updateModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void> {
+            var apiUrl = "modules?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "put", module);
         }
 
-        saveSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void> {
+        deleteModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void> {
+            var apiUrl = "modules?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "post", module);
+        }
+
+        addSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void> {
             var apiUrl = "sensors?deviceId=" + deviceId;
-            var deferred = this.$q.defer<void>();
+            return this.apiFunctionCall<void>(apiUrl, "post", sensor);
+        }
 
-            this.mobileService.invokeApi(apiUrl, {
-                body: sensor,
-                method: "put"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /sensors to save a sensor: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
+        updateSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void> {
+            var apiUrl = "sensors?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "put", sensor);
+        }
 
-            return deferred.promise;
+        updateSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void> {
+            var apiUrl = "sensors/save?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "put", sensors);
+        }
+
+        deleteSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void> {
+            var apiUrl = "sensors?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "delete", sensor);
         }
 
         getSensors(deviceId: string): ng.IPromise<Models.SensorModel[]> {
             var apiUrl = "sensors?deviceId=" + deviceId;
-            var deferred = this.$q.defer<Models.SensorModel[]>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /data/sensors to get the sensor configuration: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.SensorModel[] = success.result;
-                    deferred.resolve(result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.SensorModel[]>(apiUrl, "post", null);
         }
 
         toggleMaintenance(deviceId: string, maintenanceMode: boolean): ng.IPromise<void> {
             var apiUrl = "control/maintenance/toggle?deviceId=" + deviceId + "&inMaintenance=" + maintenanceMode;
-            var deferred = this.$q.defer<void>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    console.log("Error calling /control/maintenance/toggle to toggle maintenance state: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
-
-
-            return deferred.promise;
+            return this.apiFunctionCall<void>(apiUrl, "post", null);
         }
 
-        toggleRelay(deviceId: string, relayNumber: number, relayState: boolean): ng.IPromise<void> {
-            var apiUrl = "control/setrelay?deviceId=" + deviceId + "&relayNumber=" + relayNumber + "&state=" + relayState;
-            var deferred = this.$q.defer<void>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    console.log("Error calling /control/setrelay to toggle relay state: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
-
-            return deferred.promise;
+        toggleRelay(deviceId: string, relayName: string, relayState: boolean): ng.IPromise<void> {
+            var apiUrl = "control/setrelay?deviceId=" + deviceId + "&name=" + relayName + "&state=" + relayState;
+            return this.apiFunctionCall<void>(apiUrl, "post", null);
         }
 
-        saveRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void> {
+        getTanks(): ng.IPromise<Models.TankModel[]> {
+            var apiUrl = "tanks";
+            return this.apiFunctionCall<Models.TankModel[]>(apiUrl, "get", null);
+        }
+
+        addTank(tank: Models.TankModel): ng.IPromise<void> {
+            var apiUrl = "tanks";
+            return this.apiFunctionCall<void>(apiUrl, "post", tank);
+        }
+
+        updateTank(tank: Models.TankModel): ng.IPromise<void> {
+            var apiUrl = "tanks";
+            return this.apiFunctionCall<void>(apiUrl, "put", tank);
+        }
+
+        deleteTank(tank: Models.TankModel): ng.IPromise<void> {
+            var apiUrl = "tanks";
+            return this.apiFunctionCall<void>(apiUrl, "delete", tank);
+        }
+
+        addRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void> {
             var apiUrl = "relays?deviceId=" + deviceId;
-            var deferred = this.$q.defer<void>();
+            return this.apiFunctionCall<void>(apiUrl, "post", relay);
+        }
 
-            this.mobileService.invokeApi(apiUrl, {
-                body: relay,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /relays to save the sensor configuration: " + error);
-                    deferred.reject();
-                }
-                else {
-                    deferred.resolve();
-                }
-            });
+        updateRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void> {
+            var apiUrl = "relays?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "put", relay);
+        }
 
-            return deferred.promise;
+        deleteRelay(deviceId: string, relay: Models.RelayModel): ng.IPromise<void> {
+            var apiUrl = "relays?deviceId=" + deviceId;
+            return this.apiFunctionCall<void>(apiUrl, "delete", relay);
         }
 
         getRelays(deviceId: string): ng.IPromise<Models.RelayModel[]> {
             var apiUrl = "control/relays?deviceId=" + deviceId;
-            var deferred = this.$q.defer<Models.RelayModel[]>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "post"
-            }, (error, success) => {
-                if (error) {
-                    console.log("Error calling /control/relays to get relay configuration: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.RelayModel[] = success.result;
-                    deferred.resolve(result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.RelayModel[]>(apiUrl, "get", null);
         }
 
         getTankLogs(tankId: string): ng.IPromise<Models.TankLogModel[]> {
             var apiUrl = "tank/log?tankId=" + tankId;
-
-            var deferred = this.$q.defer<Models.TankLogModel[]>();
-
-            this.mobileService.invokeApi(apiUrl, {
-                body: null,
-                method: "get"
-            }, (error, success) => {
-                if (error) {
-                    // do nothing
-                    console.log("Error calling /tank/log to get tank logs: " + error);
-                    deferred.reject();
-                }
-                else {
-                    var result: Models.TankLogModel[] = success.result;
-                    deferred.resolve(result);
-                }
-            });
-
-            return deferred.promise;
+            return this.apiFunctionCall<Models.TankLogModel[]>(apiUrl, "get", null);
         }
 
         saveTankLog(newLog: Models.TankLogModel): ng.IPromise<void> {
-            var deferred = this.$q.defer<void>();
+            var apiUrl = "tank/log";
+            return this.apiFunctionCall<void>(apiUrl, "post", null);
+        }
 
-            this.mobileService.invokeApi("tank/log", {
-                body: newLog,
-                method: "post"
+
+        private apiFunctionCall<T>(apiUrl: string, method: string, body: any): ng.IPromise<T> {
+            var deferred = this.$q.defer<T>();
+
+            this.mobileService.invokeApi(apiUrl, {
+                body: angular.toJson(body),
+                method: method
             }, (error, success) => {
                 if (error) {
-                    // do nothing
-                    console.log("Error calling /tank/log to post new tank log: " + error);
+                    // do 
+                    var errorMessage = `Error calling ${apiUrl} on the server. Details: ${error}`;
+                    console.log(errorMessage);
                     deferred.reject();
                 }
                 else {
-                    deferred.resolve();
+                    deferred.resolve(success.result);
                 }
             });
 

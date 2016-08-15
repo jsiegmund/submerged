@@ -1,32 +1,68 @@
 ﻿namespace Submerged.Controllers {
-    export class SettingsSensorController {
+    export class SettingsSensorController extends BaseController {
 
         showThresholds: boolean;
         minThreshold: number;
         maxThreshold: number;
         step: number;
         sensor: Models.SensorModel
-        sensorTypes: any[];
 
-        constructor(private settingsService: Services.ISettingsService, private $scope: ng.IRootScopeService,
-            private $location: ng.ILocationService) {
-            this.sensorTypes = settingsService.getSensorTypes();
-            this.sensor = settingsService.selectedSensor;
+        sensorTypes: any[];
+        pinConfigOptions: string[];
+        moduleOptions: Models.ModuleModel[];
+
+
+        constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ng.IRootScopeService,
+            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService) {
+
+            super($mdToast);
+
+            this.sensorTypes = subscriptionService.getSensorTypes();
+            this.pinConfigOptions = subscriptionService.getPinList();
+            this.moduleOptions = subscriptionService.getSelectedDevice().modules;
+            this.sensor = subscriptionService.getSelectedSensor();
             this.setThresholdVariables();
 
             $scope.$watch((scope) => {
                 return this.sensor.sensorType;
             }, (newValue, oldValue) => {
                 this.setThresholdVariables();
+                });
+
+            // add delete button to remove existing sensor
+            if (this.sensor.name != undefined) {
+                var deleteButton = new Services.CommandButton();
+                deleteButton.svgSrc = 'icons/ic_delete_24px.svg';
+                deleteButton.clickHandler = this.delete;
+                deleteButton.label = 'Delete';
+                deleteButton.owner = this;
+
+                menuService.setButtons([deleteButton]);
+            }
+        }
+
+        delete() {
+            this.busy = true;
+
+            this.subscriptionService.deleteSensor(this.sensor).then(() => {
+                window.history.back();      // sensor deleted; go back
+                this.busy = false;
+            }, () => {
+                this.showSimpleToast("Sorry, settings were not saved.");
+                this.busy = false;
             });
         }
 
         save() {
-            if (this.sensor.name == undefined) {
-                this.sensor.name = this.settingsService.getNewSensorName(this.sensor.sensorType);
-            }
+            this.busy = true;
 
-            this.settingsService.saveSensor(this.sensor);
+            this.subscriptionService.saveSensor(this.sensor).then(() => {
+                this.showSimpleToast("Sensor settings saved!");
+                this.busy = false;
+            }, () => {
+                this.showSimpleToast("Sorry, settings were not saved.");
+                this.busy = false;
+            });
         }
 
         setThresholdVariables(): void {

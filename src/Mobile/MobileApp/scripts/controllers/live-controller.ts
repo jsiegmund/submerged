@@ -17,11 +17,12 @@ namespace Submerged.Controllers {
         sensors: Submerged.Models.SensorModel[];
 
 
-        constructor(private sharedService: Services.ISharedService, 
+        constructor(
             private $scope: ng.IRootScopeService, private $timeout: ng.ITimeoutService,
-            private dataService: Services.IDataService, private telemetryService: Services.ITelemetryService) {
+            private dataService: Services.IDataService, private telemetryService: Services.ITelemetryService,
+            private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = sharedService.settings.getDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceId();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
                 this.loadData();

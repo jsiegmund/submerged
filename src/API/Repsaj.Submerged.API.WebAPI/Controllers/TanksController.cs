@@ -13,33 +13,33 @@ using System.Web.Http;
 namespace Repsaj.Submerged.API.Controllers
 {
     [Authorize]
-    [RoutePrefix("api/modules")]
+    [RoutePrefix("api/tanks")]
     [MobileAppController]
     [System.Web.Mvc.OutputCache(CacheProfile = "NoCacheProfile")]
-    public class ModulesController : ApiController
+    public class TanksController : ApiController
     {
         private readonly ISubscriptionLogic _subscriptionLogic;
 
-        public ModulesController(ISubscriptionLogic subscriptionLogic)
+        public TanksController(ISubscriptionLogic subscriptionLogic)
         {
             _subscriptionLogic = subscriptionLogic;
         }
 
         [Route("")]
         [HttpGet]
-        public async Task<IHttpActionResult> Modules(string deviceId)
+        public async Task<IHttpActionResult> Tanks()
         {
-            var modules = await _subscriptionLogic.GetModulesAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(modules);
+            var tankModels = await _subscriptionLogic.GetTanksAsync(AuthenticationHelper.UserId);
+            return Ok(tankModels);
         }
 
         [Route("")]
         [HttpPost]
-        public async Task<IHttpActionResult> AddModule(string deviceId, [FromBody]ModuleModel module)
+        public async Task<IHttpActionResult> AddTank([FromBody]TankModel tank)
         {
             try
             {
-                await _subscriptionLogic.AddModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                await _subscriptionLogic.AddTankAsync(tank, AuthenticationHelper.UserId);
             }
             catch (Exception ex)
             {
@@ -51,11 +51,11 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpPut]
-        public async Task<IHttpActionResult> UpdateModule(string deviceId, [FromBody]ModuleModel module)
+        public async Task<IHttpActionResult> UpdateTank([FromBody]TankModel tank)
         {
             try
             {
-                await _subscriptionLogic.UpdateModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                await _subscriptionLogic.UpdateTankAsync(tank, AuthenticationHelper.UserId);
             }
             catch (Exception ex)
             {
@@ -65,15 +65,16 @@ namespace Repsaj.Submerged.API.Controllers
             return Ok();
         }
 
+
         [Route("")]
         [HttpDelete]
-        public async Task<IHttpActionResult> DeleteModule(string deviceId, [FromBody]ModuleModel module)
+        public async Task<IHttpActionResult> DeleteTank([FromBody]TankModel tank)
         {
             try
             {
-                await _subscriptionLogic.DeleteModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                await _subscriptionLogic.DeleteTankAsync(tank, AuthenticationHelper.UserId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return InternalServerError();
             }

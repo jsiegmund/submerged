@@ -23,54 +23,69 @@
 
         deviceId: string;
 
-        constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private fileService: Services.IFileService,
+        constructor(private mobileService: Services.IMobileService, private fileService: Services.IFileService,
             private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService,
-            private $q: ng.IQService, private settingsService: Services.ISettingsService) {
+            private $q: ng.IQService, private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = sharedService.settings.getDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceId();
 
-            this.selectedDevice = settingsService.selectedDevice;
-            this.selectedSensor = settingsService.selectedSensor;
-            this.selectedRelay = settingsService.selectedRelay;
-            this.selectedModule = settingsService.selectedModule;
-            this.sensorTypes = settingsService.getSensorTypes();
+            this.selectedDevice = subscriptionService.getSelectedDevice();
+            this.selectedSensor = subscriptionService.getSelectedSensor();
+            this.selectedRelay = subscriptionService.getSelectedRelay();
+            this.selectedModule = subscriptionService.getSelectedModule();
+            this.sensorTypes = subscriptionService.getSensorTypes();
 
             this.loadData();
         }
 
+        openTank(tank: Models.TankModel) {
+            this.subscriptionService.selectTank(tank);
+            this.$location.path("/settings/tank");
+        }
+
+        newTank() {
+            this.subscriptionService.selectTank(new Models.TankModel());
+            this.$location.path("/settings/tank");
+        }
+
         openDevice(device: Models.DeviceModel) {
-            this.settingsService.selectDevice(device);
+            this.subscriptionService.selectDevice(device);
             this.$location.path("/settings/device");
         }
 
         newModule() {
-            this.settingsService.selectModule(new Models.ModuleModel());
+            this.subscriptionService.selectModule(new Models.ModuleModel());
             this.$location.path("/settings/module");
         }
 
         openModule(module: Models.ModuleModel) {
-            this.settingsService.selectModule(module);
+            this.subscriptionService.selectModule(module);
             this.$location.path("/settings/module");
         }
 
         newRelay() {
-            this.settingsService.selectRelay(new Models.RelayModel());
+            this.subscriptionService.selectRelay(new Models.RelayModel());
             this.$location.path("/settings/relay");
         }
 
         openRelay(relay: Models.RelayModel) {
-            this.settingsService.selectRelay(relay);
+            this.subscriptionService.selectRelay(relay);
             this.$location.path("/settings/relay");
         }
 
         newSensor() {
-            this.settingsService.selectSensor(new Models.SensorModel());
+            this.subscriptionService.selectSensor(new Models.SensorModel());
             this.$location.path("/settings/sensor");
         }
 
         openSensor(sensor: Models.SensorModel) {
-            this.settingsService.selectSensor(sensor);
+            this.subscriptionService.selectSensor(sensor);
             this.$location.path("/settings/sensor");
+        }
+
+        showSensorSection(type: string): boolean {
+            var sensors = this.subscriptionService.getSelectedDevice().sensors.where({ sensorType: type });
+            return sensors.length > 0;
         }
 
         sensorBySensorType = function (type: string) {
@@ -82,10 +97,10 @@
         loadData(): void {
             this.loading = true;
 
-            this.settingsService.loadSettings().then((settings) => {
+            this.subscriptionService.load().then((subscription) => {
 
-                this.tanks = settings.subscription.tanks;
-                this.devices = settings.subscription.devices;
+                this.tanks = subscription.tanks;
+                this.devices = subscription.devices;
 
                 this.loading = false;
             },

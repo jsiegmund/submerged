@@ -3,8 +3,8 @@
     export interface IApiCallback { (error: any, success: any): void }
 
     export interface IMobileService {
-        login(force?: boolean): ng.IPromise<{}>;
-        logout(): ng.IPromise<{}>;
+        login(force?: boolean): ng.IPromise<void>;
+        logout(): ng.IPromise<void>;
         initPushRegistration(): void;
         unregisterPush(): void;
         invokeApi(apiName: string, options: {}, callback: IApiCallback),
@@ -15,12 +15,13 @@
         private mobileServiceClient: Microsoft.WindowsAzure.MobileServiceClient;
         private pushRegistration: PhonegapPluginPush.PushNotification = null;
         private registrationId: string = null;
-        private loggingInPromise: ng.IPromise<{}>;
+        private loggingInPromise: ng.IPromise<void>;
         private file: string = "authtoken.json";
         private folder: string;                     // initialized during init()
 
-        constructor(private sharedService: ISharedService, private fileService: IFileService, private $q: ng.IQService, private jwtHelper: ng.jwt.IJwtHelper) {
-            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.sharedService.settings.apiInfo.apiUrl);
+        constructor(private sharedService: ISharedService, private fileService: IFileService, private $q: ng.IQService,
+            private jwtHelper: ng.jwt.IJwtHelper) {
+            this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.sharedService.apiInfo.apiUrl);
             this.init();
         }
 
@@ -74,8 +75,8 @@
             return deferred.promise;
         }
 
-        ensureLoggedIn(): ng.IPromise<{}> {
-            var deferred = this.$q.defer();
+        ensureLoggedIn(): ng.IPromise<void> {
+            var deferred = this.$q.defer<void>();
 
             if (!this.loggedIn())
                 return this.login();
@@ -103,9 +104,9 @@
             return true;
         }
 
-        login(force?: boolean): ng.IPromise<{}> {
+        login(force?: boolean): ng.IPromise<void> {
             console.log(`Performing login. Forced = ${force}`);
-            var deferred = this.$q.defer();
+            var deferred = this.$q.defer<void>();
 
             // set the default value of the force parameter to false
             var force = typeof force !== 'undefined' ? force : false;
@@ -149,7 +150,7 @@
             return deferred.promise;
         }
 
-        logout(): ng.IPromise<{}> {
+        logout(): ng.IPromise<void> {
             // perform logout from the mobile service client
             this.mobileServiceClient.logout();
 
@@ -161,6 +162,10 @@
         }
 
         initPushRegistration(): void {
+            // when running emulated; skip push because it's not supported / working anyway
+            if (this.sharedService.emulated)
+                return;
+
             /**
             * Register for Push Notifications - requires the phonegap-plugin-push be installed
             */
@@ -168,7 +173,7 @@
 
             this.pushRegistration = window.PushNotification.init({
                 android: {
-                    senderID: this.sharedService.settings.apiInfo.gcmSenderID
+                    senderID: this.sharedService.apiInfo.gcmSenderID
                 }
             });
 
@@ -194,18 +199,14 @@
                 console.log("gcm id " + this.registrationId);
                 if (this.mobileServiceClient) {
                     console.log("registering with Azure for GCM notifications");
-                    var deviceTag = "deviceid:" + this.sharedService.settings.getDeviceId();
-
                     this.mobileServiceClient.push.register('gcm', this.registrationId, null, null, this.registrationCallback);
-                    console.log('mobile service push registered with tag ' + deviceTag);
-
                     this.updateNotificationRegistration(this.registrationId);
                 }
             }
         }
 
-        updateNotificationRegistration(registrationId: string): ng.IPromise<{}> {
-            var deferred = this.$q.defer<Models.SubscriptionModel>();
+        updateNotificationRegistration(registrationId: string): ng.IPromise<void> {
+            var deferred = this.$q.defer<void>();
             var apiUrl = "notifications?registrationId=" + registrationId;
 
             this.mobileServiceClient.invokeApi(apiUrl, {
@@ -219,7 +220,7 @@
                 }
                 else {
                     console.log("Successfully updated device registration properties via the back-end.");
-                    deferred.resolve(success.result);
+                    deferred.resolve();
                 }
             });
 

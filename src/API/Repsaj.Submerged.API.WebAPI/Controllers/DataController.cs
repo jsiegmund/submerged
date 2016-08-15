@@ -26,6 +26,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("latest")]
+        [HttpGet]
         public async Task<IHttpActionResult> Latest(string deviceId)
         {
             var deviceData = await _deviceTelemetryLogic.LoadLatestDeviceTelemetryAsync(deviceId);
@@ -33,6 +34,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("threehours")]
+        [HttpGet]
         public async Task<IHttpActionResult> LastThreeHours(string deviceId, DateTime date, int offset = 0)
         {
             var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataLastThreeHoursAsync(deviceId, date, offset);
@@ -40,6 +42,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("hour")]
+        [HttpGet]
         public async Task<IHttpActionResult> Hour(string deviceId, DateTime date, int offset = 0)
         {
             var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerHourAsync(deviceId, date, offset);
@@ -47,6 +50,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("day")]
+        [HttpGet]
         public async Task<IHttpActionResult> Day(string deviceId, DateTime date, int offset = 0)
         {
             var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerDayAsync(deviceId, date, offset);
@@ -54,6 +58,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("week")]
+        [HttpGet]
         public async Task<IHttpActionResult> Week(string deviceId, DateTime date, int offset = 0)
         {
             var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerWeekAsync(deviceId, date, offset);
@@ -61,6 +66,7 @@ namespace Repsaj.Submerged.API.Controllers
         }
 
         [Route("month")]
+        [HttpGet]
         public async Task<IHttpActionResult> Month(string deviceId, DateTime date, int offset = 0)
         {
             var deviceData = await _deviceTelemetryLogic.LoadDeviceTelemetryReportDataPerMonthAsync(deviceId, date, offset);
