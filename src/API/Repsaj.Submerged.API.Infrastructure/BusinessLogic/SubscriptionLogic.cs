@@ -181,7 +181,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
         }
 
-        public async Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner)
+        public async Task<TankModel> AddTankAsync(TankModel tank, string owner)
         {
             SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
@@ -205,10 +205,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             subscription.Tanks.Add(tank);
-            return await UpdateSubscriptionAsync(subscription, owner);
+            await UpdateSubscriptionAsync(subscription, owner);
+
+            return tank;
         }
 
-        public async Task<SubscriptionModel> UpdateTankAsync(TankModel updatedTank, string owner)
+        public async Task<TankModel> UpdateTankAsync(TankModel updatedTank, string owner)
         {
             SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
@@ -227,10 +229,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             subscription.Tanks.Remove(existingTank);
             subscription.Tanks.Add(updatedTank);
 
-            return await UpdateSubscriptionAsync(subscription, owner);
+            await UpdateSubscriptionAsync(subscription, owner);
+
+            return updatedTank;
         }
 
-        public async Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string owner)
+        public async Task<TankModel> DeleteTankAsync(TankModel tank, string owner)
         {
             SubscriptionModel subscription = await GetSubscriptionAsync(owner);
 
@@ -247,7 +251,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             subscription.Tanks.Remove(existingTank);
-            return await UpdateSubscriptionAsync(subscription, owner);
+            await UpdateSubscriptionAsync(subscription, owner);
+
+            return tank;
         }
 
         public async Task<DeviceModel> AddDeviceAsync(DeviceModel device, string owner)

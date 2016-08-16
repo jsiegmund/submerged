@@ -113,6 +113,43 @@ namespace Repsaj.Submerged.API.Tests.Integration
             Assert.AreEqual(1, subscription.Devices.First().Relays.Count);
         }
 
+        internal async Task Integration_Subscription_AddTanks()
+        {
+            SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+
+            TankModel model = TankModel.BuildModel(TestStatics.tank_name, TestStatics.tank_description);
+            TankModel newModel = await _subscriptionLogic.AddTankAsync(model, subscription_User);
+
+            subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+            Assert.AreEqual(1, subscription.Tanks.Count);
+        }
+
+        internal async Task Integration_Subscription_UpdateTanks()
+        {
+            SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+            TankModel tank = subscription.Tanks.Single(m => m.Name == TestStatics.tank_name);
+
+            TankModel updatedTank = await _subscriptionLogic.UpdateTankAsync(tank, subscription_User);
+
+            Assert.IsNotNull(updatedTank);
+
+            // ensure the subscription still has one single device, not multiple
+            subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+            Assert.AreEqual(1, subscription.Tanks.Count);
+        }
+
+        internal async Task Integration_Subscription_DeleteTanks()
+        {
+            SubscriptionModel subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+            TankModel tank = subscription.Tanks.Single(m => m.Name == TestStatics.tank_name);
+
+            await _subscriptionLogic.DeleteTankAsync(tank, subscription_User);
+
+            subscription = await _subscriptionLogic.GetSubscriptionAsync(subscription_Id, subscription_User);
+            Assert.AreEqual(0, subscription.Tanks.Count);
+        }
+
+
         public async Task IntegrationSubscription_GetRelays()
         {
             IEnumerable<RelayModel> relays = await _subscriptionLogic.GetRelaysAsync(TestStatics.device_id, subscription_User);
@@ -172,7 +209,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
 
             Assert.IsNotNull(updatedModule);
 
-            // ensure the subscription still has one single device, not multiple
+            // ensure the subscription still has one single module, not multiple
             device = await _subscriptionLogic.GetDeviceAsync(TestStatics.device_id, subscription_User, false);
             Assert.AreEqual(1, device.Modules.Count);
 
@@ -188,7 +225,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
 
             Assert.IsNotNull(updatedSensor);
 
-            // ensure the subscription still has one single device, not multiple
+            // ensure the subscription still has one single sensor, not multiple
             device = await _subscriptionLogic.GetDeviceAsync(TestStatics.device_id, subscription_User, false);
             Assert.AreEqual(2, device.Sensors.Count);
         }

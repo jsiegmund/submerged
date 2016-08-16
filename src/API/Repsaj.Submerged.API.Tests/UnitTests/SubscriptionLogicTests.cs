@@ -118,11 +118,29 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
 
-                TankModel tank = TankModel.BuildTank(TestConfigHelper.TankName, "This is a test description");
+                TankModel tank = TankModel.BuildModel(TestStatics.tank_name, TestStatics.tank_description);
                 await subscriptionLogic.AddTankAsync(tank, TestConfigHelper.SubscriptionUser);
 
             }
         }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(SubscriptionValidationException))]
+        public async Task Add_Tank_Duplicate()
+        {
+            using (var autoMock = AutoMock.GetLoose())
+            {
+                TankModel tank = TankModel.BuildModel(TestStatics.tank_name, TestStatics.tank_description);
+
+                // inject the tank with the subscription so it will be returned as an existing tank
+                TestInjectors.InjectMockedSubscription(autoMock, tank);
+
+                var subscriptionLogic = autoMock.Create<SubscriptionLogic>();
+                await subscriptionLogic.AddTankAsync(tank, TestConfigHelper.SubscriptionUser);
+            }
+        }
+
 
         [TestMethod]
         public async Task Update_Tank_Success()
@@ -130,7 +148,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
             using (var autoMock = AutoMock.GetLoose())
             {
                 var device = DeviceModel.BuildDevice(TestConfigHelper.DeviceId, true);
-                TankModel tank = new TankModel("Test Tank", "Put your description here.");
+                TankModel tank = new TankModel(TestStatics.tank_name, TestStatics.tank_description);
                 TestInjectors.InjectMockedSubscription(autoMock, tank);
 
                 var subscriptionLogic = autoMock.Create<SubscriptionLogic>();

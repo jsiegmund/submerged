@@ -47,5 +47,8 @@ namespace Repsaj.Submerged.API.Tests
         public static readonly string tankLog_logType = "Maintenance";
         public static readonly Guid tankLog_id = new Guid("{7D986651-7CB7-494E-84E5-E75350F583FE}");
         public static readonly Guid tankLog_tankId = new Guid("{9AB89AAC-715A-4B5C-A331-6B358744B7A0}");
+
+        public static readonly string tank_name = "test_tank_0";
+        public static readonly string tank_description = "[TEST] Tank Description";
     }
 }

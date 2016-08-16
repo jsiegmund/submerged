@@ -18,9 +18,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
 
         Task<IEnumerable<TankModel>> GetTanksAsync(string owner);
-        Task<SubscriptionModel> AddTankAsync(TankModel tank, string owner);
-        Task<SubscriptionModel> UpdateTankAsync(TankModel tank, string owner);
-        Task<SubscriptionModel> DeleteTankAsync(TankModel tank, string owner);
+        Task<TankModel> AddTankAsync(TankModel tank, string owner);
+        Task<TankModel> UpdateTankAsync(TankModel tank, string owner);
+        Task<TankModel> DeleteTankAsync(TankModel tank, string owner);
 
 
         Task<DeviceModel> GetDeviceAsync(string deviceId, string owner, bool skipValidation = false);

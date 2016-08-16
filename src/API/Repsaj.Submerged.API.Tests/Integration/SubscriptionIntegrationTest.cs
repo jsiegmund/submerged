@@ -48,6 +48,7 @@ namespace Repsaj.Submerged.API.Tests.Integration
             await _context.Integration_Subscription_CreateSubscription();
             cleanupRequired = true;
 
+            await _context.Integration_Subscription_AddTanks();
             await _context.Integration_Subscription_AddDevices();
             await _context.Integration_Subscription_AddModules();
             await _context.Integration_Subscription_AddRelays();
@@ -55,11 +56,13 @@ namespace Repsaj.Submerged.API.Tests.Integration
             await _context.Integration_Subscription_AddSensors();
 
             await _context.Integration_Subscription_UpdateSubscription();
+            await _context.Integration_Subscription_UpdateTanks();
             await _context.Integration_Subscription_UpdateDevices();
             await _context.Integration_Subscription_UpdateModules();
             await _context.Integration_Subscription_UpdateSensors();
             await _context.Integration_Subscription_UpdateRelays();
 
+            await _context.Integration_Subscription_DeleteTanks();
             await _context.Integration_Subscription_DeleteRelays();
             await _context.Integration_Subscription_DeleteSensors();
             await _context.Integration_Subscription_DeleteModules();

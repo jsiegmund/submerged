@@ -20,10 +20,11 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
             this.Description = description;
         }
 
-        public static TankModel BuildTank(string name, string description)
+        public static TankModel BuildModel(string name, string description)
         {
             TankModel model = new TankModel(name, description);
             return model;
         }
+        
     }
 }

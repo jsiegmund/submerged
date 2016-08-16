@@ -24,11 +24,5 @@ namespace Repsaj.Submerged.API.Tests.Helpers
             get { return ConfigurationManager.AppSettings["subscriptionName"]; }
         }
 
-        public static string TankName
-        {
-            get { return ConfigurationManager.AppSettings["tankName"]; }
-        }
-
-
     }
 }

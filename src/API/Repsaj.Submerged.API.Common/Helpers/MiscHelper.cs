@@ -13,10 +13,10 @@ namespace Repsaj.Submerged.Common.Helpers
         /// Adds additional empty elements to a GroupedTelemetryModel object, to ensure there are enough data elements 
         /// to fill the entire sequence
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
-        /// <param name="modulo"></param>
+        /// <param name="data">A grouped dataset containing grouped sensor data having unique sensor names per group</param>
+        /// <param name="offset">Use to provide an offset for keys to read. Example: if the data provided is grouped by day and starts on Wednesday, first key will be 3 instead of 0 so offset 3 needs to be provided.</param>
+        /// <param name="count">The total number of items that should be in the resulting padded dataset</param>
+        /// <param name="modulo">Compensates the index to run within a certain range (i.e. 0 - 60 with count 60 and offset 10 should not go up to 70). Does not take offset into account (always starts from 0)</param>
         /// <returns></returns>
         public static IEnumerable<IEnumerable<double?>> PadTelemetryData(IEnumerable<GroupedTelemetryModel> data, int offset, int count, int modulo = 0)
         {
@@ -32,10 +32,14 @@ namespace Repsaj.Submerged.Common.Helpers
                                        .Distinct()
                                        .ToArray();
 
+            // if there's no data, return an empty result
+            if (sensorNames.Length == 0)
+                return dataSeries.Values;
+
             foreach (string sensorName in sensorNames)
                 dataSeries.Add(sensorName, new List<double?>());
 
-            for (int i = offset; dataSeries.First().Value.Count < count; i++)
+            for (int i = offset; i < count + offset; i++)
             {
                 int compensated = i;
 
