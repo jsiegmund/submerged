@@ -16,6 +16,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Repsaj.Submerged.API.Helpers;
+using Newtonsoft.Json;
 
 namespace Repsaj.Submerged.API
 {
@@ -33,6 +35,12 @@ namespace Repsaj.Submerged.API
             // Register your SignalR hubs.
             builder.RegisterHubs(Assembly.GetExecutingAssembly());
 
+            // Regsiter Json camel case serializer for signalR
+            var settings = new JsonSerializerSettings();
+            settings.ContractResolver = new SignalRContractResolver();
+            var serializer = JsonSerializer.Create(settings);
+            builder.RegisterInstance(serializer).As<JsonSerializer>();
+
             // OWIN SIGNALR SETUP
 
             // Set the dependency resolver to be Autofac.
@@ -48,6 +56,7 @@ namespace Repsaj.Submerged.API
             config.EnableDetailedErrors = true;
             config.EnableJavaScriptProxies = true;
             config.Resolver = dependencyResolver;
+            config.EnableJSONP = true;
 
             // Register the Autofac middleware FIRST, then the standard SignalR middleware.
             app.UseAutofacMiddleware(container);

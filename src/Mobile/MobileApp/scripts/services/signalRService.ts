@@ -1,8 +1,4 @@
-﻿interface JQueryStatic {
-    signalR: any;
-}
-
-namespace Submerged.Services {
+﻿namespace Submerged.Services {
 
     export interface ISignalRService {
         init(callback: (data: any) => void): ng.IPromise<{}>;
@@ -13,45 +9,55 @@ namespace Submerged.Services {
         constructor(private mobileService: IMobileService, private $q: ng.IQService) {
         }
 
-        init(callback: (data:any) => void): ng.IPromise<{}> {
+        init(callback: (data: any) => void): ng.IPromise<{}> {
             var deferred = this.$q.defer();
 
-            console.log("Getting authentication headers for SignalR authentication.");
+            var errorCallback = (err) => {
+                console.log("SignalR connection failed: " + err);
+                deferred.reject();
+            }
+
+            // add the disconnected callback to handle disconnects
+            jQuery.connection.hub.disconnected(this.hubDisconnected);
+            jQuery.connection.hub.transportConnectTimeout = 3000;
+
             this.mobileService.getHeaders().then((headers) => {
-
-                // set bearer authentication for signalR requests
-                console.log("Setting signalR headers for authorization");
-                jQuery.signalR.ajaxDefaults.headers = headers;
-
-                jQuery.connection.hub.start()
-                    .done(() => {
-                        console.log('Now connected, connection ID=' + jQuery.connection.hub.id);
-
-                        // attach the callback
-                        var liveHubProxy = jQuery.connection.liveHub;
-                        liveHubProxy.client.sendLiveData = callback;
-
-                        deferred.resolve();
-                    })
-                    .fail((err) => {
-                        console.log('Could not connect: ' + err);
-                        // connecting might have failed due to expired login. Force login to refresh token,
-                        // the disconnect event handler will try again after 5 seconds
-                        this.mobileService.login(true);
-                        deferred.reject();
-                    });
-
-                // attach disconnected listener and automatically restart the connection
-                jQuery.connection.hub.disconnected(() => {
-                    setTimeout(() => {
-                        jQuery.connection.hub.start();
-                    }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
-                });
-            }, (error) => {
-                console.log("Mobile service login failed: " + error);
-            });
+                // attach the callback
+                var liveHubProxy = jQuery.connection.liveHub;
+                liveHubProxy.client.sendLiveData = (data) => {
+                    try {
+                        callback(data);
+                    } catch (e) {
+                        console.log("Failure processing signalR callback. Silently continuing.");
+                    }
+                }
+                return this.startHub(headers);
+            }, errorCallback).then(() => {
+                console.log('Now connected, connection ID=' + jQuery.connection.hub.id);
+                deferred.resolve();
+            }, errorCallback);
 
             return deferred.promise;
+        }
+
+        hubDisconnected() { 
+            setTimeout(() => {
+                jQuery.connection.hub.start();
+            }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
+        }
+
+        startHub(headers: any): ng.IPromise < void> {
+            var deferred = this.$q.defer<void>();
+            
+            // set bearer authentication for signalR requests
+            jQuery.signalR.ajaxDefaults.headers = headers;
+            jQuery.connection.hub.logging = true;
+
+            jQuery.connection.hub.start(<SignalR.ConnectionOptions>{ jsonp: true })
+                  .done(() => { deferred.resolve(); })
+                  .fail((err) => { deferred.reject(err); });
+
+            return deferred.promise;            
         }
     }
 

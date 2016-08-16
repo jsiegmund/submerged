@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Repsaj.Submerged.API.Hubs;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
+using Repsaj.Submerged.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -49,10 +50,18 @@ namespace Repsaj.Submerged.API.Live
                 string jsonObject = Encoding.UTF8.GetString(eventData.GetBytes());
                 dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonObject);
 
-                if (data.objectType == "Telemetry")
+                if (data.ObjectType == "Telemetry")
                 {
+                    DeviceTelemetryModel telemetry = Newtonsoft.Json.JsonConvert.DeserializeObject<DeviceTelemetryModel>(jsonObject);
+
+                    // convert the object back to json which gives us a properly camelcased json string
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(telemetry, new JsonSerializerSettings()
+                    {
+                        ContractResolver = new CamelCasePropertyNamesContractResolver()
+                    });
+
                     // broadcast that object to all clients
-                    _hubs.Clients.All.sendLiveData(data);
+                    _hubs.Clients.All.sendLiveData(telemetry);
 
                     //JObject dataObject = (JObject)data;
                     //dataObject.Add("timestamp", DateTime.UtcNow);

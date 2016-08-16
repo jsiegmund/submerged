@@ -1,8 +1,4 @@
-﻿interface JQueryStatic {
-    connection: any;
-}
-
-namespace Submerged.Controllers {
+﻿namespace Submerged.Controllers {
 
     export class LiveController {
 

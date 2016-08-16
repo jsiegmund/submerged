@@ -23,7 +23,9 @@ namespace Repsaj.Submerged.API
             JsonSerializerSettings settings = jsonFormatter.SerializerSettings;
             settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-            // Create serializer object with camlcasing settings to use with SignalR hub
+            // JSON serializer settings for AutoFac have been moved 
+
+            //// Create serializer object with camlcasing settings to use with SignalR hub
             //var signalRettings = new JsonSerializerSettings();
             //signalRettings.ContractResolver = new SignalRContractResolver();
             //var serializer = JsonSerializer.Create(signalRettings);

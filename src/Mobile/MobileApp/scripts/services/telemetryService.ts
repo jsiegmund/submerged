@@ -109,7 +109,11 @@
             this.sensors = sensors;
         }
 
-        processTelemetry(telemetry: Models.TelemetryModel): void {
+        processTelemetry = (telemetry: Models.TelemetryModel): void => {
+            // TODO: temporary fix until proper pubsub style signalR has been implemented 
+            if (telemetry.deviceId != this.deviceId)
+                return;
+
             // when the timestamp is set (blob stored data); use it, otherwise timestamp = now
             if (telemetry.eventEnqueuedUTCTime != null)
                 this.lastLoadTime = telemetry.eventEnqueuedUTCTime.valueOf()

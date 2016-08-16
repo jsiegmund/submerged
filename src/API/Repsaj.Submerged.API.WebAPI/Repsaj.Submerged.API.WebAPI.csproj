@@ -321,8 +321,8 @@
     </Compile>
     <Compile Include="Handlers\AzureADAuthorizationHandler.cs" />
     <Compile Include="Helpers\AuthenticationHelper.cs" />
-    <Compile Include="Helpers\FilteredCamelCasePropertyNamesContractResolver.cs" />
     <Compile Include="Helpers\RulesHelper.cs" />
+    <Compile Include="Helpers\SignalRContractResolver.cs" />
     <Compile Include="Helpers\StringExtensions.cs" />
     <Compile Include="Hubs\LiveHub.cs" />
     <Compile Include="Live\ILiveBroadcaster.cs" />

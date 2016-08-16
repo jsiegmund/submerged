@@ -30,7 +30,10 @@ namespace Repsaj.Submerged.API
             GlobalFilters.Filters.Add(new HandleErrorAttribute());
             AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;
             ControllerBuilder.Current.DefaultNamespaces.Add("Microsoft.Azure.Devices.Applications.RemoteMonitoring.DeviceAdmin.Web.WebApiControllers");
-       }
+
+            // possible Fix for SignalR (https://github.com/SignalR/SignalR/issues/3148)
+            GlobalHost.Configuration.TransportConnectTimeout = TimeSpan.FromSeconds(10);
+        }
 
         protected void Session_Start(object sender, EventArgs e)
         {
