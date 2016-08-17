@@ -21,7 +21,6 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             url: "/login",
             templateUrl: "app/views/login.html",
             title: "Submerged Login",
-            resolve: defaultResolve,
             controller: "LoginController",
             controllerAs: "vm"
         })

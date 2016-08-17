@@ -49,9 +49,6 @@ namespace Submerged.Services {
             apiInfoObj.gcmSenderID = '532189147734';
             this.apiInfo = apiInfoObj;
 
-            var globalizationInfoObj = new GlobalizationInfo();
-            this.globalizationInfo = globalizationInfoObj;
-
             this.emulated = window.parent && window.parent.ripple;
         }
 
@@ -59,9 +56,12 @@ namespace Submerged.Services {
             var deferred = this.$q.defer<void>();
 
             navigator.globalization.getDatePattern((pattern) => {
-                this.globalizationInfo.utc_offset = pattern.utc_offset;
-                this.globalizationInfo.dst_offset = pattern.dst_offset;
-                this.globalizationInfo.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
+                var globalizationInfoObj = new GlobalizationInfo();
+                globalizationInfoObj.utc_offset = pattern.utc_offset;
+                globalizationInfoObj.dst_offset = pattern.dst_offset;
+                globalizationInfoObj.server_offset_seconds = pattern.utc_offset + pattern.dst_offset;
+
+                this.globalizationInfo = globalizationInfoObj;
 
                 console.log("Successfully loaded globalization settings.");
                 this.loaded = true;

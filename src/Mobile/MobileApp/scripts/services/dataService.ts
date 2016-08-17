@@ -37,10 +37,8 @@
 
     export class DataService implements IDataService {
         
-        timezoneOffsetSeconds: number;
-
-        constructor(private mobileService: IMobileService, private $q: ng.IQService, sharedService: Services.ISharedService) {
-            this.timezoneOffsetSeconds = sharedService.globalizationInfo.server_offset_seconds;
+        constructor(private mobileService: IMobileService, private $q: ng.IQService, private sharedService: Services.ISharedService) {
+            
         }
 
         getSubscription(): ng.IPromise<Models.SubscriptionModel> {
@@ -49,12 +47,14 @@
         }
 
         getData(rangeType: string, date: Date, deviceId: string): ng.IPromise<Models.AnalyticsDataModel> {
-            var apiUrl = "data/" + rangeType + "?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
+            var offset = this.sharedService.globalizationInfo.server_offset_seconds;
+            var apiUrl = "data/" + rangeType + "?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + offset;
             return this.apiFunctionCall<Models.AnalyticsDataModel>(apiUrl, "get", null);
         }
 
         getTelemetryLastThreeHours(deviceId: string, date: Date): ng.IPromise<Models.AnalyticsDataModel> {
-            var apiUrl = "data/threehours?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + this.timezoneOffsetSeconds;
+            var offset = this.sharedService.globalizationInfo.server_offset_seconds;
+            var apiUrl = "data/threehours?deviceId=" + deviceId + "&date=" + date.toISOString() + "&offset=" + offset;
             return this.apiFunctionCall<Models.AnalyticsDataModel>(apiUrl, "get", null);
         }
 
