@@ -7,3 +7,12 @@ before_install:
 - npm install
 install:
 - hexo generate
+env:
+  global:
+    secure: jeI4EVR+3k5iFINE8M0lpUkgsX805KTgLFTZeqkEtfeq+NoaoF5X/+or9/sEosdV2dZVGsJQM5Xz1j6fA3vAs+q5nhE8hExRXDLKCJle6W1cVH2XA/9OMvuO5lKuyXUSiXYQGJOzZtIz2GD+Y/RRbnI1fIPmC7b7GmO3BDmFCxmiHZGT2dnEZLn/bI29UFGN/8Tas0nSEtkl5qf0VvuR+8o+YGxFQmXc2POD4tmYh9LcmzDqEiHwcL4vTTbpBnBdoO8IHEAGbxEA3dMfl2zXRZojNwGYjtJROqWvwTJ4qFk1GEmRozaTFyY4utzRsYC97rBSx+LPhCoee1p+AdELYX1b1pKawqhzyoc0Gjw5Tkrxnc0MwFkahuP52wpxGLIQMuBduNe1RHiP10XktYNBbbIIyDGKjbz25AanTKjAQpzK2DANmXRaOzD7emDFbmbeIOEGzB1ZotDy/Atww+dYg4EvA6meRRjk++L8g9PjrcNVCZkEE3n8K/bGFoWX8OxalP8xESdlu2zOcqBvYaxFHO4wOkxS5Un0RAQD5W4aLhIoGD57AxCYpC5qHfGo9QmHX5GG9M3ykky5GXTC5j0rhCJZQ8jgxFYUg5xhHRiW8NeASwk9XKCNOFWcFwQiG9QXVIEza+uRcGOvCfCyKFQLa2OtJ0oktztk2DkcaLA24XE=
+before_script:
+- git config --global user.name 'Jasper Siegmund via Travis CI'
+- git config --global user.email 'jasper@repsaj.nl'
+- sed -i'' "s~git@github.com:jsiegmund/submerged.git~https://${GH_TOKEN}:x-oauth-basic@github.com/jsiegmund/submerged.git~" _config.yml
+script:
+- hexo deploy --silent

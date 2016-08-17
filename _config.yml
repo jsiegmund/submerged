@@ -69,5 +69,5 @@ theme: primer
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: http://www.github.com/jsiegmund/submerged/
+  repo: git@github.com:jsiegmund/submerged.git
   branch: gh-pages
