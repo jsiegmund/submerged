@@ -1,0 +1,39 @@
+# Header
+menu:
+	Home: /
+	Hardware: 
+		href: /hardware
+		target: true
+	Mobile: 
+		href: /mobile
+		target: true
+	Blog: http://blog.repsaj.nl
+
+# Profile
+profile:
+	#location: Etten-Leur, The Netherlands
+	github: jsiegmund
+	#stackoverflow: 
+		#title: yumemor
+		#href: http://stackoverflow.com/users/5662132/yumemor
+	#organization: 组织/公司
+
+#Widget
+sidebar: true
+navfixed: true
+
+#WidgetText
+excerpt_link: Read More
+
+#Github(请务必配置github帐号)
+github:
+  popular_repos: ['submerged']
+  #contribute_repos: ['yumemor/1','yumemor/2']
+
+#Comments
+comments:
+	discus_username: jsiegmund
+	#duoshuo_username: yumemor
+
+#Source Code
+source_code: https://github.com/yumemor/yumemor.github.io
