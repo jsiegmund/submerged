@@ -9,10 +9,11 @@ The RPi is your gateway to the internet, running the submerged UWP app for Windo
 
 ## Modules
 
-At the moment, submerged supports two types of modules: 
+Submerged uses 'modules' to group and connect the sensors to. A module is a logical group of sensors connected to the Pi. In the default set-up, an Arduino Nano is used for each module connected to the Pi using a Bluetooth shield. The basic module implementation at this moment uses the **Firmata** protocol to connect, but any communication type can be easily added (including a module that uses the Pi's own IO ports). 
 
-* **Sensor**: as you might guess, this modules connects different sensors to the system. For my set-up I'm using a pH sensor and two temperature sensors.
-* **Cabinet**: this module belongs in your cabinet. It connects water leakage sensors, relays for switching power outlets and float switches to signal you when your stock fluids are running out.
+**Example**; you can connect a 'tank' module to which you connect your temperature and pH sensors. Then a 'cabinet' module can be placed inside your cabinet. This is a logical place to connect relays, stock float sensors and moisture (leakage) sensors to. Both modules will connect to your gateway (the Pi) and all data as one package will be sent to the back-end. 
+
+Each module is linked to a tank. This allows for even more modularity, grouping one or more modules to monitor multiple tanks at once (that part is under construction). 
 
 ## Shopping list
 
@@ -29,7 +30,7 @@ If you want to start using submerged, you'll need some hardware. Below is a list
 
 * Arduino nano
 * 2x DS18B20 OneWire temperature sensor
-* 1x Atlas EZO pH circuit ([link](https://www.atlas-scientific.com/product_pages/circuits/ezo_ph.html]))
+* 1x Atlas EZO pH circuit ([link](https://www.atlas-scientific.com/product_pages/circuits/ezo_ph.html))
 * Optional (but recommended): 1x Atlas circuit carrier
 * pH Probe. The Atlas circuit is compatible with any standard pH probe.
 * 1x HC-06 bluetooth shield
