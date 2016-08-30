@@ -1,0 +1,3 @@
+[submodule "Microsoft.Maker"]
+    path = lib/three20
+    url = git://github.com/jsiegmund/serial-wiring
