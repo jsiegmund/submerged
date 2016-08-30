@@ -11,11 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repsaj.Submerged.Gateway.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repsaj.Submerged.Gateway.Tests", "Repsaj.Submerged.Gateway.Tests\Repsaj.Submerged.Gateway.Tests.csproj", "{8BA2B19E-2EEE-4620-BFAA-9D5D24AFC2B4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.Serial", "Microsoft.Maker\source\Serial\Microsoft.Maker.Serial.win10\Microsoft.Maker.Serial.vcxproj", "{8376216C-282A-4927-B9EF-C2D545FE0BCA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.Serial", "Microsoft.Maker\Microsoft.Maker.Serial.win10\Microsoft.Maker.Serial.vcxproj", "{8376216C-282A-4927-B9EF-C2D545FE0BCA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.Firmata", "Microsoft.Maker\Microsoft.Maker.win10\Microsoft.Maker.Firmata\Microsoft.Maker.Firmata.vcxproj", "{F0A53BC9-C617-47DD-8B68-F91E3502D633}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.Firmata", "Microsoft.RemoteWiring\Microsoft.Maker.win10\Microsoft.Maker.Firmata\Microsoft.Maker.Firmata.vcxproj", "{F0A53BC9-C617-47DD-8B68-F91E3502D633}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.RemoteWiring", "Microsoft.Maker\Microsoft.Maker.win10\Microsoft.Maker.RemoteWiring\Microsoft.Maker.RemoteWiring.vcxproj", "{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Microsoft.Maker.RemoteWiring", "Microsoft.RemoteWiring\Microsoft.Maker.win10\Microsoft.Maker.RemoteWiring\Microsoft.Maker.RemoteWiring.vcxproj", "{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -109,6 +109,7 @@ Global
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Debug|x64.ActiveCfg = Debug|x64
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Debug|x64.Build.0 = Debug|x64
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Debug|x86.ActiveCfg = Debug|Win32
+		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Debug|x86.Build.0 = Debug|Win32
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Release|Any CPU.ActiveCfg = Release|Win32
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Release|ARM.ActiveCfg = Release|ARM
 		{8376216C-282A-4927-B9EF-C2D545FE0BCA}.Release|ARM.Build.0 = Release|ARM
@@ -122,6 +123,7 @@ Global
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Debug|x64.ActiveCfg = Debug|x64
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Debug|x64.Build.0 = Debug|x64
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Debug|x86.ActiveCfg = Debug|Win32
+		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Debug|x86.Build.0 = Debug|Win32
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Release|Any CPU.ActiveCfg = Release|Win32
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Release|ARM.ActiveCfg = Release|ARM
 		{F0A53BC9-C617-47DD-8B68-F91E3502D633}.Release|ARM.Build.0 = Release|ARM
@@ -135,6 +137,7 @@ Global
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Debug|x64.ActiveCfg = Debug|x64
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Debug|x64.Build.0 = Debug|x64
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Debug|x86.ActiveCfg = Debug|Win32
+		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Debug|x86.Build.0 = Debug|Win32
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Release|Any CPU.ActiveCfg = Release|Win32
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Release|ARM.ActiveCfg = Release|ARM
 		{5A8B1BB1-7CD5-47C4-A1F7-D7BCF5FACAD1}.Release|ARM.Build.0 = Release|ARM

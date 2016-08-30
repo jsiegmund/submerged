@@ -1,3 +1,9 @@
 [submodule "Microsoft.Maker"]
     path = src/Gateway/Microsoft.Maker
     url = git://github.com/jsiegmund/serial-wiring
+[submodule "src/Gateway/Microsoft.Maker"]
+	path = src/Gateway/Microsoft.Maker
+	url = git://github.com/jsiegmund/serial-wiring
+[submodule "src/Gateway/Microsoft.RemoteWiring"]
+	path = src/Gateway/Microsoft.RemoteWiring
+	url = git://github.com/jsiegmund/remote-wiring
