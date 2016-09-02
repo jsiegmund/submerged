@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.API.Tests
 {
+// CI test
     public class TestStatics
     {
         public static readonly string subscription_name = TestConfigHelper.SubscriptionName;
