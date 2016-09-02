@@ -73,49 +73,7 @@ namespace Submerged.Services {
             });
 
             return deferred.promise;
-        }
-
-        //loadSensors(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.SensorModel[]> {
-        //    var deferred = this.$q.defer<Models.SensorModel[]>();
-        //    var apiUrl = "sensors?deviceId=" + deviceId;
-        //    mobileService.invokeApi(apiUrl, {
-        //        body: null,
-        //        method: "post"
-        //    }, ((error, success) => {
-        //        if (error) {
-        //            // do nothing
-        //            console.log("Error calling /sensors to load the sensor settings: " + error);
-        //            deferred.reject();
-        //        }
-        //        else {
-        //            deferred.resolve(success.result);
-        //        }
-        //    }));
-
-        //    return deferred.promise;
-        //}
-
-        //loadModules(deviceId: string, mobileService: IMobileService): ng.IPromise<Models.ModuleModel[]> {
-        //    var deferred = this.$q.defer<Models.ModuleModel[]>();
-        //    var apiUrl = "sensors?deviceId=" + deviceId;
-        //    mobileService.invokeApi(apiUrl, {
-        //        body: null,
-        //        method: "post"
-        //    }, ((error, success) => {
-        //        if (error) {
-        //            // do nothing
-        //            console.log("Error calling /sensors to load the sensor settings: " + error);
-        //            deferred.reject();
-        //        }
-        //        else {
-        //            deferred.resolve(success.result);
-        //        }
-        //    }));
-
-        //    return deferred.promise;
-        //}
-
-
+        }      
     }
 
     angular.module("ngapp").service("sharedService", SharedService);

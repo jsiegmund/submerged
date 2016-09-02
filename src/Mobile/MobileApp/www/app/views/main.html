@@ -1,9 +1,10 @@
-<div layout="column" layout-align="center center" flex>
-  <md-whiteframe class="md-whiteframe-3dp" layout="column" style="margin: 1em; width: 22em; height: 15em;" flex>
-    <div layout="column" flex style="margin-left: 1em;">
-      <h4>Welcome to Submerged mobile</h4>
-    </div>
-      <md-button ng-click="vm.logout()">Log out</md-button>
+<div layout="column" layout-align="center center" flex layout-padding>
+
+    <div class="md-headline">Welcome to submerged!</div>
+
     <md-divider></md-divider>
-  </md-whiteframe>
+
+    <md-button class="md-primary" ng-click="vm.logout()" ng-disabled="vm.loading">Log out</md-button>
+
+
 </div>

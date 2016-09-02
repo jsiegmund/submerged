@@ -7,6 +7,8 @@
         getButtons(): CommandButton[];
         setButtons(buttons: CommandButton[]);
         clearButtons(): void;
+        hideMenu(): void;
+        unhideMenu(): void;
     }
 
     export class CommandButton {
@@ -24,20 +26,29 @@
 
         buttons: CommandButton[];
         title: string;
+        hide: boolean = false;
 
         constructor(private $rootScope: ng.IRootScopeService, private $timeout: ng.ITimeoutService) {
             this.buttons = [];
             this.title = 'Submerged';
         }
 
+        unhideMenu(): void {
+            this.$rootScope.$broadcast('sm-menu-unhide');
+        }
+
+        hideMenu(): void {
+            this.$rootScope.$broadcast('sm-menu-hide');
+        }
+
         setTitle(title: string) {
             this.title = title;
-            this.$rootScope.$broadcast('new-menu-data');
+            this.$rootScope.$broadcast('sm-new-menu-data');
         }
 
         setButtons(buttons: CommandButton[]) {
             this.buttons = buttons;
-            this.$rootScope.$broadcast('new-menu-data');
+            this.$rootScope.$broadcast('sm-new-menu-data');
         }
 
         getTitle() {

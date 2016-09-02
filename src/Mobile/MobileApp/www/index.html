@@ -59,13 +59,13 @@
         <div ng-controller="MenuController as ctrl">
             <md-toolbar flex>
                 <div class="md-toolbar-tools" layout="row">
-                    <md-button class="md-icon-button md-primary" aria-label="Menu" ng-click="ctrl.toggle()" flex="none">
+                    <md-button class="md-icon-button md-primary" aria-label="Menu" ng-click="ctrl.toggle()" flex="none" ng-hide="ctrl.hideMenu">
                         <md-icon md-svg-src="icons/menu_24px.svg" class="s24" style="color: white;"></md-icon>
                     </md-button>
                     <div class="smb-title" flex="auto">
                         {{ ctrl.title }}
                     </div>
-                    <div class="smb-command-buttons" flex>
+                    <div class="smb-command-buttons" flex="auto">
                         <div ng-repeat="button in ctrl.buttons">
                             <md-button ng-click="button.click()" class="md-icon-button">
                                 <md-icon md-svg-src="{{button.svgSrc}}" aria-label="{{button.label}}"></md-icon>

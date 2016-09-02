@@ -30,6 +30,7 @@ angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "n
 
             menuService.setTitle(newTitle);
             menuService.clearButtons();
+            menuService.unhideMenu();
         }
 
         /* Hijack Android Back Button (You Can Set Different Functions for Each View by Checking the $state.current) */

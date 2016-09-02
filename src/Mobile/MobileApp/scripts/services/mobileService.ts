@@ -3,12 +3,14 @@
     export interface IApiCallback { (error: any, success: any): void }
 
     export interface IMobileService {
+        init(): ng.IPromise<void>;
         login(force?: boolean): ng.IPromise<void>;
         logout(): ng.IPromise<void>;
         initPushRegistration(): void;
         unregisterPush(): void;
         invokeApi(apiName: string, options: {}, callback: IApiCallback),
         getHeaders(): ng.IPromise<any[]>;
+        loggedIn(): boolean;
     }
 
     export class MobileService implements IMobileService {
@@ -20,17 +22,21 @@
         private folder: string;                     // initialized during init()
 
         constructor(private sharedService: ISharedService, private fileService: IFileService, private $q: ng.IQService,
-            private jwtHelper: ng.jwt.IJwtHelper) {
+            private $http: ng.IHttpService, private jwtHelper: ng.jwt.IJwtHelper) {
             this.mobileServiceClient = new WindowsAzure.MobileServiceClient(this.sharedService.apiInfo.apiUrl);
             this.init();
         }
 
-        init(): void {
+        init(): ng.IPromise<void> {
+            var deferred = this.$q.defer<void>();
+
             console.log("Initializing mobileService for communication with Azure");
             this.folder = window.cordova.file.applicationStorageDirectory;
 
             console.log(`Initializing user data from storage @ ${this.folder}.`);
             this.fileService.getJsonFile<any>(this.file, this.folder).then(function (contents) {
+                console.log(`File ${this.file} loaded. Contents: ${contents}`);
+
                 if (contents != null) {
                     console.log("Found stored auth token info, applying it to service client.");
                     this.mobileServiceClient.currentUser = {
@@ -38,9 +44,14 @@
                         mobileServiceAuthenticationToken: contents.token
                     }
                 }
+
+                deferred.resolve();
             }.bind(this), function (err) {
-                console.log("Failure loading authtoken.json");
+                console.log(`Failure loading ${this.file}`);
+                deferred.reject();
             });
+
+            return deferred.promise;
         }
 
         saveAuthInfo(): void {
@@ -50,7 +61,11 @@
                 userId: this.mobileServiceClient.currentUser.userId,
             };
 
-            this.fileService.storeJsonFile(this.file, this.folder, authInfo);
+            this.fileService.storeJsonFile(this.file, this.folder, authInfo).then(() => {
+                console.log(`File ${this.file} stored successfully.`);
+            }, () => {
+                console.log(`File ${this.file} could not be saved.`);
+            });
         }
 
         getHeaders(): ng.IPromise<any[]> {
@@ -151,14 +166,25 @@
         }
 
         logout(): ng.IPromise<void> {
-            // perform logout from the mobile service client
-            this.mobileServiceClient.logout();
+            var deferred = this.$q.defer<void>();
 
-            // set the current user to null
-            this.mobileServiceClient.currentUser = null;
+            this.$q.when(this.mobileServiceClient.logout().then(() => {
+                // override the stored authentication info with null
+                return this.fileService.storeJsonFile(this.file, this.folder, null);
+            }, () => { deferred.reject(); })).then(() => {
+                var logoutUrl = "https://login.windows.net/common/oauth2/logout";
 
-            // override the stored authentication info with null
-            return this.fileService.storeJsonFile(this.file, this.folder, null);
+                // after the mobile service clien has been logged out; do an explicit call to
+                // the AAD oauth endpoint which will clear the stored cookies and session
+                var browser = window.open(logoutUrl, '_blank', 'hidden=yes');
+
+                browser.addEventListener('loadstop', (event) => {
+                    browser.close();
+                    deferred.resolve();
+                });
+            }, () => { deferred.reject(); });
+
+            return deferred.promise;
         }
 
         initPushRegistration(): void {

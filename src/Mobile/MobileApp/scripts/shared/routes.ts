@@ -25,6 +25,14 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm"
         })
 
+        .state("logout", <ng.ui.IState>{
+            url: "/logout",
+            templateUrl: "app/views/logout.html",
+            title: "Submerged Logout",
+            controller: "LogoutController",
+            controllerAs: "vm"
+        })
+
         .state("main", <ng.ui.IState>{
             url: "/main",
             templateUrl: "app/views/main.html",

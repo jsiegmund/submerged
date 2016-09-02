@@ -1,14 +1,19 @@
-<div layout="column" layout-align="center center" flex>
-  <md-whiteframe class="md-whiteframe-3dp" layout="column" style="margin: 1em; width: 22em; height: 15em;" flex>
-    <div layout="column" flex style="margin-left: 1em;">
-        Welcome to Submerged Mobile.
+<div layout="column" layout-align="center center" flex layout-padding>
+
+    <div class="md-headline">Welcome to submerged!</div>
+    <div style="text-align: center">
+        Monitor and control your aquarium from anywhere! To use submerged you'll need a registered account, check out the
+        <a href="jsiegmund.github.io/submerged/getting-started">getting started</a> guide for more info.
     </div>
+
     <md-divider></md-divider>
+
     <div ng-show="vm.loading">
-        Checking connection...
+        Logging in, please wait
     </div>
-    <div ng-show="vm.loading" class="ng-hide">
-        <md-button ng-click="vm.login()">Log in!</md-button>
+
+    <div ng-hide="vm.loading">
+        <md-button class="md-primary" ng-click="vm.login()">Log in!</md-button>
     </div>
-  </md-whiteframe>
+
 </div>

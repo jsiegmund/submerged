@@ -2,6 +2,7 @@
 
     export class MenuController {
 
+        hideMenu: boolean = false;
         title: string;
         buttons: Submerged.Services.CommandButton[];
 
@@ -11,9 +12,20 @@
             this.title = menuService.getTitle();
             this.buttons = [];
 
-            $rootScope.$on('new-menu-data', () => {
+            $rootScope.$on('sm-new-menu-data', () => {
                 this.title = this.menuService.getTitle();
                 this.buttons = this.menuService.getButtons();
+            });
+
+            $rootScope.$on('sm-menu-hide', () => {
+                this.hideMenu = true;
+            });
+
+            $rootScope.$on('sm-menu-unhide', () => {
+                this.hideMenu = false;
+            });
+            $rootScope.$on('$locationchangesuccess', function (event) {
+                this.hideMenu = false;
             });
         }
 

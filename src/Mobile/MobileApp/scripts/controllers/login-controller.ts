@@ -8,26 +8,43 @@
 
         constructor(private mobileService: Submerged.Services.IMobileService, private $location: ng.ILocationService,
             private sharedService: Services.ISharedService, private dataService: Services.IDataService,
-            private subscriptionService: Services.ISubscriptionService, private $q: ng.IQService) {
+            private subscriptionService: Services.ISubscriptionService, private $q: ng.IQService,
+            private menuService: Services.IMenuService) {
 
-            console.log("Login: Starting login procedure, ensuring login");
-            this.ensureLogin().then(() => {
-                console.log("Login: Initializing services");
-                return this.serviceInitialization();
-            }, this.errorHandler).then(() => {
+            menuService.hideMenu();
+
+            // initialize the mobile service and process local init afterwards 
+            this.mobileService.init().finally(() => {
+
+                if (this.mobileService.loggedIn()) {
+                    console.log("Login: existing credentials found, attempting auto-login");
+                    this.postLoginLogicAndRedirect();
+                } else {
+                    console.log("Login: no existing credentials found, displaying login view");
+                    navigator.splashscreen.hide();
+                    this.loading = false;
+                }
+
+            });
+        }
+
+        postLoginLogicAndRedirect(): void {
+            console.log("Login: Initializing services");
+            this.serviceInitialization().then(() => {
                 console.log("Login: push registration initialization");
                 navigator.splashscreen.hide();
-                this.mobileService.initPushRegistration();
+                return this.mobileService.initPushRegistration();
             }, this.errorHandler).finally(() => {
                 console.log("Login: initialization done, redirecting");
-                this.redirect();
+                this.$location.path("/live");
             });
-
+            
         }
 
         errorHandler(err): void {
-            navigator.splashscreen.hide();
             console.log("Error occurred during login procedure: " + err);
+            navigator.splashscreen.hide();
+            this.loading = false;
         }        
 
         ensureLogin(): ng.IPromise<void> {
@@ -44,13 +61,12 @@
             return this.$q.all([q1, q2]);
         }
 
-        redirect(): void {
-            this.$location.path("/live");
-            this.loading = false;
-        }
-
         login(): void {
-            this.mobileService.login();
+            this.loading = true;
+
+            this.mobileService.login(true).then(() => {
+                this.postLoginLogicAndRedirect();
+            }, this.errorHandler);
         }
     }
 
