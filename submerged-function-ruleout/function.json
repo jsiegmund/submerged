@@ -5,14 +5,8 @@
       "name": "inputEventMessage",
       "direction": "in",
       "path": "repsaj-neptune-eventhub-ruleout",
-      "connection": "repsaj-neptune-eventhub-ruleout"
-    },
-    {
-      "type": "blob",
-      "name": "outputBlob",
-      "path": "functions/ruleout/timers",
-      "connection": "repsajneptunestorage_STORAGE",
-      "direction": "out"
+      "connection": "repsaj-neptune-eventhub-ruleout",
+      "consumerGroup": "$Default"
     },
     {
       "type": "blob",
@@ -20,6 +14,13 @@
       "path": "functions/ruleout/timers",
       "connection": "repsajneptunestorage_STORAGE",
       "direction": "in"
+    },
+    {
+      "type": "blob",
+      "name": "outputBlob",
+      "path": "functions/ruleout/timers",
+      "connection": "repsajneptunestorage_STORAGE",
+      "direction": "out"
     }
   ],
   "disabled": false

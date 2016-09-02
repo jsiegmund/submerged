@@ -1,4 +1,6 @@
-#r "D:\Program Files (x86)\SiteExtensions\Functions\0.3.10261\bin\Microsoft.Azure.WebJobs.Extensions.NotificationHubs.dll" 
+#r "D:\Program Files (x86)\SiteExtensions\Functions\0.5.10398\bin\Microsoft.Azure.WebJobs.Extensions.NotificationHubs.dll" 
+#r "Newtonsoft.Json"
+#r "Microsoft.Azure.NotificationHubs"
 
 using System;
 using Newtonsoft.Json;
@@ -17,7 +19,7 @@ public static void Run(string inputEventMessage, string inputBlob, IBinder binde
         return;
     }
 
-    log.Info($"C# Event Hub trigger function processed a message: {inputEventMessage}"); 
+    log.Info($"C# Event Hub trigger function processed a message:  {inputEventMessage}"); 
      
     if (String.IsNullOrEmpty(inputBlob))
         inputBlob = DateTime.MinValue.ToString();
