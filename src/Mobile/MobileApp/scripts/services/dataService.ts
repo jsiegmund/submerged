@@ -5,7 +5,6 @@
         getSensors(deviceId: string): ng.IPromise<Models.SensorModel[]>;
         addSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
         updateSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
-        updateSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void>;
         deleteSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void>;
 
         getRelays(deviceId: string): ng.IPromise<Models.RelayModel[]>;
@@ -93,11 +92,6 @@
             return this.apiFunctionCall<void>(apiUrl, "put", sensor);
         }
 
-        updateSensors(deviceId: string, sensors: Models.SensorModel[]): ng.IPromise<void> {
-            var apiUrl = "sensors/save?deviceId=" + deviceId;
-            return this.apiFunctionCall<void>(apiUrl, "put", sensors);
-        }
-
         deleteSensor(deviceId: string, sensor: Models.SensorModel): ng.IPromise<void> {
             var apiUrl = "sensors?deviceId=" + deviceId;
             return this.apiFunctionCall<void>(apiUrl, "delete", sensor);
@@ -180,7 +174,7 @@
                     // do 
                     var errorMessage = `Error calling ${apiUrl} on the server. Details: ${error}`;
                     console.log(errorMessage);
-                    deferred.reject();
+                    deferred.reject(error);
                 }
                 else {
                     deferred.resolve(success.result);

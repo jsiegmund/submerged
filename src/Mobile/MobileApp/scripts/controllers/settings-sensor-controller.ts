@@ -58,9 +58,10 @@
 
             this.subscriptionService.saveSensor(this.sensor).then(() => {
                 this.showSimpleToast("Sensor settings saved!");
-                this.busy = false;
-            }, () => {
+            }, (error) => {
+                console.log(`Failure saving sensor settings: ${error}`);
                 this.showSimpleToast("Sorry, settings were not saved.");
+            }).finally(() => {
                 this.busy = false;
             });
         }

@@ -4,6 +4,7 @@ using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -36,6 +37,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in Modules call: {0}", ex);
                 return InternalServerError();
             }
         }
@@ -47,13 +49,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.AddModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in AddModule call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
 
         [Route("")]
@@ -63,13 +65,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.UpdateModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in UpdateModule call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
 
         [Route("")]
@@ -79,13 +81,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.DeleteModuleAsync(module, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in DeleteModule call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
     }
 }

@@ -5,6 +5,7 @@ using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -30,8 +31,16 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Sensors(string deviceId)
         {
-            var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(sensorModels);
+            try
+            {
+                var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
+                return Ok(sensorModels);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in Sensors call: {0}", ex);
+                return InternalServerError();
+            }
         }
 
         [Route("")]
@@ -41,13 +50,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.AddSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in AddSensor call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
 
         [Route("")]
@@ -57,30 +66,11 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.UpdateSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
-                return InternalServerError();
-            }
-
-            return Ok();
-        }
-        
-        [Route("")]
-        [HttpPut]
-        public async Task<IHttpActionResult> SaveSensors(string deviceId, [FromBody]SensorModel[] updatedSensors)
-        {
-            try
-            {
-                foreach(var updatedSensor in updatedSensors)
-                {
-                    await _subscriptionLogic.UpdateSensorAsync(updatedSensor, deviceId, AuthenticationHelper.UserId);
-                }
-
-                return Ok();
-            }
-            catch (Exception)
-            {
+                Trace.TraceError("Failure in UpdateSensor call: {0}", ex);
                 return InternalServerError();
             }
         }
@@ -92,13 +82,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.DeleteSensorAsync(sensor, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Trace.TraceError("Failure in DeleteSensor call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
     }
 }

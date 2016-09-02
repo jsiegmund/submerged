@@ -5,6 +5,7 @@ using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using Repsaj.Submerged.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -28,7 +29,7 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpGet]
-        public async Task<IHttpActionResult> Get(Guid tankId)
+        public async Task<IHttpActionResult> GetTankLog(Guid tankId)
         {
             try
             {
@@ -37,13 +38,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in GetTankLog call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("")]
         [HttpPost]
-        public async Task<IHttpActionResult> Post(TankLog log)
+        public async Task<IHttpActionResult> SaveTankLog(TankLog log)
         {
             try
             {
@@ -52,6 +54,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in SaveTankLog call: {0}", ex);
                 return InternalServerError();
             }
         }
@@ -59,7 +62,7 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpDelete]
-        public async Task<IHttpActionResult> Delete(Guid tankId, Guid logId)
+        public async Task<IHttpActionResult> DeleteTankLog(Guid tankId, Guid logId)
         {
             try
             {
@@ -68,6 +71,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in DeleteTankLog call: {0}", ex);
                 return InternalServerError();
             }
         }

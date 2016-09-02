@@ -3,6 +3,7 @@ using Repsaj.Submerged.API.Helpers;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -36,6 +37,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in GetSubscription call: {0}", ex);
                 return InternalServerError();
             }
         }

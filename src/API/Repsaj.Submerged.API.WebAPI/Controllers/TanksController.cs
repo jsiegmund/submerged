@@ -4,6 +4,7 @@ using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,8 +30,16 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Tanks()
         {
-            var tankModels = await _subscriptionLogic.GetTanksAsync(AuthenticationHelper.UserId);
-            return Ok(tankModels);
+            try
+            {
+                var tankModels = await _subscriptionLogic.GetTanksAsync(AuthenticationHelper.UserId);
+                return Ok(tankModels);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in Tanks call: {0}", ex);
+                return InternalServerError();
+            }
         }
 
         [Route("")]
@@ -40,13 +49,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.AddTankAsync(tank, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in AddTank call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
 
         [Route("")]
@@ -56,13 +65,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.UpdateTankAsync(tank, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in UpdateTank call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
 
 
@@ -73,13 +82,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.DeleteTankAsync(tank, AuthenticationHelper.UserId);
+                return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Trace.TraceError("Failure in DeleteTank call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
     }
 }

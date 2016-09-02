@@ -4,6 +4,7 @@ using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -29,8 +30,16 @@ namespace Repsaj.Submerged.API.Controllers
         [HttpGet]
         public async Task<IHttpActionResult> Relays(string deviceId)
         {
-            var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
-            return Ok(sensorModels);
+            try
+            {
+                var sensorModels = await _subscriptionLogic.GetSensorsAsync(deviceId, AuthenticationHelper.UserId);
+                return Ok(sensorModels);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in Relays call: {0}", ex);
+                return InternalServerError();
+            }
         }
 
         [Route("")]
@@ -40,13 +49,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.AddRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in AddRelay call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
 
         [Route("")]
@@ -56,13 +65,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.UpdateRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in UpdateRelay call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
 
         [Route("")]
@@ -72,13 +81,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.DeleteRelayAsync(relay, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in DeleteRelay call: {0}", ex);
                 return InternalServerError();
-            }
-
-            return Ok();
+            }            
         }
     }
 }

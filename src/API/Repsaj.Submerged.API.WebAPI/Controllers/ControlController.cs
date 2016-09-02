@@ -4,6 +4,7 @@ using Repsaj.Submerged.Common.Models.Commands;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -39,6 +40,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in Relays call: {0}", ex);
                 return InternalServerError();
             }
         }
@@ -46,18 +48,18 @@ namespace Repsaj.Submerged.API.Controllers
         [Route("setrelay")]
         [HttpPost]
         [HttpGet]
-        public async Task<IHttpActionResult> SetRelay(string deviceId, string name, bool state)
+        public async Task<IHttpActionResult> UpdateRelay(string deviceId, string name, bool state)
         {
             try
             {
                 await _subscriptionLogic.UpdateRelayStateAsync(name, state, deviceId, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in UpdateRelay call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
 
         [Route("maintenance/toggle")]
@@ -68,13 +70,13 @@ namespace Repsaj.Submerged.API.Controllers
             try
             {
                 await _subscriptionLogic.SetMaintenance(deviceId, inMaintenance, AuthenticationHelper.UserId);
+                return Ok();
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in ToggleMaintenance call: {0}", ex);
                 return InternalServerError();
             }
-
-            return Ok();
         }
 
     }

@@ -2,6 +2,7 @@
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,7 +28,7 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("latest")]
         [HttpGet]
-        public async Task<IHttpActionResult> Latest(string deviceId)
+        public async Task<IHttpActionResult> LoadLatestDeviceTelemetryAsync(string deviceId)
         {
             try
             {
@@ -37,13 +38,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadLatestDeviceTelemetryAsync call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("threehours")]
         [HttpGet]
-        public async Task<IHttpActionResult> LastThreeHours(string deviceId, DateTime date, int offset = 0)
+        public async Task<IHttpActionResult> LoadDeviceTelemetryReportDataLastThreeHoursAsync(string deviceId, DateTime date, int offset = 0)
         {
             try
             {
@@ -52,13 +54,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadDeviceTelemetryReportDataLastThreeHoursAsync call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("hour")]
         [HttpGet]
-        public async Task<IHttpActionResult> Hour(string deviceId, DateTime date, int offset = 0)
+        public async Task<IHttpActionResult> LoadDeviceTelemetryReportDataPerHourAsync(string deviceId, DateTime date, int offset = 0)
         {
             try
             {
@@ -67,13 +70,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadDeviceTelemetryReportDataPerHourAsync call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("day")]
         [HttpGet]
-        public async Task<IHttpActionResult> Day(string deviceId, DateTime date, int offset = 0)
+        public async Task<IHttpActionResult> LoadDeviceTelemetryReportDataPerDayAsync(string deviceId, DateTime date, int offset = 0)
         {
             try
             {
@@ -82,13 +86,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadDeviceTelemetryReportDataPerDayAsync call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("week")]
         [HttpGet]
-        public async Task<IHttpActionResult> Week(string deviceId, DateTime date, int offset = 0)
+        public async Task<IHttpActionResult> LoadDeviceTelemetryReportDataPerWeekAsync(string deviceId, DateTime date, int offset = 0)
         {
             try
             {
@@ -97,13 +102,14 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadDeviceTelemetryReportDataPerWeekAsync call: {0}", ex);
                 return InternalServerError();
             }
         }
 
         [Route("month")]
         [HttpGet]
-        public async Task<IHttpActionResult> Month(string deviceId, DateTime date, int offset = 0)
+        public async Task<IHttpActionResult> LoadDeviceTelemetryReportDataPerMonthAsync(string deviceId, DateTime date, int offset = 0)
         {
             try
             {
@@ -112,6 +118,7 @@ namespace Repsaj.Submerged.API.Controllers
             }
             catch (Exception ex)
             {
+                Trace.TraceError("Failure in LoadDeviceTelemetryReportDataPerMonthAsync call: {0}", ex);
                 return InternalServerError();
             }
         }

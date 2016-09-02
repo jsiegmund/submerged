@@ -4,6 +4,7 @@ using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using Repsaj.Submerged.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -27,19 +28,19 @@ namespace Repsaj.Submerged.API.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<IHttpActionResult> Post(string registrationId)
+        public async Task<IHttpActionResult> UpdateNotificationInstallation(string registrationId)
         {
             try
             {
                 string installationId = this.Request.Headers.GetValues("X-ZUMO-INSTALLATION-ID").First();
                 await _subscriptionLogic.UpdateNotificationInstallation(installationId, registrationId, AuthenticationHelper.UserId);
+                return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
-            }
-
-            return Ok();
+                Trace.TraceError("Failure in UpdateNotificationInstallation call: {0}", ex);
+                return InternalServerError();
+            }            
         }
     }
 }
