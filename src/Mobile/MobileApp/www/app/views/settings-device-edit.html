@@ -1,0 +1,26 @@
+﻿<md-content layout-padding>
+
+    <form name="deviceForm" novalidate ng-submit="deviceForm.$valid && vm.save()">
+
+        <section layout="column">
+            <md-input-container flex>
+                <label>Device ID</label>
+                <input type="text" ng-model="vm.device.deviceProperties.deviceID" required />
+            </md-input-container>
+
+            <md-input-container flex>
+                <label>Order number</label>
+                <input type="number" ng-model="vm.device.deviceProperties.orderNumber" min="0" max="100" />
+            </md-input-container>
+
+        </section>
+
+        <!-- Action buttons -->
+        <div layout="row" layout-padding layout-align="end center" flex="none">
+            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
+        </div>
+
+    </form>
+
+</md-content>

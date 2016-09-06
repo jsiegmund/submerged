@@ -4,7 +4,7 @@
         createdTime: Date;
         updatedTime: Date;
         isSimulatedDevice: boolean;
-        displayOrder: number;
+        orderNumber: number;
         primaryKey: string;
         secondaryKey: string;
         isInMaintenance: boolean;

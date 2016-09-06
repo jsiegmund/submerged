@@ -9,7 +9,7 @@
         constructor(private sharedService: Services.ISharedService, private mobileService: Services.IMobileService, private $mdToast: ng.material.IToastService,
             private $state: ng.ui.IStateService, private dataService: Services.IDataService, private subscriptionService: Services.SubscriptionService) {
 
-            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceID();
             this.maintenanceMode = subscriptionService.getSelectedDevice().deviceProperties.isInMaintenance;
 
             this.loadRelays();

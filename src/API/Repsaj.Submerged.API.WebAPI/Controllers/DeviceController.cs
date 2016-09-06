@@ -1,4 +1,5 @@
 ﻿using Repsaj.Submerged.API.Helpers;
+using Repsaj.Submerged.Common.SubscriptionSchema;
 using Repsaj.Submerged.Infrastructure.BusinessLogic;
 using System;
 using System.Collections.Generic;
@@ -60,6 +61,22 @@ namespace Repsaj.Submerged.API.Controllers
             catch (Exception ex)
             {
                 Trace.TraceError("Failure in UpdateRequest call: {0}", ex);
+                return InternalServerError();
+            }
+        }
+
+        [Route("")]
+        [HttpPost]
+        public async Task<IHttpActionResult> AddDevice([FromBody]DeviceModel device)
+        {
+            try
+            {
+                await _subscriptionLogic.AddDeviceAsync(device, AuthenticationHelper.UserId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in AddDevice call: {0}", ex);
                 return InternalServerError();
             }
         }

@@ -88,6 +88,15 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controllerAs: "vm"
         })
 
+        .state("settings-device-edit", <ng.ui.IState>{
+            url: "/settings/device-edit",
+            templateUrl: "app/views/settings-device-edit.html",
+            title: "Submerged Settings",
+            resolve: defaultResolve,
+            controller: "SettingsDeviceController",
+            controllerAs: "vm"
+        })
+
         .state("settings-sensor", <ng.ui.IState>{
             url: "/settings/sensor",
             templateUrl: "app/views/settings-sensor.html",

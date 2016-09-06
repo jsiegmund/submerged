@@ -2,11 +2,9 @@
     <md-icon md-svg-src="icons/ic_add_24px.svg"></md-icon>
 </md-button>
 
-<!-- BUTTON IGNORED FOR THE MOMENT AS SUBMERGED DOES NOT  SUPPORT MULTIPLE DEVICES YET
-<md-button class="md-fab md-primary" aria-label="New Device" ng-click="vm.newDevice()" style="position: fixed; bottom: 10px; right: 10px;">
-    <md-icon md-svg-src="icons/ic_comment_24px.svg" style="color: white;"></md-icon>
+<md-button class="md-fab md-primary md-fab-bottom-right" aria-label="New Device" ng-click="vm.newDevice()" ng-disabled="!vm.newDeviceEnabled" ng-show="vm.selectedTabIndex==1">
+    <md-icon md-svg-src="icons/ic_add_24px.svg"></md-icon>
 </md-button>
--->
 
 <md-tabs flex layout="column" layout-fill md-selected="vm.selectedTabIndex" md-swipe-content="true" md-enable-disconnect="true">
     <!--md-dynamic-height md-border-bottom   -->

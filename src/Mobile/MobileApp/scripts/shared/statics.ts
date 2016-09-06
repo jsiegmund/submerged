@@ -1,5 +1,14 @@
 ﻿module Submerged.Statics {
 
+    export class HTTP_VERBS {
+        public static get GET(): string { return "get"; }
+        public static get POST(): string { return "post"; }
+        public static get PUT(): string { return "put"; }
+        public static get DELETE(): string { return "delete"; }
+        public static get HEAD(): string { return "head"; }
+        public static get OPTIONS(): string { return "options"; }
+    }
+
     export class SENSORTYPES {
         public static get TEMPERATURE(): string { return "temperature"; }
         public static get PH(): string { return "pH"; }

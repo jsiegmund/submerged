@@ -12,7 +12,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public DateTime? CreatedTime { get; internal set; }
         public DateTime? UpdatedTime { get; set; }
         public bool IsSimulatedDevice { get; internal set; }
-        public int? DisplayOrder { get; set; }
+        public int? OrderNumber { get; set; }
         public string PrimaryKey { get; set; }
         public string SecondaryKey { get; set; }
         public bool IsInMaintenance { get; set; }

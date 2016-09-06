@@ -22,7 +22,7 @@
 
         constructor(private dataService: IDataService, private sharedService: ISharedService, private signalRService: ISignalRService,
             private $q: ng.IQService, private subscriptionService: Services.ISubscriptionService) {
-            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceID();
         }
 
         init(): ng.IPromise<void> {

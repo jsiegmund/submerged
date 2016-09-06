@@ -4,7 +4,7 @@
         getSensorTypes(): any[];
         getModuleTypes(): any[];
         getPinList(): string[];
-        getSelectedDeviceId(): string;
+        getSelectedDeviceID(): string;
 
         getSelectedDevice(): Models.DeviceModel;
         getSelectedSensor(): Models.SensorModel;
@@ -26,13 +26,16 @@
         saveRelay(relay: Models.RelayModel): ng.IPromise<void>;
         saveModule(module: Models.ModuleModel): ng.IPromise<void>;
         saveTank(tank: Models.TankModel): ng.IPromise<void>;
+        saveDevice(device: Models.DeviceModel): ng.IPromise<void>;
 
         deleteSensor(sensor: Models.SensorModel): ng.IPromise<void>;
         deleteRelay(relay: Models.RelayModel): ng.IPromise<void>;
         deleteModule(module: Models.ModuleModel): ng.IPromise<void>;
         deleteTank(tank: Models.TankModel): ng.IPromise<void>;
+        deleteDevice(device: Models.DeviceModel): ng.IPromise<void>;
 
         load(forceRefresh?: boolean): ng.IPromise<Models.SubscriptionModel>;
+        getDeviceCount(): number;
     }
 
     export class SubscriptionService implements ISubscriptionService {
@@ -51,7 +54,11 @@
 
         }
 
-        getSelectedDeviceId(): string {
+        getDeviceCount(): number {
+            return this.subscription.devices.length;
+        }
+
+        getSelectedDeviceID(): string {
             if (this.selectedDevice == undefined) {
                 if (this.subscription != null && this.subscription.devices.length > 0)
                     this.selectedDevice = this.subscription.devices.first().deviceProperties.deviceID;
@@ -263,12 +270,19 @@
         }
 
         getSelectedDevice(): Models.DeviceModel {
-            var result = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceId = this.selectedDevice);
+            var result = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceID = this.selectedDevice);
+
+            if (!result)
+                result = new Models.DeviceModel();
+
             return result;
         }
 
         selectDevice(device: Models.DeviceModel) {
-            this.selectedDevice = device.deviceProperties.deviceID;
+            if (device && device.deviceProperties && device.deviceProperties.deviceID)
+                this.selectedDevice = device.deviceProperties.deviceID;
+            else
+                this.selectedDevice = null;
         }
 
         getSelectedTank(): Models.TankModel {
@@ -337,8 +351,36 @@
             this.selectedModule = module.name;
         }
 
+        saveDevice(device: Models.DeviceModel): ng.IPromise<void> {
+            if (device.deviceProperties.primaryKey == undefined) {
+                return this.dataService.addDevice(device).then(() => {
+                    this.subscription.devices.push(device);
+                    this.saveSubscriptionFile();
+                });
+            }
+            else {
+                return this.dataService.updateDevice(device).then(() => {
+                    var oldDevice = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceID == device.deviceProperties.deviceID);
+                    var index = this.subscription.devices.indexOf(oldDevice);
+                    this.subscription.devices.splice(index, 1, device);
+
+                    this.saveSubscriptionFile();
+                });
+            }
+        }
+
+        deleteDevice(device: Models.DeviceModel): ng.IPromise<void> {
+            return this.dataService.deleteDevice(device).then(() => {
+                var oldDevice = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceID == device.deviceProperties.deviceID);
+                var index = this.subscription.devices.indexOf(oldDevice);
+                this.subscription.devices.splice(index, 1);
+
+                this.saveSubscriptionFile();
+            });
+        }
+
         saveSensor(sensor: Models.SensorModel): ng.IPromise<void> {
-            var method: (deviceId: string, sensor: Models.SensorModel) => ng.IPromise<void>;
+            //var method: (deviceID: string, sensor: Models.SensorModel) => ng.IPromise<void>;
 
             if (sensor.name == undefined) {
                 sensor.name = this.getNewSensorName(sensor.sensorType);

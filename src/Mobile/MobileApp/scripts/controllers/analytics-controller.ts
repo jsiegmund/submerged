@@ -27,7 +27,7 @@
             private $scope: ng.IRootScopeService, private $stateParams: ng.ui.IStateParamsService, private $timeout: ng.ITimeoutService,
             private dataService: Services.IDataService, private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceID();
             this.timezoneOffset = sharedService.globalizationInfo.server_offset_seconds;
 
             this.loadSensors();

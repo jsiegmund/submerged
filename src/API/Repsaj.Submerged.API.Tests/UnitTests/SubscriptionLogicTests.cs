@@ -176,7 +176,7 @@ namespace Repsaj.Submerged.API.Tests.UnitTests
                 Assert.AreEqual(false, device.DeviceProperties.IsSimulatedDevice);
                 Assert.IsNotNull(device.DeviceProperties.PrimaryKey);
                 Assert.IsNotNull(device.DeviceProperties.SecondaryKey);
-                Assert.IsNull(device.DeviceProperties.DisplayOrder);
+                Assert.IsNull(device.DeviceProperties.OrderNumber);
             }
         }
 

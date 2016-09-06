@@ -7,6 +7,7 @@
     export class SettingsController {
         loading: boolean = true;
         saving: boolean = false;
+        newDeviceEnabled: boolean = true;
 
         tanks: Models.TankModel[];
         devices: Models.DeviceModel[];
@@ -27,7 +28,7 @@
             private $scope: ng.IRootScopeService, private $location: ng.ILocationService, private $mdToast: ng.material.IToastService,
             private $q: ng.IQService, private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceID();
 
             this.selectedDevice = subscriptionService.getSelectedDevice();
             this.selectedSensor = subscriptionService.getSelectedSensor();
@@ -35,7 +36,15 @@
             this.selectedModule = subscriptionService.getSelectedModule();
             this.sensorTypes = subscriptionService.getSensorTypes();
 
+            // at the moment we only allow the maximum number of 1 device
+            this.newDeviceEnabled = subscriptionService.getDeviceCount() <= 1;
+
             this.loadData();
+        }
+
+        newTank() {
+            this.subscriptionService.selectTank(new Models.TankModel());
+            this.$location.path("/settings/tank");
         }
 
         openTank(tank: Models.TankModel) {
@@ -43,9 +52,9 @@
             this.$location.path("/settings/tank");
         }
 
-        newTank() {
-            this.subscriptionService.selectTank(new Models.TankModel());
-            this.$location.path("/settings/tank");
+        newDevice() {
+            this.subscriptionService.selectDevice(null);
+            this.$location.path("/settings/device-edit");
         }
 
         openDevice(device: Models.DeviceModel) {

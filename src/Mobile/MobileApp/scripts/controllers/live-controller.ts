@@ -18,7 +18,7 @@
             private dataService: Services.IDataService, private telemetryService: Services.ITelemetryService,
             private subscriptionService: Services.ISubscriptionService) {
 
-            this.deviceId = subscriptionService.getSelectedDeviceId();
+            this.deviceId = subscriptionService.getSelectedDeviceID();
 
             $scope.$watch(() => { return this.selectedTabIndex; }, (newValue, oldValue) => {
                 this.loadData();
