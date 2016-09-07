@@ -54,6 +54,20 @@ namespace Repsaj.Submerged.Infrastructure.Repository
         }
 
         /// <summary>
+        /// Deletes the device from the IoT Hub device registry
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns></returns>
+        public async Task DeleteDeviceAsync(dynamic device)
+        {
+            Device iotHubDevice = await _deviceManager.GetDeviceAsync(DeviceSchemaHelper.GetDeviceID(device));
+
+            await AzureRetryHelper.OperationWithBasicRetryAsync(async () =>
+                await _deviceManager.RemoveDeviceAsync(iotHubDevice));
+
+        }
+
+        /// <summary>
         /// Sends a fire and forget command to the device
         /// </summary>
         /// <param name="deviceId"></param>

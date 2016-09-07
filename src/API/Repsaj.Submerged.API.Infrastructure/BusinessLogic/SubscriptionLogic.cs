@@ -368,9 +368,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             return await UpdateSubscriptionAsync(subscription, "", true);
         }
 
-        public async Task DeleteDeviceAsync(DeviceModel updatedDevice, string owner)
+        public async Task DeleteDeviceAsync(DeviceModel device, string owner)
         {
-            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(updatedDevice.DeviceProperties.DeviceID, owner);
+            SubscriptionModel subscription = await _subscriptionRepository.GetSubscriptionByDeviceId(device.DeviceProperties.DeviceID, owner);
 
             if (subscription == null)
             {
@@ -378,11 +378,14 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             }
 
             // check the device exists
-            var existingDevice = subscription.Devices.SingleOrDefault(t => t.DeviceProperties.DeviceID == updatedDevice.DeviceProperties.DeviceID);
+            var existingDevice = subscription.Devices.SingleOrDefault(t => t.DeviceProperties.DeviceID == device.DeviceProperties.DeviceID);
             if (existingDevice == null)
             {
                 throw new SubscriptionValidationException(Strings.ValidationTankNotFound);
             }
+
+            // delete the device from the IoT hub repository
+            await _iotHubRepository.DeleteDeviceAsync(device);
 
             subscription.Devices.Remove(existingDevice);
             await UpdateSubscriptionAsync(subscription, owner);

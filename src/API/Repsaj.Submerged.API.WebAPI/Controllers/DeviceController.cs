@@ -65,18 +65,34 @@ namespace Repsaj.Submerged.API.Controllers
             }
         }
 
-        [Route("")]
+        [Route("~/api/devices")]
         [HttpPost]
         public async Task<IHttpActionResult> AddDevice([FromBody]DeviceModel device)
         {
             try
             {
-                await _subscriptionLogic.AddDeviceAsync(device, AuthenticationHelper.UserId);
-                return Ok();
+                var newDevice = await _subscriptionLogic.AddDeviceAsync(device, AuthenticationHelper.UserId);
+                return Ok(newDevice);
             }
             catch (Exception ex)
             {
                 Trace.TraceError("Failure in AddDevice call: {0}", ex);
+                return InternalServerError();
+            }
+        }
+
+        [Route("~/api/devices")]
+        [HttpDelete]
+        public async Task<IHttpActionResult> DeleteDevice([FromBody]DeviceModel device)
+        {
+            try
+            {
+                await _subscriptionLogic.DeleteDeviceAsync(device, AuthenticationHelper.UserId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in DeleteDevice call: {0}", ex);
                 return InternalServerError();
             }
         }

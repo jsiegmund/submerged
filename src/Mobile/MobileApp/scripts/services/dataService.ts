@@ -2,7 +2,7 @@
     export interface IDataService {
         toggleMaintenance(deviceId: string, maintenanceMode: boolean): ng.IPromise<void>;
 
-        addDevice(device: Models.DeviceModel): ng.IPromise<void>;
+        addDevice(device: Models.DeviceModel): ng.IPromise<Models.DeviceModel>;
         updateDevice(device: Models.DeviceModel): ng.IPromise<void>;
         deleteDevice(device: Models.DeviceModel): ng.IPromise<void>;
 
@@ -86,9 +86,9 @@
             return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, module);
         }
 
-        addDevice(device: Models.DeviceModel): ng.IPromise<void> {
+        addDevice(device: Models.DeviceModel): ng.IPromise<Models.DeviceModel> {
             var apiUrl = "devices";
-            return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, device);
+            return this.apiFunctionCall<Models.DeviceModel>(apiUrl, Statics.HTTP_VERBS.POST, device);
         }
 
         updateDevice(device: Models.DeviceModel): ng.IPromise<void> {

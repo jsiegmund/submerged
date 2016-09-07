@@ -11,5 +11,6 @@ namespace Repsaj.Submerged.Infrastructure.Repository
     {
         Task SendCommand(string deviceId, dynamic command);
         Task<dynamic> AddDeviceAsync(dynamic device, SecurityKeys securityKeys);
+        Task DeleteDeviceAsync(dynamic device);
     }
 }

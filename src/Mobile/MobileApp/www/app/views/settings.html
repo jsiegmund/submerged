@@ -27,14 +27,15 @@
         <md-tab-content flex layout-fill>
 
             <md-list>
-                <md-list-item ng-repeat="device in vm.devices" ng-click="vm.openDevice(device)" class="md-3-line">
+                <md-list-item ng-repeat="device in vm.devices" class="md-2-line" 
+                              ng-class="device.selected ? 'selected' : false" ng-click="vm.deviceClicked(device)" on-long-press="vm.toggleDeviceSelected(device)">
                     <div layout="column" class="md-list-item-text">
-                        <h2 class="md-title">{{device.deviceProperties.deviceID}}</h2>
-                        <h4 style="line-height: normal;">
+                        <h2>{{device.deviceProperties.deviceID}}</h2>
+                        <span class="md-body-1">
                             Modules: {{device.modules.length}}<br />
                             Sensors Connected: {{device.sensors.length}}<br />
                             Relays Configured: {{device.relays.length}}<br />
-                        </h4>
+                        </span>
                     </div>
                 </md-list-item>
             </md-list>

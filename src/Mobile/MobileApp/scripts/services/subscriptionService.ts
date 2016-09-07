@@ -270,7 +270,7 @@
         }
 
         getSelectedDevice(): Models.DeviceModel {
-            var result = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceID = this.selectedDevice);
+            var result = this.subscription.devices.firstOrDefault(x => x.deviceProperties.deviceID == this.selectedDevice);
 
             if (!result)
                 result = new Models.DeviceModel();
@@ -353,8 +353,8 @@
 
         saveDevice(device: Models.DeviceModel): ng.IPromise<void> {
             if (device.deviceProperties.primaryKey == undefined) {
-                return this.dataService.addDevice(device).then(() => {
-                    this.subscription.devices.push(device);
+                return this.dataService.addDevice(device).then((newDevice) => {
+                    this.subscription.devices.push(newDevice);
                     this.saveSubscriptionFile();
                 });
             }

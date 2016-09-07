@@ -61,4 +61,25 @@
         </md-tab-content>
     </md-tab>
 
+    <md-tab flex layout="column" label="Device">
+        <md-tab-content flex layout-fill>
+            <section layout="column" layout-padding>
+                <md-input-container flex>
+                    <label>Device ID</label>
+                    <input type="text" ng-model="vm.selectedDevice.deviceProperties.deviceID"  ng-readonly="true" />
+                </md-input-container>
+
+                <md-input-container flex>
+                    <label>Primary key</label>
+                    <textarea ng-model="vm.selectedDevice.deviceProperties.primaryKey"  ng-readonly="true" />
+                </md-input-container>
+
+                <md-input-container flex>
+                    <label>Secondary key</label>
+                    <textarea ng-model="vm.selectedDevice.deviceProperties.secondaryKey"  ng-readonly="true" />
+                </md-input-container>
+            </section>
+        </md-tab-content>
+    </md-tab>
+
  </md-tabs>
