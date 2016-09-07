@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using RemoteArduino.Commands;
+using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,6 +41,33 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             // create the device client for Azure
             _deviceClient = DeviceClient.CreateFromConnectionString(_deviceConnectionString);
+        }
+        
+        private async Task TestConnection()
+        {
+            try
+            {
+                var message = new Microsoft.Azure.Devices.Client.Message();
+
+                await _deviceClient.SendEventAsync(message);
+
+                SetConnected();
+            }
+            catch (Exception ex) when (ex.Message.Contains("UnauthorizedException"))
+            {
+                SetDisconnected();
+                throw new DeviceNotAuthorizedException();
+            }
+            catch (Exception ex) when (ex.Message.Contains("DeviceNotFound"))
+            {
+                SetDisconnected();
+                throw new DeviceNotFoundException();
+            }
+
+        }
+        public async Task Init()
+        {
+            await TestConnection();
 
             // start listening for Cloud 2 Device messages 
             ReceiveC2dAsync();

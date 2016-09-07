@@ -37,6 +37,7 @@ using Autofac.Core;
 using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
 using Repsaj.Submerged.GatewayApp.Modules;
+using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -48,6 +49,7 @@ namespace Repsaj.Submerged.GatewayApp
     public sealed partial class MainPage : Page
     {
         private IContainer _autofacContainer;
+        private IConfigurationRepository _configRepository;
         IDeviceManager _deviceManager;
 
         public MainPage()
@@ -71,20 +73,22 @@ namespace Repsaj.Submerged.GatewayApp
          
         private async void Init()
         {
-            IConfigurationRepository configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
-            var configInfo = await configRepository.GetConnectionInformationModel();
+            // resolve the config repository for saving and storing the configuration
+            _configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
+            var connectionInfo = await _configRepository.GetConnectionInformationModel();
+
+            // set the instruction text
+            string storagePath = _configRepository.GetConnectionInfoPath();
+            string instruction = "STOP! Setup time. Your device was not configured to connect to the Submerged back-end. Please read the documentation " +
+                                 $"and upload a valid json configuration file with connection parameters. The storage path is: {storagePath}, " +
+                                 "Restart the submerged app and this message should disappear!";
+            connectionInfoBox.Text = instruction;
 
             // upon first boot; the configuration will not have been set yet
-            if (configInfo == null)
+            if (connectionInfo == null)
             {
                 await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
-                    string storagePath = configRepository.GetConnectionInfoPath();
-
-                    string instruction = "Your device was not configured to connect to the Submerged back-end. Please read the documentation " +
-                                         $"and upload a valid json configuration file with connection parameters. The storage path is: {storagePath}, " +
-                                         "Restart the submerged app and this message should disappear!";
-                    messageBoxText.Text = instruction;
                     messageBox.Visibility = Visibility.Visible;
                 });
             }
@@ -100,8 +104,42 @@ namespace Repsaj.Submerged.GatewayApp
                 _deviceManager.AzureConnected += _deviceManager_AzureConnected;
                 _deviceManager.AzureDisconnected += _deviceManager_AzureDisconnected;
 
-                await _deviceManager.Init();
+                try
+                {
+                    await _deviceManager.Init();
+                }
+                catch (DeviceNotFoundException)
+                {
+                    instruction = "Uh-oh! It seems your device configuration is incorrect, or your device was not properly registered. Check the " +
+                                  "configuration below and ensure the device ID + key are set correctly.";
+                    ShowConnectionInfoBox(instruction, connectionInfo);
+                }
+                catch (Exception ex) when (ex is FormatException || ex is DeviceNotAuthorizedException)
+                {
+                    instruction = "Uh-oh! The device key you've entered is not a correct one. You should double check the key and try again.";
+                    ShowConnectionInfoBox(instruction, connectionInfo);
+                }
+                catch (Exception)
+                {
+                    instruction = "Uh-oh! We could not connect to the submerged back-end. Your internet connection might have an issue, in rare " +
+                                  "cases the problem could be at the back-end or maybe it's very clouded. Check the details below to ensure your " +
+                                  "connection is set-up ok.";
+                    ShowConnectionInfoBox(instruction, connectionInfo);
+                }
             }
+        }
+
+        private void ShowConnectionInfoBox(string text, ConnectionInformationModel connectionInfo)
+        {
+            connectionInfoBox.Text = text;
+
+            if (connectionInfo != null)
+            {
+                tbDeviceID.Text = connectionInfo.DeviceId;
+                tbDeviceKey.Text = connectionInfo.DeviceKey;
+            }
+
+            messageBox.Visibility = Visibility.Visible;
         }
 
         private async void _deviceManager_AzureDisconnected()
@@ -205,5 +243,28 @@ namespace Repsaj.Submerged.GatewayApp
             });
         }
 
+        private async void SetupButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // save a new connection.json file using the device ID and key from the user input
+                ConnectionInformationModel connectionInfo = new ConnectionInformationModel()
+                {
+                    DeviceId = tbDeviceID.Text,
+                    DeviceKey = tbDeviceKey.Text,
+                    IoTHubHostname = "repsaj-neptune-iothub.azure-devices.net"      // TODO: hardcoded for now, should probably be moved somewhere else?
+                };
+
+                await _configRepository.SaveConnectionInformationModel(connectionInfo);
+                Init();
+
+                // hide the messagebox
+                messageBox.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

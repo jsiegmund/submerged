@@ -118,6 +118,7 @@
     <Compile Include="Device\InitialDeviceConfig.cs" />
     <Compile Include="Device\ITelemetry.cs" />
     <Compile Include="Device\TelemetryHelper.cs" />
+    <Compile Include="Exceptions\DeviceNotAuthorizedException.cs" />
     <Compile Include="Exceptions\DeviceNotFoundException.cs" />
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
     <Compile Include="Models\ConnectionInformationModel.cs" />

@@ -16,6 +16,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         event Action Connected;
         event Action Disconnected;
 
+        Task Init();
         Task<string> SendDeviceToCloudMessageAsync(JObject eventData);
         Task<string> SendDeviceToCloudMessageAsync(string payload);
     }

@@ -40,10 +40,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
             string json = JsonConvert.SerializeObject(obj);
 
             StorageFile file = await ApplicationData.Current.LocalFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
-            using (StreamWriter writeFile = new StreamWriter(await file.OpenStreamForWriteAsync()))
-            {
-                writeFile.WriteLine(json);
-            }
+            await FileIO.WriteTextAsync(file, json);
         }
     }
 }

@@ -69,13 +69,13 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             await _moduleConnectionManager.Init();
 
-            Task azureTask = Task.Run(() => InitializeAzure());
+            // initialize the Azure connection to test it for connectivity
+            await InitializeAzure();
+
             _deviceModel = await _configurationRepository.GetDeviceModel();
 
             if (_deviceModel == null)
             {
-                // device should now request for the device model to be pushed from the back-end
-                azureTask.Wait();
                 await RequestDeviceUpdate();
 
                 NewLogLine?.Invoke("Devicemodel is missing, requesting from the cloud.");
@@ -85,9 +85,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 CleanDeviceModel();
                 PopulateDeviceComponents();
 
-                Task moduleTask = Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays));
-
-                Task.WaitAll(moduleTask, azureTask);
+                _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
                 NewLogLine?.Invoke("Device initialization completed!");
 
                 // always send a device update request to ensure we're running with the latest values
@@ -272,6 +270,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
             _azureConnection.CommandReceived += _azureConnection_CommandReceived;
             _azureConnection.Connected += _azureConnection_Connected;
             _azureConnection.Disconnected += _azureConnection_Disconnected;
+
+            await _azureConnection.Init();
             Debug.WriteLine("Azure connection initialized.");
         }
 

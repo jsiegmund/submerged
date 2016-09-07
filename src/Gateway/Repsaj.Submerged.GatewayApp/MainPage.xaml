@@ -100,8 +100,29 @@
             </Border>
             <Image x:Name="image" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,0,0,0" Source="/Icons/submerged_logo.png" HorizontalAlignment="Right" Width="144" Height="144"/>
         </Grid>
-        <Border x:Name="messageBox" Style="{StaticResource submergedMessageboxBorder}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="100,0" Width="Auto" Height="100" Grid.RowSpan="3" Visibility="Collapsed">
-            <TextBlock x:Name="messageBoxText"  TextWrapping="Wrap" Text="TextBlock"  Style="{StaticResource submergedMessagebox}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <Border x:Name="messageBox" Style="{StaticResource submergedMessageboxBorder}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="100,0" Width="Auto" Height="Auto" Grid.RowSpan="3" Visibility="Collapsed" MaxWidth="1000">
+            <StackPanel Padding="10">
+                <TextBlock x:Name="connectionInfoBox"  TextWrapping="Wrap" Text="TextBlock" Style="{StaticResource submergedMessagebox}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+                <Grid Padding="10" MaxWidth="800">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200px"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock VerticalAlignment="Center">Device ID:</TextBlock>
+                    <TextBox Grid.Column="1" x:Name="tbDeviceID" Margin="5"/>
+                    <TextBlock VerticalAlignment="Center" Grid.Row="1">Device Key:</TextBlock>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="tbDeviceKey" Margin="5"/>
+                    <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Margin="5" Click="SetupButton_Click">SAVE</Button>
+                </Grid>
+                
+            </StackPanel>
         </Border>
     </Grid>
 </Page>
