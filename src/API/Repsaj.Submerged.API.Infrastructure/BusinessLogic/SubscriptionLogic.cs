@@ -272,6 +272,12 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 throw new SubscriptionValidationException(Strings.DeviceAlreadyRegisteredExceptionMessage);
             }
 
+            // TODO: needs to provide support for multiple devices, but at the moment limit to 1
+            if (subscription.Devices.Count >= 1)
+            {
+                throw new SubscriptionValidationException(Strings.ValidationSingleDeviceOnly);
+            }
+
             // register a new device in the IoT hub instance 
             SecurityKeys generatedSecurityKeys = _securityKeyGenerator.CreateRandomKeys();
             await _iotHubRepository.AddDeviceAsync(device, generatedSecurityKeys);

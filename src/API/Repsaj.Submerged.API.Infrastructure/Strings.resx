@@ -201,6 +201,9 @@
   <data name="ValidationSensorUnknown" xml:space="preserve">
     <value>Could not find a sensor named {0} with this device.</value>
   </data>
+  <data name="ValidationSingleDeviceOnly" xml:space="preserve">
+    <value>At the moment, Submerged only supports a single device per subscription.</value>
+  </data>
   <data name="ValidationSubscriptionExists" xml:space="preserve">
     <value>Subscription already exists in the subscription registry.</value>
   </data>

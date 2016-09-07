@@ -313,6 +313,15 @@ namespace Repsaj.Submerged.Infrastructure {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to At the moment, Submerged only supports a single device per subscription..
+        /// </summary>
+        internal static string ValidationSingleDeviceOnly {
+            get {
+                return ResourceManager.GetString("ValidationSingleDeviceOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Subscription already exists in the subscription registry..
         /// </summary>
         internal static string ValidationSubscriptionExists {
