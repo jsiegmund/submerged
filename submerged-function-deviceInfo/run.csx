@@ -1,10 +1,11 @@
 #r "System.Configuration"
 #r "Newtonsoft.Json"
+
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+//using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 public static async void Run(string myEventHubMessage, TraceWriter log)
 {
