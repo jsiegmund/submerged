@@ -77,13 +77,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (_deviceModel == null)
             {
                 await RequestDeviceUpdate();
-
                 NewLogLine?.Invoke("Devicemodel is missing, requesting from the cloud.");
             }
             else
             {
-                CleanDeviceModel();
-                PopulateDeviceComponents();
+                CleanLoadedDeviceModel();
 
                 _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
                 NewLogLine?.Invoke("Device initialization completed!");
@@ -93,7 +91,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private void CleanDeviceModel()
+        private void CleanLoadedDeviceModel()
         {
             foreach (var module in this._deviceModel.Modules)
                 module.Status = string.Empty;
@@ -102,11 +100,21 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
         }
 
-        public async Task UpdateDeviceModel(DeviceModel updatedModel)
+        public void UpdateDeviceModel(DeviceModel updatedModel)
         {
+            // if there's no device model yet; create a new empty one and copy
+            // the properties of the updated device model to it
+            // copying of sensors, relays and modules is done automatically by the update routines after this
+            if (_deviceModel == null)
+            {
+                _deviceModel = new DeviceModel();
+                _deviceModel.DeviceProperties = updatedModel.DeviceProperties;
+            }
+
             // add any modules that might not yet exist in the current model
+            // note; the ToList is there because newModules is otherwise evaluated as Count == 0 below
             // TODO: remove any modules that might have been deleted
-            var newModules = updatedModel.Modules.Where(m => !_deviceModel.Modules.Any(m2 => m.Name == m2.Name));
+            var newModules = updatedModel.Modules.Where(m => !_deviceModel.Modules.Any(m2 => m.Name == m2.Name)).ToList();
             foreach (var newModule in newModules)
             {
                 _deviceModel.Modules.Add(newModule);
@@ -121,14 +129,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             // run the initialization of any new modules that might have been added
             if (newModules.Count() > 0)
-                await Task.Run(() => _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays));
-        }
-
-        private void PopulateDeviceComponents()
-        {
-            //SensorsUpdated?.Invoke(_deviceModel.Sensors.OrderBy(s => s.OrderNumber));
-            //ModulesUpdated?.Invoke(_deviceModel.Modules);
-            //RelaysUpdated?.Invoke(_deviceModel.Relays.OrderBy(s => s.OrderNumber));
+                _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
         }
 
         #region Command Processor Callbacks
@@ -198,6 +199,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 sensor.Reading = null;
             }
 
+            InvokeSensorsUpdate();
+        }
+
+        private void InvokeSensorsUpdate()
+        {
             var connectedSensorData = _deviceModel.Sensors
                                                   .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
             SensorsUpdated?.Invoke(connectedSensorData);
@@ -210,11 +216,15 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (relay != null)
             {
                 relay.State = relayState;
-
-                var relayData = _deviceModel.Relays
-                                            .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
-                RelaysUpdated?.Invoke(relayData);
+                InvokeRelaysUpdate();
             }
+        }
+
+        private void InvokeRelaysUpdate()
+        {
+            var relayData = _deviceModel.Relays
+                            .Where(r => _moduleConnectionManager.GetModuleStatus(r.Module) == ModuleConnectionStatus.Connected);
+            RelaysUpdated?.Invoke(relayData);
         }
 
         private void UpdateModuleData(string moduleName, ModuleConnectionStatus moduleStatus)
@@ -224,8 +234,13 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (moduleItem != null)
             {
                 moduleItem.Status = ModuleConnectionStatusAsText(moduleStatus);
-                ModulesUpdated?.Invoke(_deviceModel.Modules);
+                InvokeModulesUpdate();
             }
+        }
+
+        private void InvokeModulesUpdate()
+        {
+            ModulesUpdated?.Invoke(_deviceModel.Modules);
         }
 
         private string ModuleConnectionStatusAsText(ModuleConnectionStatus moduleStatus)
