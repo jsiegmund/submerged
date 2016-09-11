@@ -3,13 +3,13 @@ menu:
 	Home: /
 	Hardware: 
 		href: /hardware
-		target: true
+		target: false
 	Mobile: 
 		href: /mobile
-		target: true
+		target: false
 	Geting started:
 		href: /getting-started
-		target: true
+		target: false
 	Blog: http://blog.repsaj.nl
 
 # Profile
