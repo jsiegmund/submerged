@@ -71,8 +71,7 @@ Pictures say more than a thousands words!
 
 Screendumps of the mobile app:
 
-<img src="http://www.repsaj.nl/Uploads/submerged/submerged_live.png" alt="Screenshot Live" width="400"/>
-<img src="http://www.repsaj.nl/Uploads/submerged/submerged_relays.png" alt="Screenshot Relays" width="400"/>
+<img src="http://www.repsaj.nl/Uploads/submerged/submerged_live.png" alt="Screenshot Live" width="400"/><img src="http://www.repsaj.nl/Uploads/submerged/submerged_relays.png" alt="Screenshot Relays" width="400"/>
 
 Screendump of the gateway dashboard:
 

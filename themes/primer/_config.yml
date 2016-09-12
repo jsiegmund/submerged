@@ -10,7 +10,9 @@ menu:
 	Geting started:
 		href: /getting-started
 		target: false
-	Blog: http://blog.repsaj.nl
+	Blog: 
+		href: http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/
+		target: true
 
 # Profile
 profile:
