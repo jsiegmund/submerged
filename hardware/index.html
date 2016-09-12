@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+  <meta charset="utf-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Submerged</title>
+  <link rel="stylesheet" href="/submerged/css/style.css">
+  <!--在这里倒入jquery 方便处理部分页面的jquery-->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+	
+  <header class="site-header site-color" id="site-header-id">
+
+  <div class="container">
+      <h1><a href="/submerged/" title="Submerged"><span class="octicon octicon-mark-github"></span> Submerged</a></h1>
+      <nav class="site-header-nav" role="navigation">
+        
+              
+              <a href="/submerged/"  class=" site-header-nav-item hvr-underline-from-center" title="Home">Home</a>
+        
+              
+              <a href="/submerged/hardware"  class=" site-header-nav-item hvr-underline-from-center" title="Hardware">Hardware</a>
+        
+              
+              <a href="/submerged/mobile"  class=" site-header-nav-item hvr-underline-from-center" title="Mobile">Mobile</a>
+        
+              
+              <a href="/submerged/getting-started"  class=" site-header-nav-item hvr-underline-from-center" title="Geting started">Geting started</a>
+        
+              
+              <a href="http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/" target="target" class=" site-header-nav-item hvr-underline-from-center" title="Blog">Blog</a>
+        
+      </nav>
+  </div>
+</header>
+
+	
+    <section class="collection-head collection-head-scrolled geopattern" data-pattern-id="Hardware" >
+
+    <div class="container">
+        <div class="collection-title">
+            <h1 class="collection-header">Hardware</h1>
+            <div class="collection-info">
+                <span class="meta-info">
+                    
+                        <span class="octicon octicon-calendar"></span>
+                        <time datetime="2016-08-17T12:49:18.000Z" itemprop="datePublished">2016-08-17</time>
+                    
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+	
+
+    <section class="container content">
+
+    <div class="columns">
+        <div class="column three-fourths" >
+            <article class="article-content article-entry">
+                <p>The hardware part of submerged is currently based on two main components:</p>
+<ul>
+<li>A Raspberry Pi 2 or 3 </li>
+<li>Arduino (nano) modules</li>
+</ul>
+<p>The RPi is your gateway to the internet, running the submerged UWP app for Windows 10 IoT. The Arduino’s are the heart of <em>submerged modules</em> which you use to connect sensors, relays and other equipment that you want to control. Each Arduino is called a ‘module’.</p>
+<h2 id="Modules"><a href="#Modules" class="headerlink" title="Modules"></a>Modules</h2><p>Submerged uses ‘modules’ to group and connect the sensors to. A module is a logical group of sensors connected to the Pi. In the default set-up, an Arduino Nano is used for each module connected to the Pi using a Bluetooth shield. The basic module implementation at this moment uses the <strong>Firmata</strong> protocol to connect, but any communication type can be easily added (including a module that uses the Pi’s own IO ports). </p>
+<p><strong>Example</strong>; you can connect a ‘tank’ module to which you connect your temperature and pH sensors. Then a ‘cabinet’ module can be placed inside your cabinet. This is a logical place to connect relays, stock float sensors and moisture (leakage) sensors to. Both modules will connect to your gateway (the Pi) and all data as one package will be sent to the back-end. </p>
+<p>Each module is linked to a tank. This allows for even more modularity, grouping one or more modules to monitor multiple tanks at once (that part is under construction). </p>
+<h2 id="Shopping-list"><a href="#Shopping-list" class="headerlink" title="Shopping list"></a>Shopping list</h2><p>If you want to start using submerged, you’ll need some hardware. Below is a list of the things I’ve used: </p>
+<h3 id="Gateway"><a href="#Gateway" class="headerlink" title="Gateway"></a>Gateway</h3><ul>
+<li>Raspberry Pi 2 or 3.</li>
+<li>WiFi dongle (in case you want to use the Pi2 via WiFi)</li>
+<li>Bluetooth dongle</li>
+<li>Optional: HDMI LCD display for the dashboard</li>
+</ul>
+<h3 id="Sensor-module"><a href="#Sensor-module" class="headerlink" title="Sensor module"></a>Sensor module</h3><ul>
+<li>Arduino nano</li>
+<li>2x DS18B20 OneWire temperature sensor</li>
+<li>1x Atlas EZO pH circuit (<a href="https://www.atlas-scientific.com/product_pages/circuits/ezo_ph.html" target="_blank" rel="external">link</a>)</li>
+<li>Optional (but recommended): 1x Atlas circuit carrier</li>
+<li>pH Probe. The Atlas circuit is compatible with any standard pH probe.</li>
+<li>1x HC-06 bluetooth shield</li>
+<li>3x 4.7k resistor</li>
+</ul>
+<h3 id="Gateway-module"><a href="#Gateway-module" class="headerlink" title="Gateway module"></a>Gateway module</h3><ul>
+<li>Arduino nano</li>
+<li>1x 4ch relay board </li>
+<li>Nx water sensor for leak detection</li>
+<li>Nx float sensor for stock fluids</li>
+</ul>
+<h3 id="Common-stuff"><a href="#Common-stuff" class="headerlink" title="Common stuff"></a>Common stuff</h3><p>You’ll need some cable, connectors and maybe casings for your electronics, since there’s water involved. I have bought:</p>
+<ul>
+<li>Generic plastic DIY project cases.</li>
+<li>GX12 4-pins connectors. Of course you can use any connector you like.</li>
+<li>A USB power hub to power the Pi, LCD and Arduino’s. Of course you can also use seperate adapters for everything but then you’ll need a power strip which costs about as much and takes up more space.</li>
+<li>Some USB cables to connect everyting.</li>
+</ul>
+<h3 id="Future-modules"><a href="#Future-modules" class="headerlink" title="Future modules"></a>Future modules</h3><p>For the future, I’m considering the following additional modules:</p>
+<ul>
+<li>Automatic feeding system </li>
+<li>Automated water changes</li>
+<li>LED lighting control<br>You can find the fritzing diagrams for the two modules in the repository (<a href="https://github.com/jsiegmund/submerged/tree/master/src/Fritzing" target="_blank" rel="external">here</a>). These will help you with wiring everything.</li>
+</ul>
+
+            </article>
+            
+
+
+            
+                <div class="comment">
+                    
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//submerged.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+                </div>
+            
+        </div>
+        <div class="column one-fourth">
+            
+                <h3>Post Directory</h3>
+
+<div id="post-directory-module">
+	<section class="post-directory">
+		<p><strong class="toc-title">Index</strong></p>
+		<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Modules"><span class="toc-text">Modules</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Shopping-list"><span class="toc-text">Shopping list</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gateway"><span class="toc-text">Gateway</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sensor-module"><span class="toc-text">Sensor module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gateway-module"><span class="toc-text">Gateway module</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Common-stuff"><span class="toc-text">Common stuff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Future-modules"><span class="toc-text">Future modules</span></a></li></ol></li></ol>
+	</section>
+</div>
+            
+        </div>
+       
+    </div>
+</section>
+
+<footer class="container">
+    <div class="site-footer" role="contentinfo">
+        <div class="copyright left mobile-block">
+                © 2016
+                <span title="yumemor">yumemor</span>
+                <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+        </div>
+
+        <ul class="site-footer-links right mobile-hidden">
+            <li>
+                <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+            </li>
+        </ul>
+
+        <a href="https://github.com/yumemor/yumemor.github.io" target="_blank" aria-label="view source code">
+            <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+        </a>
+
+        <ul class="site-footer-links mobile-hidden">
+            
+             
+              
+              <li>
+                <a href="/submerged/"  title="Home">Home</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/hardware"  title="Hardware">Hardware</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/mobile"  title="Mobile">Mobile</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/getting-started"  title="Geting started">Geting started</a>
+              </li>
+            
+              
+              <li>
+                <a href="http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/" target="target" title="Blog">Blog</a>
+              </li>
+            
+
+        </ul>
+
+    </div>
+</footer>
+
+		
+		<script src="/submerged/js/typer.js"></script>
+
+		<script src="/submerged/js/geopattern.js"></script>
+
+		<script src="/submerged/js/index.js"></script>
+
+		 <script src="/submerged/js/popular_repo.js"></script> 
+
+	</body>
+</html>

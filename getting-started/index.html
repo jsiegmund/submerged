@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" prefix="og: http://ogp.me/ns#" class="han-init">
+<head>
+  <meta charset="utf-8">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Submerged</title>
+  <link rel="stylesheet" href="/submerged/css/style.css">
+  <!--在这里倒入jquery 方便处理部分页面的jquery-->
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" type="text/javascript"></script>
+</head>
+
+<body>
+	
+  <header class="site-header site-color" id="site-header-id">
+
+  <div class="container">
+      <h1><a href="/submerged/" title="Submerged"><span class="octicon octicon-mark-github"></span> Submerged</a></h1>
+      <nav class="site-header-nav" role="navigation">
+        
+              
+              <a href="/submerged/"  class=" site-header-nav-item hvr-underline-from-center" title="Home">Home</a>
+        
+              
+              <a href="/submerged/hardware"  class=" site-header-nav-item hvr-underline-from-center" title="Hardware">Hardware</a>
+        
+              
+              <a href="/submerged/mobile"  class=" site-header-nav-item hvr-underline-from-center" title="Mobile">Mobile</a>
+        
+              
+              <a href="/submerged/getting-started"  class=" site-header-nav-item hvr-underline-from-center" title="Geting started">Geting started</a>
+        
+              
+              <a href="http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/" target="target" class=" site-header-nav-item hvr-underline-from-center" title="Blog">Blog</a>
+        
+      </nav>
+  </div>
+</header>
+
+	
+    <section class="collection-head collection-head-scrolled geopattern" data-pattern-id="Getting started" >
+
+    <div class="container">
+        <div class="collection-title">
+            <h1 class="collection-header">Getting started</h1>
+            <div class="collection-info">
+                <span class="meta-info">
+                    
+                        <span class="octicon octicon-calendar"></span>
+                        <time datetime="2016-08-31T06:31:49.000Z" itemprop="datePublished">2016-08-31</time>
+                    
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+	
+
+    <section class="container content">
+
+    <div class="columns">
+        <div class="column three-fourths" >
+            <article class="article-content article-entry">
+                <p>This page will help you get started using submerged. Since this project is still in the works, getting started will require you to have some background in hardware and software development. If you do not have that, we strongly recommend teaming up with someone who does until the project has matured a bit more.</p>
+<h1 id="Step-1-Getting-the-hardware"><a href="#Step-1-Getting-the-hardware" class="headerlink" title="Step 1: Getting the hardware"></a>Step 1: Getting the hardware</h1><p>First you’ll need to think about what exactly you want to use submerged for. This will determine the hardware you need to purchase. To find out more about the options, head over to the <a href="hardware.md">hardware</a> page. If you want to try it out first without the need to buy any hardware; Submerged supports a simulated mode which you can run on any internet connected PC running Windows 10.</p>
+<h1 id="Step-2-Getting-the-mobile-app"><a href="#Step-2-Getting-the-mobile-app" class="headerlink" title="Step 2: Getting the mobile app"></a>Step 2: Getting the mobile app</h1><p>Your main interface with Submerged is the mobile application. At the moment, you’ll need to manually deploy the mobile app to your phone as it is not yet available on any appstores. That’s on the todo list.</p>
+<blockquote><p><strong>Note</strong>: at the moment the mobile app has only been tested on Android.</p>
+</blockquote>
+<p>To install the app, open the MobileApp project in Visual Studio. Connect your Android phone via USB and ensure that it’s set-up to allow third party packages sources. In Visual Studio make sure “Device” is selected as the deployment target. A simple F5 should now push the package to your phone. We’re working on making an already built .apk available for a bit better experience. </p>
+<h1 id="Step-3-Getting-an-account"><a href="#Step-3-Getting-an-account" class="headerlink" title="Step 3: Getting an account"></a>Step 3: Getting an account</h1><p>In order to use the mobile app, you’ll need a registered account. For now, there’s no registration process available. Drop an e-mail to us @ [submerged <em>at</em> repsaj <em>dot</em> nl] to get an account. At the moment, an account is free of charge as long as we can run the back-end without too much cost involved. We might start requesting a small fee when user numbers increase. </p>
+<h1 id="Step-4-Registering-your-gateway"><a href="#Step-4-Registering-your-gateway" class="headerlink" title="Step 4: Registering your gateway"></a>Step 4: Registering your gateway</h1><p>Once you’ve got the app installed and you’re logged in; head over to the settings section. Here you can create a new gateway device by simply giving it a unique name.</p>
+<p><img src="http://www.repsaj.nl/Uploads/submerged/submerged_app_adddevice.png"> </p>
+<p>Once registered, select the device to open the properties and scroll to the “DEVICE” tab. There you will find the keys for your device as follows:</p>
+<p><img src="http://www.repsaj.nl/Uploads/submerged/submerged_app_devicedetails.png"> </p>
+<p>You will need this information (device id + one of the keys) to configure your gateway in the next step.</p>
+<h1 id="Step-3-Configuring-your-gateway"><a href="#Step-3-Configuring-your-gateway" class="headerlink" title="Step 3: Configuring your gateway"></a>Step 3: Configuring your gateway</h1><p>For the gateway you’ll need a device that runs Windows 10 (regular or IoT) and supports bluetooth to connect to your modules. The Gateway app needs to be deployed to that device. As with the mobile app, you will need to do that manually at the moment from Visual Studio. Once you boot the app for the first time, it will show the following screen: </p>
+<p><img src="http://www.repsaj.nl/Uploads/submerged/submerged_gateway_connectionInfo.png"> </p>
+<p>Your gateway now needs to be configured for connecting to the submerged back-end. You can either fill in the two textboxes with the correct info from the app, or you can manually upload a json file to the mentioned file location on your device should it not have a keyboard attached. The json file should have the following info: </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&#123; </div><div class="line">    <span class="attr">"IoTHubHostname"</span>:<span class="string">"repsaj-neptune-iothub.azure-devices.net"</span>,</div><div class="line">    <span class="attr">"DeviceId"</span>:<span class="string">"demo-device"</span>,</div><div class="line">    <span class="attr">"DeviceKey"</span>:<span class="string">"esZ4CQHtigLNIkaLfR+PEQ=="</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>The gateway will now reach out to the cloud and request for a device update. Once it receives this update, it will automatically start connecting to the configured modules and sensors. Submerged is now functional!</p>
+<p><img src="http://www.repsaj.nl/Uploads/submerged/submerged_dashboard.png"></p>
+
+            </article>
+            
+
+
+            
+                <div class="comment">
+                    
+<div class="comments">
+    <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    /*
+    var disqus_config = function () {
+    this.page.url = PAGE_URL; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    */
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//submerged.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+                </div>
+            
+        </div>
+        <div class="column one-fourth">
+            
+                <h3>Post Directory</h3>
+
+<div id="post-directory-module">
+	<section class="post-directory">
+		<p><strong class="toc-title">Index</strong></p>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Step-1-Getting-the-hardware"><span class="toc-text">Step 1: Getting the hardware</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Step-2-Getting-the-mobile-app"><span class="toc-text">Step 2: Getting the mobile app</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Step-3-Getting-an-account"><span class="toc-text">Step 3: Getting an account</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Step-4-Registering-your-gateway"><span class="toc-text">Step 4: Registering your gateway</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Step-3-Configuring-your-gateway"><span class="toc-text">Step 3: Configuring your gateway</span></a></li></ol>
+	</section>
+</div>
+            
+        </div>
+       
+    </div>
+</section>
+
+<footer class="container">
+    <div class="site-footer" role="contentinfo">
+        <div class="copyright left mobile-block">
+                © 2016
+                <span title="yumemor">yumemor</span>
+                <a href="javascript:window.scrollTo(0,0)" class="right mobile-visible">TOP</a>
+        </div>
+
+        <ul class="site-footer-links right mobile-hidden">
+            <li>
+                <a href="javascript:window.scrollTo(0,0)" >TOP</a>
+            </li>
+        </ul>
+
+        <a href="https://github.com/yumemor/yumemor.github.io" target="_blank" aria-label="view source code">
+            <span class="mega-octicon octicon-mark-github" title="GitHub"></span>
+        </a>
+
+        <ul class="site-footer-links mobile-hidden">
+            
+             
+              
+              <li>
+                <a href="/submerged/"  title="Home">Home</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/hardware"  title="Hardware">Hardware</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/mobile"  title="Mobile">Mobile</a>
+              </li>
+            
+              
+              <li>
+                <a href="/submerged/getting-started"  title="Geting started">Geting started</a>
+              </li>
+            
+              
+              <li>
+                <a href="http://blog.repsaj.nl/index.php/series/azure-aquarium-monitor/" target="target" title="Blog">Blog</a>
+              </li>
+            
+
+        </ul>
+
+    </div>
+</footer>
+
+		
+		<script src="/submerged/js/typer.js"></script>
+
+		<script src="/submerged/js/geopattern.js"></script>
+
+		<script src="/submerged/js/index.js"></script>
+
+		 <script src="/submerged/js/popular_repo.js"></script> 
+
+	</body>
+</html>
