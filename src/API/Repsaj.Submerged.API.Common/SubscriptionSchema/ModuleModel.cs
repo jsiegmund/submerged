@@ -15,6 +15,7 @@ namespace Repsaj.Submerged.Common.SubscriptionSchema
         public string ModuleType { get; set; }
         public string Status { get; set; }
         public int? DisplayOrder { get; set; }
+        public dynamic Configuration { get; set; }
 
         public static ModuleModel BuildModule(string name, string displayName, string connectionstring, string moduleType)
         {

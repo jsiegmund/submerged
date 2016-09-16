@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "ngCordova.plugins", "ngStorage", "angular-jwt", "pr.longpress"])
+angular.module("ngapp", ["ui.router", "ngMdIcons", "ngMaterial", "ngCordova", "ngCordova.plugins", "ngStorage", "angular-jwt", "pr.longpress", "ngCookies", "mdColorPicker", "moment-picker"])
 
     .run(function ($rootScope: ng.IRootScopeService, $cordovaStatusbar: any, $location: ng.ILocationService,
         sharedService: Submerged.Services.ISharedService, subscriptionService: Submerged.Services.ISubscriptionService,

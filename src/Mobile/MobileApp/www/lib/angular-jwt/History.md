@@ -1,3 +1,9 @@
+0.1.0 / 2016-08-15
+==================
+
+  * Add authManager service
+  * Add jwtOptionsProvider to share config between services
+  * Add instructions for whitelisting domains
 
 0.0.9 / 2015-06-02
 ==================

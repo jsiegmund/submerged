@@ -6,6 +6,7 @@
         status: string;
         orderNumber: number;
         moduleType: string;
+        configuration: any;
     }
     
 }

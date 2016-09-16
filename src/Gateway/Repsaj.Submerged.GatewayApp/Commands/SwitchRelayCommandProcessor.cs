@@ -50,8 +50,10 @@ namespace RemoteArduino.Commands
                     if (connection == null || connection.ModuleStatus != ModuleConnectionStatus.Connected)
                         return CommandProcessingResult.CannotComplete;
 
+                    IRelayModule relayConnection = (IRelayModule)connection;
+
                     // execute the command, switch the relay
-                    connection.SwitchRelay(relayName, relayState.Value);
+                    relayConnection.SwitchRelay(relayName, relayState.Value);
                 }
                 catch (Exception)
                 {

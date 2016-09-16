@@ -23,5 +23,6 @@
         public static get SENSORS(): string { return "SensorModule"; }
         public static get CABINET(): string { return "CabinetModule"; }
         public static get FIRMATA(): string { return "FirmataModule"; }
+        public static get LEDENET(): string { return "LedenetModule"; }
     }
 }

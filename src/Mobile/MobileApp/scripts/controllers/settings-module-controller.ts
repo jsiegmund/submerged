@@ -1,17 +1,23 @@
 ﻿namespace Submerged.Controllers {
+
+    interface ISettingsModuleScope extends ng.IScope {
+    }
+
     export class SettingsModuleController extends BaseController {
 
         module: Models.ModuleModel;
         moduleTypeOptions: any[];
 
-        constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ng.IRootScopeService,
-            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService) {
+        constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ISettingsModuleScope,
+            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
+            private $compile: ng.ICompileService) {
 
             super($mdToast);
 
             this.moduleTypeOptions = subscriptionService.getModuleTypes();
-
             this.module = subscriptionService.getSelectedModule();
+
+            this.injectConfigSection();
 
             // add delete button to remove existing sensor
             if (this.module.name != undefined) {
@@ -23,6 +29,22 @@
 
                 menuService.setButtons([deleteButton]);
             }
+        }
+
+        injectConfigSection() {
+            if (this.module &&
+                this.module.moduleType == Statics.MODULETYPES.LEDENET) {
+                var el = this.$compile("<sm-module-ledenet-configuration />")(this.$scope);
+                el.attr("data-module", "{vm.module}");
+                angular.element(document.querySelector('#sm-module-config-container')).append(el);
+            }
+        }
+
+        showConfigSection(): boolean {
+            if (this.module && this.module.moduleType == Statics.MODULETYPES.LEDENET)
+                return true;
+            else
+                return false;
         }
 
         delete() {

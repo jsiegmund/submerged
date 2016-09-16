@@ -1,0 +1,18 @@
+﻿<section>
+    <md-subheader class="md-primary">Time program</md-subheader>
+
+    <md-list>
+        <md-list-item ng-repeat="point in vm.config.pointsInTime" class="md-2-line" ng-click="vm.pointClicked(point)">
+            <div class="md-list-item-text" layout="column">
+                <h3>{{point.time}}</h3>
+                <h4>{{point.color}}</h4>
+            </div>
+            <md-divider></md-divider>
+        </md-list-item>
+    </md-list>
+
+    <md-button class="md-primary" aria-label="Add Point in time" ng-click="vm.newPointInTime()">
+        Add time &amp; color
+    </md-button>
+
+</section>

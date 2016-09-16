@@ -11,6 +11,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public static readonly string SENSORS = "SensorModule";
         public static readonly string CABINET = "CabinetModule";
         public static readonly string FIRMATA = "FirmataModule";
+        public static readonly string LEDENET = "LedenetModule";
     }
 
     public static class ModuleTypeDisplayNames

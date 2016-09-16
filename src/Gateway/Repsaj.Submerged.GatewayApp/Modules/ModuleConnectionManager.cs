@@ -138,7 +138,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             List<SensorTelemetryModel> data = new List<SensorTelemetryModel>();
 
             bool dataPresent = false;
-            IEnumerable<IModuleConnection> connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected).ToArray();
+            var type = typeof(ISensorModule);
+            var connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected &&
+                                                                        m is ISensorModule).Cast<ISensorModule>();
 
             // loop all of the available modules, request their data and merge it into our data object
             foreach (var module in connectedModules)

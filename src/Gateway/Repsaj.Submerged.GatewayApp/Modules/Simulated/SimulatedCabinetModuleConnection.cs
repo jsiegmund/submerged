@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
 {
-    class SimulatedCabinetModuleConnection : SimulatedModuleConnectionBase
+    class SimulatedCabinetModuleConnection : SimulatedModuleConnectionBase, ISensorModule
     {
         public SimulatedCabinetModuleConnection(string moduleName) : base(moduleName)
         {
@@ -24,7 +24,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             List<SensorTelemetryModel> sensorData = new List<SensorTelemetryModel>();
             sensorData.Add(new SensorTelemetryModel("leakDetected", false));

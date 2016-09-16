@@ -23,7 +23,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         public double pH;
     }
 
-    class SensorModuleConnection : ModuleConnectionBase
+    class SensorModuleConnection : FirmataModuleConnectionBase, ISensorModule
     {
         Queue<Measurement> _measurementQueue = new Queue<Measurement>();
 
@@ -43,7 +43,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         EventWaitHandle _waitHandle = new AutoResetEvent(false);
         List<SensorTelemetryModel> _sensorData = new List<SensorTelemetryModel>();
 
-        override public IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             try
             {

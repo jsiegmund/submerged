@@ -34,6 +34,7 @@
         deleteTank(tank: Models.TankModel): ng.IPromise<void>;
         deleteDevice(device: Models.DeviceModel): ng.IPromise<void>;
 
+        clear(): ng.IPromise<void>;
         load(forceRefresh?: boolean): ng.IPromise<Models.SubscriptionModel>;
         getDeviceCount(): number;
     }
@@ -52,6 +53,17 @@
         constructor(private dataService: Services.IDataService,
             private $q: ng.IQService, private fileService: Services.IFileService) {
 
+        }
+
+        clear(): ng.IPromise<void> {
+            this.selectedDevice = null;
+            this.selectedSensor = null;
+            this.selectedRelay = null;
+            this.selectedModule = null;
+            this.selectedTank = null;
+
+            this.subscription = null;
+            return this.saveSubscriptionFile();
         }
 
         getDeviceCount(): number {
@@ -180,6 +192,9 @@
                 }, {
                     name: Statics.MODULETYPES.CABINET,
                     displayName: "Predefined Cabinet module"
+                }, {
+                    name: Statics.MODULETYPES.LEDENET,
+                    displayName: "Ledenet LED module"
                 }];
         }
 
@@ -348,7 +363,10 @@
         }
 
         selectModule(module: Models.ModuleModel) {
-            this.selectedModule = module.name;
+            if (module != null)
+                this.selectedModule = module.name;
+            else
+                this.selectedModule = null;
         }
 
         saveDevice(device: Models.DeviceModel): ng.IPromise<void> {

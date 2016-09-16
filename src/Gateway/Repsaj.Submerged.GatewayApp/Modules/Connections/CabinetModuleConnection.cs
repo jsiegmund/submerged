@@ -16,7 +16,7 @@ using Windows.Devices.Enumeration;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
-    public class CabinetModuleConnection : ModuleConnectionBase
+    class CabinetModuleConnection : FirmataModuleConnectionBase, ISensorModule, IRelayModule
     {
         // track information about the relays and sensors connected to this module
         Sensor[] _sensors;
@@ -89,7 +89,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
         }
 
-        override public IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             if (_adapter.connectionReady())
             {

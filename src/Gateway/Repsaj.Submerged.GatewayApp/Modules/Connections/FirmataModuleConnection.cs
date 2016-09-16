@@ -14,7 +14,7 @@ using Repsaj.Submerged.GatewayApp.Models;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
-    public class FirmataModuleConnection: ModuleConnectionBase
+    class FirmataModuleConnection: FirmataModuleConnectionBase, ISensorModule, IRelayModule
     {
         Sensor[] _sensors;
         Relay[] _relays;
@@ -73,7 +73,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
         }
 
-        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             List<SensorTelemetryModel> data = new List<SensorTelemetryModel>();
 

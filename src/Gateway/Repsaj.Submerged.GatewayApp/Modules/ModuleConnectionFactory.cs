@@ -3,6 +3,7 @@ using Repsaj.Submerged.GatewayApp.Modules.Connections;
 using Repsaj.Submerged.GatewayApp.Modules.Simulated;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
+using Repsaj.Submerged.GatewayApp.Universal.Models.ConfigurationModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -81,6 +82,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 return new SimulatedSensorModuleConnection(module.Name);
             else if (module.ModuleType == ModuleTypes.FIRMATA)
                 return new SimulatedFirmataModuleConnection(module.Name, sensors, relays);
+            else if (module.ModuleType == ModuleTypes.LEDENET)
+                return new SimulatedLedenetModuleConnection(module.Name);
             else
                 throw new ArgumentException($"Module type {module.ModuleType} is not supported by this device.");
         }
@@ -93,6 +96,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 return new SensorModuleConnection(device, module.Name);
             else if (module.ModuleType == ModuleTypes.FIRMATA)
                 return new FirmataModuleConnection(device, module.Name, sensors, relays);
+            else if (module.ModuleType == ModuleTypes.LEDENET)
+                return new LedenetModuleConnection(module.Name, module.Configuration.ToObject<LedenetModuleConfiguration>());
             else
                 throw new ArgumentException($"Module type {module.ModuleType} is not supported by this device.");
         }

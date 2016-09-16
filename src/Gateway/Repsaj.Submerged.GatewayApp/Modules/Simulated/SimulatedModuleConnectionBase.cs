@@ -24,7 +24,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             private set { _moduleStatus = value; }
         }
 
-        public abstract IEnumerable<SensorTelemetryModel> RequestSensorData();
         public abstract void SwitchRelay(string name, bool high);
 
         public string StatusAsText
@@ -37,7 +36,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             this.ModuleName = moduleName;
         }
 
-        public async void Init()
+        public async Task Init()
         {
             // does nothing because this is a simulated module
             await SetConnectedDelayed();

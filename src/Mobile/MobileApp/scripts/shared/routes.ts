@@ -123,6 +123,24 @@ angular.module("ngapp").config(["$stateProvider", "$urlRouterProvider", function
             controller: "SettingsModuleController",
             controllerAs: "vm"
         })
+        /*
+        .state("settings-module-ledenet", <ng.ui.IState>{
+            url: "/settings/module/ledenet",
+            templateUrl: "app/views/settings-module-ledenet.html",
+            title: "Submerged Settings",
+            resolve: defaultResolve,
+            controller: "SettingsModuleLedenetController",
+            controllerAs: "vm"
+        })
+        */
+        .state("settings-module-ledenet-pointintime", <ng.ui.IState>{
+            url: "/settings/module/ledenet/pointintime",
+            templateUrl: "app/views/settings-module-ledenet-pointintime.html",
+            title: "Submerged Settings",
+            resolve: defaultResolve,
+            controller: "SettingsModuleLedenetController",
+            controllerAs: "vm"
+        })
 
         .state("settings-tank", <ng.ui.IState>{
             url: "/settings/tank",

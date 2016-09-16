@@ -1,0 +1,57 @@
+﻿<md-content layout="column" style="height: 100%; margin: 8px;">
+
+    <form name="pointForm" novalidate ng-submit="pointForm.$valid && vm.savePoint()">
+
+        <md-subheader class="md-primary">Time (HH:mm)</md-subheader>
+        <div moment-picker="vm.point.time"
+             format="HH:mm"
+             min-view="hour"
+             min-date="'00:00'"
+             max-date="'23:55'"
+             autoclose="true"
+             today="true">
+            {{ vm.point.time }}
+        </div>
+
+        <md-subheader class="md-primary">Fade-in (minutes)</md-subheader>
+        <div layout="row" style="height: 48px;">
+            <div layout-fill="auto" flex="auto">
+                <md-slider min="0" max="120" step="10" ng-model="vm.point.fadeIn" ng-required />
+            </div>
+            <div flex="15" layout="row" layout-align="end center">
+                <div>{{vm.point.fadeIn}}</div>
+            </div>
+        </div>
+
+        <md-subheader class="md-primary">Level (0-100%)</md-subheader>
+        <div layout="row" style="height: 48px;">
+            <div layout-fill="auto" flex="auto">
+                <md-slider min="0" max="100" step="1" ng-model="vm.point.level" ng-required />
+            </div>
+            <div flex="15" layout="row" layout-align="end center">
+                <div>{{vm.point.level}}</div>
+            </div>
+        </div>
+
+        <md-subheader class="md-primary">Color</md-subheader>
+        <div md-color-picker="colorPickerOptions" ng-model="vm.point.color" ng-required></div>
+
+        <md-subheader class="md-primary">White level (0-100%)</md-subheader>
+        <div layout="row" style="height: 48px;">
+            <div layout-fill="auto" flex="auto">
+                <md-slider min="0" max="100" step="1" ng-model="vm.point.white" ng-required />
+            </div>
+            <div flex="15" layout="row" layout-align="end center">
+                <div>{{vm.point.white}}</div>
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div layout="row" layout-padding layout-align="end center" flex="none">
+            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
+        </div>
+
+    </form>
+
+</md-content>

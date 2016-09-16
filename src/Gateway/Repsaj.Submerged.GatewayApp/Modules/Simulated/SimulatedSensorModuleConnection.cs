@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
 {
-    public class SimulatedSensorModuleConnection : SimulatedModuleConnectionBase
+    public class SimulatedSensorModuleConnection : SimulatedModuleConnectionBase, ISensorModule
     {
 
         double basePh = 7.0;
@@ -30,7 +30,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             Random rand = new Random();
 

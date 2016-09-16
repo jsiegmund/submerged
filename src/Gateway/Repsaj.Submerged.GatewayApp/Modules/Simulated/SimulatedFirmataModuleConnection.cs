@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
 {
-    class SimulatedFirmataModuleConnection : SimulatedModuleConnectionBase
+    class SimulatedFirmataModuleConnection : SimulatedModuleConnectionBase, ISensorModule
     {
         Sensor[] _sensors;
         Relay[] _relays;
@@ -34,7 +34,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Simulated
             }
         }
 
-        public override IEnumerable<SensorTelemetryModel> RequestSensorData()
+        public IEnumerable<SensorTelemetryModel> RequestSensorData()
         {
             List<SensorTelemetryModel> sensorData = new List<SensorTelemetryModel>();
 

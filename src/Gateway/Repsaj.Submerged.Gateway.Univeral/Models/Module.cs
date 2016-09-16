@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public string ModuleType { get; set; }
         public string Status { get; set; }
         public int? DisplayOrder { get; set; }
+        public JObject Configuration { get; set; }
 
         public static Module BuildModule(string name, string connectionstring, string moduleType)
         {

@@ -2,10 +2,10 @@
  * Angular Material Design
  * https://github.com/angular/material
  * @license MIT
- * v1.1.0-rc4-master-c81f9f1
+ * v1.1.1
  */
-goog.provide('ng.material.components.colors');
-goog.require('ng.material.core');
+goog.provide('ngmaterial.components.colors');
+goog.require('ngmaterial.core');
 (function () {
   "use strict";
 
@@ -13,8 +13,10 @@ goog.require('ng.material.core');
    *  Use a RegExp to check if the `md-colors="<expression>"` is static string
    *  or one that should be observed and dynamically interpolated.
    */
+  MdColorsDirective.$inject = ["$mdColors", "$mdUtil", "$log", "$parse"];
+  MdColorsService.$inject = ["$mdTheming", "$mdUtil", "$log"];
   var STATIC_COLOR_EXPRESSION = /^{((\s|,)*?["'a-zA-Z-]+?\s*?:\s*?('|")[a-zA-Z0-9-.]*('|"))+\s*}$/;
-  var colorPalettes = undefined;
+  var colorPalettes = null;
 
   /**
    * @ngdoc module
@@ -47,13 +49,14 @@ goog.require('ng.material.core');
    *  </hljs>
    *
    */
-  function MdColorsService($mdTheming, $mdUtil, $parse, $log) {
+  function MdColorsService($mdTheming, $mdUtil, $log) {
     colorPalettes = colorPalettes || Object.keys($mdTheming.PALETTES);
 
     // Publish service instance
     return {
       applyThemeColors: applyThemeColors,
-      getThemeColor: getThemeColor
+      getThemeColor: getThemeColor,
+      hasTheme: hasTheme
     };
 
     // ********************************************
@@ -65,14 +68,12 @@ goog.require('ng.material.core');
      * @name $mdColors#applyThemeColors
      *
      * @description
-     * Convert the color expression into an object with scope-interpolated values
+     * Gets a color json object, keys are css properties and values are string of the wanted color
      * Then calculate the rgba() values based on the theme color parts
      *
      * @param {DOMElement} element the element to apply the styles on.
-     * @param {scope} scope a scope is needed in case there are interpolated values in the expression.
-     * @param {string|object} colorExpression json object, keys are css properties and values are string of the wanted color,
-     * for example: `{color: 'red-A200-0.3'}`. Note that the color keys must be upperCamelCase instead of snake-case.
-     * e.g. `{background-color: 'grey-300'}` --> `{backgroundColor: 'grey-300'}`
+     * @param {object} colorExpression json object, keys are css properties and values are string of the wanted color,
+     * for example: `{color: 'red-A200-0.3'}`.
      *
      * @usage
      * <hljs lang="js">
@@ -80,23 +81,19 @@ goog.require('ng.material.core');
      *     return {
      *       ...
      *       link: function (scope, elem) {
-     *         $mdColors.applyThemeColors(elem, scope, {color: 'red'});
+     *         $mdColors.applyThemeColors(elem, {color: 'red'});
      *       }
      *    }
      *   });
      * </hljs>
      */
-    function applyThemeColors(element, scope, colorExpression) {
+    function applyThemeColors(element, colorExpression) {
       try {
-        // Json.parse() does not work because the keys are not quoted;
-        // use $parse to convert to a hash map
-        // NOTE: keys cannot be snake-case, upperCamelCase are required
-        //        e.g.   {background-color: 'grey-300'} --> {backgroundColor: 'grey-300'}
-        var themeColors = $parse(colorExpression)(scope);
-
-        // Assign the calculate RGBA color values directly as inline CSS
-        element.css(interpolateColors(themeColors));
-      } catch( e ) {
+        if (colorExpression) {
+          // Assign the calculate RGBA color values directly as inline CSS
+          element.css(interpolateColors(colorExpression));
+        }
+      } catch (e) {
         $log.error(e.message);
       }
 
@@ -139,7 +136,7 @@ goog.require('ng.material.core');
 
       rgbValues = contrast ? rgbValues.contrast : rgbValues.value;
 
-      return $mdUtil.supplant('rgba( {0}, {1}, {2}, {3} )',
+      return $mdUtil.supplant('rgba({0}, {1}, {2}, {3})',
         [rgbValues[0], rgbValues[1], rgbValues[2], rgbValues[3] || color.opacity]
       );
     }
@@ -163,11 +160,21 @@ goog.require('ng.material.core');
 
         rgbColors[key] = parseColor(color);
         if (hasBackground && !hasColorProperty) {
-          rgbColors['color'] = parseColor(color, true);
+          rgbColors.color = parseColor(color, true);
         }
       });
 
       return rgbColors;
+    }
+
+    /**
+     * Check if expression has defined theme
+     * e.g.
+     * 'myTheme-primary' => true
+     * 'red-800' => false
+     */
+    function hasTheme(expression) {
+      return angular.isDefined($mdTheming.THEMES[expression.split('-')[0]]);
     }
 
     /**
@@ -178,12 +185,10 @@ goog.require('ng.material.core');
       var hasTheme = angular.isDefined($mdTheming.THEMES[parts[0]]);
       var theme = hasTheme ? parts.splice(0, 1)[0] : $mdTheming.defaultTheme();
 
-      var defaultHue = parts[0] !== 'accent' ? 500 : 'A200';
-
       return {
         theme: theme,
         palette: extractPalette(parts, theme),
-        hue: parts[1] || defaultHue,
+        hue: extractHue(parts, theme),
         opacity: parts[2] || 1
       };
     }
@@ -211,8 +216,31 @@ goog.require('ng.material.core');
 
       return palette;
     }
+
+    function extractHue(parts, theme) {
+      var themeColors = $mdTheming.THEMES[theme].colors;
+
+      if (parts[1] === 'hue') {
+        var hueNumber = parseInt(parts.splice(2, 1)[0], 10);
+
+        if (hueNumber < 1 || hueNumber > 3) {
+          throw new Error($mdUtil.supplant('mdColors: \'hue-{hueNumber}\' is not a valid hue, can be only \'hue-1\', \'hue-2\' and \'hue-3\'', {hueNumber: hueNumber}));
+        }
+        parts[1] = 'hue-' + hueNumber;
+
+        if (!(parts[0] in themeColors)) {
+          throw new Error($mdUtil.supplant('mdColors: \'hue-x\' can only be used with [{availableThemes}], but was used with \'{usedTheme}\'', {
+            availableThemes: Object.keys(themeColors).join(', '),
+            usedTheme: parts[0]
+          }));
+        }
+
+        return themeColors[parts[0]].hues[parts[1]];
+      }
+
+      return parts[1] || themeColors[parts[0] in themeColors ? parts[0] : 'primary'].hues['default'];
+    }
   }
-  MdColorsService.$inject = ["$mdTheming", "$mdUtil", "$parse", "$log"];
 
   /**
    * @ngdoc directive
@@ -229,7 +257,7 @@ goog.require('ng.material.core');
    *   ## `[?theme]-[palette]-[?hue]-[?opacity]`
    *   - [theme]    - default value is the default theme
    *   - [palette]  - can be either palette name or primary/accent/warn/background
-   *   - [hue]      - default is 500
+   *   - [hue]      - default is 500 (hue-x can be used with primary/accent/warn/background)
    *   - [opacity]  - default is 1
    *
    *   > `?` indicates optional parameter
@@ -237,7 +265,7 @@ goog.require('ng.material.core');
    * @usage
    * <hljs lang="html">
    *   <div md-colors="{background: 'myTheme-accent-900-0.43'}">
-   *     <div md-colors="{color: 'red-A100', border-color: 'primary-600'}">
+   *     <div md-colors="{color: 'red-A100', 'border-color': 'primary-600'}">
    *       <span>Color demo</span>
    *     </div>
    *   </div>
@@ -252,25 +280,102 @@ goog.require('ng.material.core');
    * </hljs>
    *
    */
-  function MdColorsDirective($mdColors, $mdUtil, $log) {
+  function MdColorsDirective($mdColors, $mdUtil, $log, $parse) {
     return {
       restrict: 'A',
+      require: ['^?mdTheme'],
       compile: function (tElem, tAttrs) {
         var shouldWatch = shouldColorsWatch();
 
-        return function (scope, element, attrs) {
-          var colorExpression = function () {
-            return attrs.mdColors;
+        return function (scope, element, attrs, ctrl) {
+          var mdThemeController = ctrl[0];
+
+          var lastColors = {};
+
+          var parseColors = function (theme) {
+            if (typeof theme !== 'string') {
+              theme = '';
+            }
+
+            if (!attrs.mdColors) {
+              attrs.mdColors = '{}';
+            }
+
+            /**
+             * Json.parse() does not work because the keys are not quoted;
+             * use $parse to convert to a hash map
+             */
+            var colors = $parse(attrs.mdColors)(scope);
+
+            /**
+             * If mdTheme is defined up the DOM tree
+             * we add mdTheme theme to colors who doesn't specified a theme
+             *
+             * # example
+             * <hljs lang="html">
+             *   <div md-theme="myTheme">
+             *     <div md-colors="{background: 'primary-600'}">
+             *       <span md-colors="{background: 'mySecondTheme-accent-200'}">Color demo</span>
+             *     </div>
+             *   </div>
+             * </hljs>
+             *
+             * 'primary-600' will be 'myTheme-primary-600',
+             * but 'mySecondTheme-accent-200' will stay the same cause it has a theme prefix
+             */
+            if (mdThemeController) {
+              Object.keys(colors).forEach(function (prop) {
+                var color = colors[prop];
+                if (!$mdColors.hasTheme(color)) {
+                  colors[prop] = (theme || mdThemeController.$mdTheme) + '-' + color;
+                }
+              });
+            }
+
+            cleanElement(colors);
+
+            return colors;
           };
+
+          var cleanElement = function (colors) {
+            if (!angular.equals(colors, lastColors)) {
+              var keys = Object.keys(lastColors);
+
+              if (lastColors.background && !keys.color) {
+                keys.push('color');
+              }
+
+              keys.forEach(function (key) {
+                element.css(key, '');
+              });
+            }
+
+            lastColors = colors;
+          };
+
+          /**
+           * Registering for mgTheme changes and asking mdTheme controller run our callback whenever a theme changes
+           */
+          var unregisterChanges = angular.noop;
+
+          if (mdThemeController) {
+            unregisterChanges = mdThemeController.registerChanges(function (theme) {
+              $mdColors.applyThemeColors(element, parseColors(theme));
+            });
+          }
+
+          scope.$on('$destroy', function () {
+            unregisterChanges();
+          });
 
           try {
             if (shouldWatch) {
-              scope.$watch(colorExpression, angular.bind(this,
-                $mdColors.applyThemeColors, element, scope
-              ));
+              scope.$watch(parseColors, angular.bind(this,
+                $mdColors.applyThemeColors, element
+              ), true);
             }
             else {
-              $mdColors.applyThemeColors(element, scope, colorExpression());
+              $mdColors.applyThemeColors(element, parseColors());
             }
 
           }
@@ -281,26 +386,25 @@ goog.require('ng.material.core');
         };
 
         function shouldColorsWatch() {
-            // Simulate 1x binding and mark mdColorsWatch == false
-            var rawColorExpression = tAttrs.mdColors;
-            var bindOnce = rawColorExpression.indexOf('::') > -1;
-            var isStatic = bindOnce ? true : STATIC_COLOR_EXPRESSION.test(tAttrs.mdColors);
+          // Simulate 1x binding and mark mdColorsWatch == false
+          var rawColorExpression = tAttrs.mdColors;
+          var bindOnce = rawColorExpression.indexOf('::') > -1;
+          var isStatic = bindOnce ? true : STATIC_COLOR_EXPRESSION.test(tAttrs.mdColors);
 
-              // Remove it for the postLink...
-              tAttrs.mdColors = rawColorExpression.replace('::','');
+          // Remove it for the postLink...
+          tAttrs.mdColors = rawColorExpression.replace('::', '');
 
-            var hasWatchAttr = angular.isDefined(tAttrs.mdColorsWatch);
+          var hasWatchAttr = angular.isDefined(tAttrs.mdColorsWatch);
 
-            return (bindOnce || isStatic) ? false :
-                   hasWatchAttr ? $mdUtil.parseAttributeBoolean(tAttrs.mdColorsWatch) : true;
-          }
+          return (bindOnce || isStatic) ? false :
+            hasWatchAttr ? $mdUtil.parseAttributeBoolean(tAttrs.mdColorsWatch) : true;
+        }
       }
     };
 
   }
-  MdColorsDirective.$inject = ["$mdColors", "$mdUtil", "$log"];
 
 
 })();
 
-ng.material.components.colors = angular.module("material.components.colors");
+ngmaterial.components.colors = angular.module("material.components.colors");

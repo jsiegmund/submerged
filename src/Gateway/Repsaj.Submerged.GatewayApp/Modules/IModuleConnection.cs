@@ -17,8 +17,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         event IModuleConnectionStatusChanged ModuleStatusChanged;
 
-        void Init();
-        IEnumerable<SensorTelemetryModel> RequestSensorData();
-        void SwitchRelay(string port, bool value);
+        Task Init();
     }
 }
