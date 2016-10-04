@@ -45,7 +45,6 @@ public interface PushConstants {
     public static final String HAS_PERMISSION = "hasPermission";
     public static final String ANDROID = "android";
     public static final String SENDER_ID = "senderID";
-    public static final String CLEAR_BADGE = "clearBadge";
     public static final String CLEAR_NOTIFICATIONS = "clearNotifications";
     public static final String COLDSTART = "coldstart";
     public static final String ADDITIONAL_DATA = "additionalData";
@@ -59,7 +58,4 @@ public interface PushConstants {
     public static final String SET_APPLICATION_ICON_BADGE_NUMBER = "setApplicationIconBadgeNumber";
     public static final String CLEAR_ALL_NOTIFICATIONS = "clearAllNotifications";
     public static final String VISIBILITY = "visibility";
-    public static final String INLINE_REPLY = "inlineReply";
-    public static final String LOC_KEY = "locKey";
-    public static final String LOC_DATA = "locData";
 }

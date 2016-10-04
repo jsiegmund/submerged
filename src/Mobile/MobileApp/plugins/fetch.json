@@ -108,7 +108,7 @@
     "phonegap-plugin-push": {
         "source": {
             "type": "registry",
-            "id": "phonegap-plugin-push"
+            "id": "phonegap-plugin-push@1.7.2"
         },
         "is_top_level": true,
         "variables": {
