@@ -63,7 +63,11 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 SetDisconnected();
                 throw new DeviceNotFoundException();
             }
-
+            catch (Exception ex)
+            {
+                SetDisconnected();
+                throw ex;
+            }
         }
         public async Task Init()
         {
