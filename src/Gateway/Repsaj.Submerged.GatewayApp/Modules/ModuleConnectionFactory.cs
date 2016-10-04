@@ -54,7 +54,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             try
             {
                 var simulated = module.ConnectionString == "simulated";
-                var device = _devices.SingleOrDefault(d => d.Id == module.ConnectionString);
+                var device = _devices.SingleOrDefault(d => d.Id.Contains(module.ConnectionString));
 
                 if (!simulated)
                     connection = CreateConnection(module, device, sensors, relays);
