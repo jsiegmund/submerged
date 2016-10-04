@@ -125,7 +125,7 @@
   <plugin name="cordova-plugin-file" version="4.2.0" />
   <preference name="android-targetSdkVersion" value="23" />
   <plugin name="cordova-plugin-ms-azure-mobile-apps" version="2.0.0-rc1" />
-  <plugin name="phonegap-plugin-push" version="1.8.2">
+  <plugin name="phonegap-plugin-push" version="1.7.2">
     <variable name="SENDER_ID" value="532189147734" />
   </plugin>
 </widget>
