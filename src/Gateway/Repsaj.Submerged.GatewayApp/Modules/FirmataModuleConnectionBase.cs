@@ -39,7 +39,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             private set { _moduleStatus = value; }
         }
 
-        EventWaitHandle _waitHandle = new AutoResetEvent(true);
+        EventWaitHandle _waitHandle = new AutoResetEvent(false);
         private readonly object _statusLock = new object();
         private readonly object _connectionLock = new object();
         protected object ConnectionLock
@@ -104,6 +104,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Initializing connection to module [{ModuleName}] failed: {ex}");
                 //MinimalEventSource.Log.LogError($"Initializing connection to module [{ModuleName}] failed: {ex}");
                 ResetConnection();
             }
@@ -130,12 +131,14 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         private void _adapter_ConnectionEstablished()
         {
+            Debug.WriteLine($"Bluetooth connection to [{ModuleName}] established.");
             //MinimalEventSource.Log.LogInfo($"Bluetooth connection to [{ModuleName}] established.");
             _waitHandle.Set();
         }
 
         private void _firmata_FirmataConnectionReady()
         {
+            Debug.WriteLine($"Firmata connection ready for action on module {ModuleName}.");
             //MinimalEventSource.Log.LogInfo($"Firmata connection ready for action on module {ModuleName}.");
             _waitHandle.Set();
         }
@@ -157,6 +160,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         virtual internal void _arduino_DeviceReady()
         {
+            Debug.WriteLine($"Remote device connection for [{ModuleName}] ready for action!");
             //MinimalEventSource.Log.LogInfo($"Remote device connection for [{ModuleName}] ready for action!");
             SetModuleStatus(ModuleConnectionStatus.Connected);
         }
