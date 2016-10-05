@@ -4,21 +4,40 @@
         colorPickerOptions: any;
     }
 
+    class LedenetPointInTime extends Models.ModuleConfiguration.LedenetPointInTime {
+        timeString: string;
+    }
+
     export class SettingsModuleLedenetController extends BaseController {
 
-        point: Models.ModuleConfiguration.LedenetPointInTime;
+        point: LedenetPointInTime;
         config: Models.ModuleConfiguration.LedenetModuleConfigurationModel;
         module: Models.ModuleModel;
 
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ISettingsModuleScope,
             private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
-            private $compile: ng.ICompileService, private ledenetModuleService: Services.ILedenetModuleService) {
+            private $compile: ng.ICompileService, private ledenetModuleService: Services.ILedenetModuleService,
+            private sharedService: Services.ISharedService) {
 
             super($mdToast);
 
             this.module = subscriptionService.getSelectedModule();
             this.config = this.module.configuration;
-            this.point = ledenetModuleService.getSelectedPointInTime();  
+            this.point = <LedenetPointInTime>ledenetModuleService.getSelectedPointInTime();
+
+            if (this.point.time) {
+                // initialize the string representation of the time
+                this.point.timeString = this.timeAsString(this.point.time);
+            }
+
+            $scope.$watch(() => { return this.point.timeString; }, (newValue, oldValue) => {
+                if (newValue) {
+                    // we need to conver the timeString to a UTC representation of the minutes
+                    var timeMoment = moment(this.point.timeString, "HH:mm");
+                    timeMoment = timeMoment.add("seconds", this.sharedService.globalizationInfo.server_offset_seconds);
+                    this.point.time = (timeMoment.hours() * 60) + timeMoment.minutes();
+                }
+            });
 
             /* TODO: options are not working... new version of control is due, should upgrade and check again */
             $scope.colorPickerOptions = {
@@ -49,6 +68,16 @@
 
                 menuService.setButtons([deleteButton]);
             }
+        }
+
+        timeAsString(time: number) {
+            var utcOffsetSeconds = this.sharedService.globalizationInfo.server_offset_seconds;
+            var localTime = time + (utcOffsetSeconds / 60);
+            var hours = Math.floor(localTime / 60);
+            var minutes = localTime % 60;
+            var now = new Date(Date.now());
+            var date = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDay(), hours, minutes, 0);
+            return moment(date).format("HH:mm");
         }
 
         pointClicked(point: Models.ModuleConfiguration.LedenetPointInTime) {

@@ -3,14 +3,14 @@
     <form name="pointForm" novalidate ng-submit="pointForm.$valid && vm.savePoint()">
 
         <md-subheader class="md-primary">Time (HH:mm)</md-subheader>
-        <div moment-picker="vm.point.time"
+        <div moment-picker="vm.point.timeString"
              format="HH:mm"
              min-view="hour"
              min-date="'00:00'"
              max-date="'23:55'"
              autoclose="true"
              today="true">
-            {{ vm.point.time }}
+            {{ vm.point.timeString }}
         </div>
 
         <md-subheader class="md-primary">Fade-in (minutes)</md-subheader>

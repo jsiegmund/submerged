@@ -1,7 +1,7 @@
 ﻿namespace Submerged.Models.ModuleConfiguration {
 
     export class LedenetPointInTime {
-        time: string;
+        time: number;
         fadeIn: number;
         level: number;
         color: string;

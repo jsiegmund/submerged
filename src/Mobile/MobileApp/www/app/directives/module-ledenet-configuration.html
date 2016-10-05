@@ -4,7 +4,7 @@
     <md-list>
         <md-list-item ng-repeat="point in vm.config.pointsInTime" class="md-2-line" ng-click="vm.pointClicked(point)">
             <div class="md-list-item-text" layout="column">
-                <h3>{{point.time}}</h3>
+                <h3>{{vm.timeAsString(point.time)}}</h3>
                 <h4>{{point.color}}</h4>
             </div>
             <md-divider></md-divider>
