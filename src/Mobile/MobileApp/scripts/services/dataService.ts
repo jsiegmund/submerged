@@ -83,7 +83,7 @@
 
         deleteModule(deviceId: string, module: Models.ModuleModel): ng.IPromise<void> {
             var apiUrl = "modules?deviceId=" + deviceId;
-            return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, module);
+            return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.DELETE, module);
         }
 
         addDevice(device: Models.DeviceModel): ng.IPromise<Models.DeviceModel> {
