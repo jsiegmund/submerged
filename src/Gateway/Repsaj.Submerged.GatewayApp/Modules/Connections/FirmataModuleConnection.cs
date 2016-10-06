@@ -195,7 +195,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             throw new NotImplementedException();
         }
 
-        public override void SwitchRelay(string name, bool high)
+        public void SwitchRelay(string name, bool high)
         {
             throw new NotImplementedException();
         }

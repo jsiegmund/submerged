@@ -121,6 +121,8 @@
     <Compile Include="Exceptions\DeviceNotAuthorizedException.cs" />
     <Compile Include="Exceptions\DeviceNotFoundException.cs" />
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
+    <Compile Include="Log\LogEventSource.cs" />
+    <Compile Include="Log\StorageFileEventListener.cs" />
     <Compile Include="Models\ConfigurationModels\LedenetModuleConfiguration.cs" />
     <Compile Include="Models\ConnectionInformationModel.cs" />
     <Compile Include="Models\DeviceModel.cs" />

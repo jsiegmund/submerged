@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Net;
 using Repsaj.Submerged.GatewayApp.Universal.Models.ConfigurationModels;
 using System.Diagnostics;
+using Windows.System.Threading;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
@@ -30,6 +31,8 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
         bool isOn;
 
+        ThreadPoolTimer _timer;
+
         public LedenetModuleConnection(string name, LedenetModuleConfiguration config) : base (name)
         {
             this._config = config;
@@ -46,15 +49,40 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 _socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _socket.Connect(endpoint);
 
-                SetModuleStatus(ModuleConnectionStatus.Connected);
-
                 // request a status update from the device to make sure we're in sync
                 RefreshState();
+
+                // calculate the colors per minute to send to the controller
+                CalculateProgram();
+
+                // start the timer which will update the controller every minute
+                StartTimer();
+
+                SetModuleStatus(ModuleConnectionStatus.Connected);
             }
             catch (Exception ex)
             {
                 SetModuleStatus(ModuleConnectionStatus.Disconnected);
             }
+        }
+
+        void CalculateProgram()
+        {
+            // This method calculates the program by calculating the color as expected
+            // for every individual minute. It stores the program as a simple array 
+            // of size 1440, one entry for every minute.
+            //_config.Device.
+        }
+
+        void StartTimer()
+        {
+            _timer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, new TimeSpan(0, 1, 0));
+        }
+
+        private void Timer_Tick(ThreadPoolTimer timer)
+        {
+            // all times are stored in UTC by default, so always use the UTC number of minutes.
+            int numberOfMinutes = (int)DateTime.UtcNow.TimeOfDay.TotalMinutes;
         }
 
         async Task DiscoverDevice()

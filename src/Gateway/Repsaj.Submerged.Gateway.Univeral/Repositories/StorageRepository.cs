@@ -11,16 +11,17 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 {
     public class StorageRepository : IStorageRepository
     {
+        Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.RoamingFolder;
+
         public string GetStorageLocationPath()
         {
-            return Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+            return localFolder.Path;
         }
 
         public async Task<dynamic> GetStoredObject(string filename)
         {
             try
             {
-                Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
                 StorageFile file = await localFolder.GetFileAsync(filename);
                 string fileContents = await FileIO.ReadTextAsync(file);
                 dynamic result = JsonConvert.DeserializeObject(fileContents);
@@ -35,11 +36,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
 
         public async Task SaveObjectToStorage(dynamic obj, string filename)
         {
-            Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-
             string json = JsonConvert.SerializeObject(obj);
-
-            StorageFile file = await ApplicationData.Current.LocalFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+            StorageFile file = await localFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(file, json);
         }
     }

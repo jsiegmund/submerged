@@ -14,6 +14,7 @@ using Windows.System.Threading;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Models;
+using Repsaj.Submerged.Gateway.Common.Log;
 
 namespace Repsaj.Submerged.GatewayApp.Modules
 { 
@@ -27,7 +28,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
         internal UwpFirmata _firmata;
 
         internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
-        public abstract void SwitchRelay(string name, bool high);
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
@@ -39,7 +39,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             private set { _moduleStatus = value; }
         }
 
-        EventWaitHandle _waitHandle = new AutoResetEvent(false);
         private readonly object _statusLock = new object();
         private readonly object _connectionLock = new object();
         protected object ConnectionLock
@@ -76,36 +75,29 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
             try
             {
-                lock (ConnectionLock)
-                {
-                    //DeviceInformation deviceInfo = await DeviceInformation.CreateFromIdAsync(BluetoothModuleId);
-                    _adapter = new BluetoothSerial(_device);
-                    _adapter.ConnectionEstablished += _adapter_ConnectionEstablished;
-                    _adapter.ConnectionFailed += _adapter_ConnectionFailed;
-                    _adapter.ConnectionLost += _adapter_ConnectionLost;
+                //DeviceInformation deviceInfo = await DeviceInformation.CreateFromIdAsync(BluetoothModuleId);
+                _adapter = new BluetoothSerial(_device);
+                _adapter.ConnectionEstablished += _adapter_ConnectionEstablished;
+                _adapter.ConnectionFailed += _adapter_ConnectionFailed;
+                _adapter.ConnectionLost += _adapter_ConnectionLost;
 
-                    _firmata = new UwpFirmata();
-                    _firmata.FirmataConnectionFailed += _firmata_FirmataConnectionFailed;
-                    _firmata.FirmataConnectionLost += _firmata_FirmataConnectionLost;
-                    _firmata.FirmataConnectionReady += _firmata_FirmataConnectionReady;
-                    _firmata.StringMessageReceived += _firmata_StringMessageReceived;
+                _firmata = new UwpFirmata();
+                _firmata.FirmataConnectionFailed += _firmata_FirmataConnectionFailed;
+                _firmata.FirmataConnectionLost += _firmata_FirmataConnectionLost;
+                _firmata.FirmataConnectionReady += _firmata_FirmataConnectionReady;
+                _firmata.StringMessageReceived += _firmata_StringMessageReceived;
 
-                    _arduino = new RemoteDevice(_firmata);
-                    _arduino.DeviceConnectionFailed += _arduino_DeviceConnectionFailed;
-                    _arduino.DeviceConnectionLost += _arduino_DeviceConnectionLost;
-                    _arduino.DeviceReady += _arduino_DeviceReady;
+                _arduino = new RemoteDevice(_firmata);
+                _arduino.DeviceConnectionFailed += _arduino_DeviceConnectionFailed;
+                _arduino.DeviceConnectionLost += _arduino_DeviceConnectionLost;
+                _arduino.DeviceReady += _arduino_DeviceReady;
 
-                    _adapter.begin(9600, SerialConfig.SERIAL_8N1);
-                    _waitHandle.WaitOne();
-
-                    _firmata.begin(_adapter);
-                    _waitHandle.WaitOne();
-                }
+                _adapter.begin(9600, SerialConfig.SERIAL_8N1);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Initializing connection to module [{ModuleName}] failed: {ex}");
-                //MinimalEventSource.Log.LogError($"Initializing connection to module [{ModuleName}] failed: {ex}");
+                LogEventSource.Log.Error($"Initializing connection to module [{ModuleName}] failed: {ex}");
                 ResetConnection();
             }
         }
@@ -117,65 +109,63 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         private void _adapter_ConnectionLost(string message)
         {
-            //MinimalEventSource.Log.LogWarning($"Bluetooth connection to [{ModuleName}] lost.");
             Debug.WriteLine($"Module {this.ModuleName} lost BluetoothSerial connection.");
+            LogEventSource.Log.Warn($"Bluetooth connection to [{ModuleName}] lost.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionFailed(string message)
         {
             Debug.WriteLine($"Module {this.ModuleName} could not create BluetoothSerial connection.");
-            //MinimalEventSource.Log.LogError($"Bluetooth connection to [{ModuleName}] failed.");
-            _waitHandle.Set();
+            LogEventSource.Log.Error($"Bluetooth connection to [{ModuleName}] failed.");
+            SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionEstablished()
         {
             Debug.WriteLine($"Bluetooth connection to [{ModuleName}] established.");
-            //MinimalEventSource.Log.LogInfo($"Bluetooth connection to [{ModuleName}] established.");
-            _waitHandle.Set();
+            LogEventSource.Log.Info($"Bluetooth connection to [{ModuleName}] established.");
+            _firmata.begin(_adapter);
         }
 
         private void _firmata_FirmataConnectionReady()
         {
             Debug.WriteLine($"Firmata connection ready for action on module {ModuleName}.");
-            //MinimalEventSource.Log.LogInfo($"Firmata connection ready for action on module {ModuleName}.");
-            _waitHandle.Set();
+            LogEventSource.Log.Info($"Firmata connection ready for action on module {ModuleName}.");
         }
 
         private void _firmata_FirmataConnectionLost(string message)
         {
             Debug.WriteLine($"Module {this.ModuleName} lost Firmata connection.");
-            //MinimalEventSource.Log.LogWarning($"Firmata connection lost on module {ModuleName}.");
+            LogEventSource.Log.Warn($"Firmata connection lost on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _firmata_FirmataConnectionFailed(string message)
         {
             Debug.WriteLine($"Module {this.ModuleName} could not create Firmata connection.");
-            //MinimalEventSource.Log.LogError($"Firmata connection failed on module {ModuleName}.");
+            LogEventSource.Log.Error($"Firmata connection failed on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
-            _waitHandle.Set();
         }
 
         virtual internal void _arduino_DeviceReady()
         {
             Debug.WriteLine($"Remote device connection for [{ModuleName}] ready for action!");
-            //MinimalEventSource.Log.LogInfo($"Remote device connection for [{ModuleName}] ready for action!");
+            LogEventSource.Log.Info($"Remote device connection for [{ModuleName}] ready for action!");
             SetModuleStatus(ModuleConnectionStatus.Connected);
         }
 
         private void _arduino_DeviceConnectionLost(string message)
         {
             Debug.WriteLine($"Module {this.ModuleName} lost RemoteDevice connection.");
-            //MinimalEventSource.Log.LogWarning($"Remote device connection for [{ModuleName}] lost.");
+            LogEventSource.Log.Warn($"Remote device connection for [{ModuleName}] lost.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _arduino_DeviceConnectionFailed(string message)
         {
             Debug.WriteLine($"Module {this.ModuleName} could not create RemoteDevice connection.");
-            //MinimalEventSource.Log.LogError($"Remote device connection for [{ModuleName}] failed.");
+            LogEventSource.Log.Error($"Remote device connection for [{ModuleName}] failed.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
@@ -220,13 +210,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules
                 if (!_adapter.connectionReady())
                 {
                     _adapter.begin(0, SerialConfig.SERIAL_8N1);
-                    _waitHandle.WaitOne();
                 }
-
-                if (!_firmata.connectionReady())
+                else if (!_firmata.connectionReady())
                 {
                     _firmata.begin(_adapter);
-                    _waitHandle.WaitOne();
                 }
             }
         }

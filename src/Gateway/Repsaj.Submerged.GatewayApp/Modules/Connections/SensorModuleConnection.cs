@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
@@ -25,9 +26,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
     class SensorModuleConnection : FirmataModuleConnectionBase, ISensorModule
     {
-        Queue<Measurement> _measurementQueue = new Queue<Measurement>();
-
-        private static object _queueLock = new object();
+        ConcurrentQueue<Measurement> _measurementQueue = new ConcurrentQueue<Measurement>();
 
         public override string ModuleType
         {
@@ -64,6 +63,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Exception occurred requesting sensor data from the Sensor Module: " + ex.ToString());
                 //MinimalEventSource.Log.LogError("Could not translate received bytes from Arduino into telemetry message: " + ex.ToString());
             }
 
@@ -81,41 +81,38 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                     return;
 
                 // lock the part where we use the queue to prevent any simulatenous access to it
-                lock (_queueLock)
+                _sensorData.Clear();
+
+                Measurement measurement = new Measurement()
                 {
-                    _sensorData.Clear();
+                    temperature1 = jsonObject.temp1,
+                    temperature2 = jsonObject.temp2,
+                    pH = jsonObject.pH
+                };
 
-                    Measurement measurement = new Measurement()
-                    {
-                        temperature1 = jsonObject.temp1,
-                        temperature2 = jsonObject.temp2,
-                        pH = jsonObject.pH
-                    };
+                Measurement deletedMeasurement;
 
-                    _measurementQueue.Enqueue(measurement);
-                    if (_measurementQueue.Count > 6)
-                        _measurementQueue.Dequeue();
+                _measurementQueue.Enqueue(measurement);
 
-                    var temp1 = _measurementQueue.Sum(s => s.temperature1) / _measurementQueue.Count;
-                    var temp2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
-                    var pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
+                // ensure there's a maximum of 6 items in the queue at any given time
+                if (_measurementQueue.Count > 6)
+                    _measurementQueue.TryDequeue(out deletedMeasurement);
 
-                    _sensorData.Add(new SensorTelemetryModel("temperature1", temp1));
-                    _sensorData.Add(new SensorTelemetryModel("temperature2", temp2));
-                    _sensorData.Add(new SensorTelemetryModel("pH", pH));
-                }
+                var temp1 = _measurementQueue.Sum(s => s.temperature1) / _measurementQueue.Count;
+                var temp2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
+                var pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
+
+                _sensorData.Add(new SensorTelemetryModel("temperature1", temp1));
+                _sensorData.Add(new SensorTelemetryModel("temperature2", temp2));
+                _sensorData.Add(new SensorTelemetryModel("pH", pH));
 
                 _waitHandle.Set();
             }
             catch (Exception ex)
             {
+                Debug.WriteLine("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
                 //MinimalEventSource.Log.LogError("Could not translate received bytes from Arduino into telemetry message: " + ex.ToString());
             }
-        }
-
-        public override void SwitchRelay(string name, bool high)
-        {
-            throw new NotImplementedException();
         }
     }
 }

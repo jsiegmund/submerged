@@ -38,11 +38,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         byte sensorPin6 = 19;
         byte sensorPin7 = 20;
 
-        byte relayPin1 = 2;
-        byte relayPin2 = 3;
-        byte relayPin3 = 4;
-        byte relayPin4 = 5;
-
         byte leakageThreshold = 200;
 
         public CabinetModuleConnection(DeviceInformation device, string name, Sensor[] sensors, Relay[] relays) : base(device, name)
@@ -51,7 +46,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             this._relays = relays;
         }
 
-        public override void SwitchRelay(string relayName, bool high)
+        public void SwitchRelay(string relayName, bool high)
         {
             // find the relay by name
             Relay relay = this._relays.SingleOrDefault(r => r.Name == relayName);

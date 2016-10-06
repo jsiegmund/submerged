@@ -38,6 +38,8 @@ using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
 using Repsaj.Submerged.GatewayApp.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
+using System.Diagnostics.Tracing;
+using Repsaj.Submerged.Gateway.Common.Log;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -56,6 +58,12 @@ namespace Repsaj.Submerged.GatewayApp
         {
             Application.Current.UnhandledException += Current_UnhandledException;
             Application.Current.Suspending += Current_Suspending;
+
+            // initialize logging
+            EventListener listener = new StorageFileEventListener("SubmergedListener");
+            listener.EnableEvents(LogEventSource.Log, EventLevel.Warning);
+
+            LogEventSource.Log.Info("The application is booting.");
 
             InitializeComponent();
             InitializeAutofac();
