@@ -112,6 +112,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arduino\ArduinoPinMapper.cs" />
+    <Compile Include="Control\LED\RGBWHelper.cs" />
+    <Compile Include="Control\LED\RGBWValue.cs" />
     <Compile Include="Device\DeviceFactory.cs" />
     <Compile Include="Device\DeviceHelper.cs" />
     <Compile Include="Device\IDevice.cs" />
@@ -121,6 +124,7 @@
     <Compile Include="Exceptions\DeviceNotAuthorizedException.cs" />
     <Compile Include="Exceptions\DeviceNotFoundException.cs" />
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
+    <Compile Include="Helpers\Converters.cs" />
     <Compile Include="Log\LogEventSource.cs" />
     <Compile Include="Log\StorageFileEventListener.cs" />
     <Compile Include="Models\ConfigurationModels\LedenetModuleConfiguration.cs" />
@@ -139,15 +143,7 @@
     <Compile Include="Repositories\StorageRepository.cs" />
     <EmbeddedResource Include="Properties\Universal.rd.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Repsaj.Submerged.Gateway.Common\Repsaj.Submerged.Gateway.Common.csproj">
-      <Project>{a77a4766-f73e-40d9-be28-6f94e5dbbba7}</Project>
-      <Name>Repsaj.Submerged.Gateway.Common</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

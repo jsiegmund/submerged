@@ -2,7 +2,7 @@
 using Microsoft.Maker.RemoteWiring;
 using Microsoft.Maker.Serial;
 using Newtonsoft.Json.Linq;
-using Repsaj.Submerged.Gateway.Common.Arduino;
+using Repsaj.Submerged.Gateway.Universal.Arduino;
 using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;

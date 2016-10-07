@@ -8,9 +8,9 @@ using Windows.Devices.Enumeration;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Newtonsoft.Json.Linq;
 using Microsoft.Maker.RemoteWiring;
-using Repsaj.Submerged.Gateway.Common.Arduino;
 using System.Diagnostics;
 using Repsaj.Submerged.GatewayApp.Models;
+using Repsaj.Submerged.Gateway.Universal.Arduino;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {

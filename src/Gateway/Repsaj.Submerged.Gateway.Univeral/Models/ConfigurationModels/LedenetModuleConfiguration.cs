@@ -9,12 +9,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models.ConfigurationModels
     public class LedenetModuleConfiguration
     {
         public string Device { get; set; }
-        public List<LedenetPointInTime> PointsInTime { get; set; }
+        public List<LightingPointInTime> PointsInTime { get; set; }
     }
 
-    public class LedenetPointInTime
+    public class LightingPointInTime
     {
-        public string Time { get; set; }
+        public int Time { get; set; }
         public int FadeIn { get; set; }
         public int Level { get; set; }
         public string Color { get; set; }

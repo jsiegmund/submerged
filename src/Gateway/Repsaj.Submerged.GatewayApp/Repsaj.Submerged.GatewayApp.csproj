@@ -221,10 +221,6 @@
       <Project>{8376216c-282a-4927-b9ef-c2d545fe0bca}</Project>
       <Name>Microsoft.Maker.Serial</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repsaj.Submerged.Gateway.Common\Repsaj.Submerged.Gateway.Common.csproj">
-      <Project>{a77a4766-f73e-40d9-be28-6f94e5dbbba7}</Project>
-      <Name>Repsaj.Submerged.Gateway.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Repsaj.Submerged.Gateway.Univeral\Repsaj.Submerged.Gateway.Universal.csproj">
       <Project>{076a30e5-58be-4d13-8d82-2c7bb88f15e9}</Project>
       <Name>Repsaj.Submerged.Gateway.Universal</Name>

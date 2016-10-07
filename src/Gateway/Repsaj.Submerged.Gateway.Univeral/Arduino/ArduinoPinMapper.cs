@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repsaj.Submerged.Gateway.Common.Arduino
+namespace Repsaj.Submerged.Gateway.Universal.Arduino
 {
     public static class ArduinoPinMapper
     {

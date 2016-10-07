@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Universal.Helpers;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
 using System.Collections.Generic;
@@ -94,42 +95,8 @@ namespace Repsaj.Submerged.GatewayApp.Models
         {
             get
             {
-                return SensorDisplayModel.ReadingToText(Reading, this._sensorType);
+                return Converters.ConvertReadingToText(Reading, this._sensorType);
             }
-        }
-
-        public static string ReadingToText(object reading, string sensorType)
-        {
-            string formattedText = "";
-
-            if (reading != null)
-            {
-                Type readingType = reading.GetType();
-
-                if (readingType == typeof(Double) ||
-                    readingType == typeof(float) ||
-                    readingType == typeof(ushort))
-                {
-                    if (sensorType == SensorTypes.TEMPERATURE)
-                        formattedText = String.Format("{0:0.0}", reading);
-                    else if (sensorType == SensorTypes.PH)
-                        formattedText = String.Format("{0:0.00}", reading);
-                    else if (sensorType == SensorTypes.FLOW)
-                        formattedText = String.Format("{0:0}", reading);
-                    else
-                        formattedText = String.Format("{0:0.0}", reading);
-                }
-                else if (reading is bool? && sensorType == SensorTypes.STOCKFLOAT)
-                {
-                    bool? readingAsBool = (bool?)reading;
-                    if (readingAsBool.HasValue)
-                        formattedText = readingAsBool.Value ? "OK" : "FILL";
-                }
-                else
-                    formattedText = reading?.ToString();
-            }
-
-            return formattedText;
         }
     }
 }
