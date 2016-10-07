@@ -13,6 +13,7 @@ using Windows.System.Threading;
 using Windows.UI;
 using System.Text.RegularExpressions;
 using Repsaj.Submerged.GatewayApp.Universal.Control.LED;
+using Repsaj.Submerged.Gateway.Common.Log;
 
 namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 {
@@ -58,7 +59,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 RefreshState();
 
                 // calculate the colors per minute to send to the controller
-                RGBWHelper.CalculateProgram(this._config.PointsInTime);
+                _program = RGBWHelper.CalculateProgram(this._config.PointsInTime);
 
                 // start the timer which will update the controller every minute
                 StartTimer();
@@ -67,11 +68,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
             catch (Exception ex)
             {
+                LogEventSource.Log.Error("Initializing Ledenet module failed: " + ex.ToString());
                 SetModuleStatus(ModuleConnectionStatus.Disconnected);
             }
-        }
-
-        
+        }        
 
         void StartTimer()
         {
@@ -81,7 +81,29 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         private void Timer_Tick(ThreadPoolTimer timer)
         {
             // all times are stored in UTC by default, so always use the UTC number of minutes.
-            int numberOfMinutes = (int)DateTime.UtcNow.TimeOfDay.TotalMinutes;
+            int time = (int)DateTime.UtcNow.TimeOfDay.TotalMinutes;
+
+            try
+            {
+                // get the color for this time
+                RGBWValue color = _program[time];
+
+                if (color.NoOutput() && isOn)
+                {
+                    TurnOff();
+                }
+                else if (!color.NoOutput())
+                {
+                    if (!isOn)
+                        TurnOn();
+
+                    SetRgb(color);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error("Exception trying to set color on Ledenet module: " + ex.ToString());
+            }
         }
 
         async Task DiscoverDevice()
@@ -226,13 +248,19 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
                 int result = _socket.Send(buffer, buffer.Length, SocketFlags.None);
 
                 Debug.WriteLine($"SendPacket returned: {result}");
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-
+                LogEventSource.Log.Error("Failure sending a packet to Ledenet module: " + ex.ToString());
             }
         }
 
-        void SetRgb(byte r, byte g, byte b, bool persist = true)
+        void SetRgb(RGBWValue color)
+        {
+            SetRgb(color.R, color.G, color.B, color.W);
+        }
+
+        void SetRgb(byte r, byte g, byte b, byte w, bool persist = true)
         {
             List<byte> msg = new List<byte>();
 
@@ -244,10 +272,9 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             msg.Add(r);         // Red
             msg.Add(g);         // Green
             msg.Add(b);         // Blue
-            msg.Add(0);         // Warm White
+            msg.Add(w);         // White
 
             msg.Add(0x00);
-            //msg.Add(0xf0);
             msg.Add(0x0f);
 
             SendPacket(msg);            

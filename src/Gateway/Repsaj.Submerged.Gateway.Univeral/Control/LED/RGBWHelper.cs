@@ -69,16 +69,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
             Regex hexColor = new Regex("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
             if (hexColor.IsMatch(point.Color))
             {
-                result.R = int.Parse(point.Color.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
-                result.G = int.Parse(point.Color.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
-                result.B = int.Parse(point.Color.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
+                result.R = byte.Parse(point.Color.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
+                result.G = byte.Parse(point.Color.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
+                result.B = byte.Parse(point.Color.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
             }
             else
             {
                 throw new ArgumentException($"The supplied color ({point.Color} is not a valid hex color.");
             }
 
-            result.W = point.White;
+            result.W = (byte)point.White;
 
             return result;
         }
@@ -110,12 +110,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
             return result;
         }
 
-        private static int CalculateFadingColor(int previous, int next, double progress)
+        private static byte CalculateFadingColor(int previous, int next, double progress)
         {
             if (progress < 0 || progress > 100)
                 throw new ArgumentException($"Progress should be between 0 and 100, {progress} is not.");
 
-            return (int)(previous + ((next - previous) * (progress / 100)));
+            return (byte)(previous + ((next - previous) * (progress / 100)));
         }
     }
 }

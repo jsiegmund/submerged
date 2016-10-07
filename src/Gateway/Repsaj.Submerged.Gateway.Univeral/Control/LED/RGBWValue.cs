@@ -10,16 +10,32 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
 {
     public class RGBWValue : IEqualityComparer<RGBWValue>, IEquatable<RGBWValue>
     {
-        public int R = 0;
-        public int G = 0;
-        public int B = 0;
-        public int W = 0;
+        public byte R = 0;
+        public byte G = 0;
+        public byte B = 0;
+        public byte W = 0;
 
         public RGBWValue()
         {
 
         }
+        public RGBWValue(byte r, byte g, byte b, byte w)
+        {
+            this.R = r;
+            this.G = g;
+            this.B = b;
+            this.W = w;
+        }
 
+        public bool NoOutput()
+        {
+            return R == 0 &&
+                   G == 0 &&
+                   B == 0 &&
+                   W == 0;
+        }
+
+        #region Equality checking
         public override bool Equals(object obj)
         {
             if (!(obj is RGBWValue))
@@ -30,12 +46,10 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
                 return Equals(this, other);
             }
         }
-        public RGBWValue(int r, int g, int b, int w)
+
+        public override int GetHashCode()
         {
-            this.R = r;
-            this.G = g;
-            this.B = b;
-            this.W = w;
+            return GetHashCode(this);
         }
 
         public bool Equals(RGBWValue x, RGBWValue y)
@@ -59,5 +73,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
                    this.B == other.B &&
                    this.W == other.W;
         }
+        #endregion
     }
 }
