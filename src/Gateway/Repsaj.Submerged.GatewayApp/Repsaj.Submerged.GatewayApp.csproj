@@ -209,18 +209,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\remote-wiring\Microsoft.Maker.win10\Microsoft.Maker.Firmata\Microsoft.Maker.Firmata.vcxproj">
-      <Project>{f0a53bc9-c617-47dd-8b68-f91e3502d633}</Project>
-      <Name>Microsoft.Maker.Firmata</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\remote-wiring\Microsoft.Maker.win10\Microsoft.Maker.RemoteWiring\Microsoft.Maker.RemoteWiring.vcxproj">
-      <Project>{5a8b1bb1-7cd5-47c4-a1f7-d7bcf5facad1}</Project>
-      <Name>Microsoft.Maker.RemoteWiring</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\remote-wiring\source\Serial\Microsoft.Maker.Serial.win10\Microsoft.Maker.Serial.vcxproj">
-      <Project>{8376216c-282a-4927-b9ef-c2d545fe0bca}</Project>
-      <Name>Microsoft.Maker.Serial</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Repsaj.Submerged.Gateway.Univeral\Repsaj.Submerged.Gateway.Universal.csproj">
       <Project>{076a30e5-58be-4d13-8d82-2c7bb88f15e9}</Project>
       <Name>Repsaj.Submerged.Gateway.Universal</Name>
@@ -230,6 +218,20 @@
     <SDKReference Include="WindowsIoT, Version=10.0.10586.0">
       <Name>Windows IoT Extensions for the UWP</Name>
     </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Maker.Firmata, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\remote-wiring-lib\Microsoft.Maker.Firmata.winmd</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Maker.RemoteWiring, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\remote-wiring-lib\Microsoft.Maker.RemoteWiring.winmd</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Maker.Serial, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\remote-wiring-lib\Microsoft.Maker.Serial.winmd</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
