@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maker.Firmata;
 using Microsoft.Maker.Serial;
 using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.Gateway.Common.Log;
 using Repsaj.Submerged.GatewayApp.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System;
@@ -63,7 +64,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception occurred requesting sensor data from the Sensor Module: " + ex.ToString());
+                LogEventSource.Log.Error("Exception occurred requesting sensor data from the Sensor Module: " + ex.ToString());
                 //MinimalEventSource.Log.LogError("Could not translate received bytes from Arduino into telemetry message: " + ex.ToString());
             }
 
@@ -72,9 +73,10 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
         override internal void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv)
         {
+            var content = argv.getString();
+
             try
             {
-                var content = argv.getString();
                 dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
 
                 if (jsonObject == null)
@@ -108,10 +110,13 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
                 _waitHandle.Set();
             }
+            catch(Newtonsoft.Json.JsonReaderException)
+            {
+                LogEventSource.Log.Error("Could not parse JSON message received from Sensor Module: " + content);
+            }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
-                //MinimalEventSource.Log.LogError("Could not translate received bytes from Arduino into telemetry message: " + ex.ToString());
+                LogEventSource.Log.Error("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
             }
         }
     }

@@ -16,6 +16,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading;
 using Repsaj.Submerged.GatewayApp.Modules;
+using Repsaj.Submerged.Gateway.Common.Log;
 
 namespace Repsaj.Submerged.GatewayApp.Device
 {
@@ -38,15 +39,12 @@ namespace Repsaj.Submerged.GatewayApp.Device
         ConnectionInformationModel _connectionInfo;
         DeviceModel _deviceModel;
 
-        SynchronizationContext _synchronizationContext;
-
         int requestCounter = 0;
 
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
             IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext)
         {
             _configurationRepository = configurationRepository;
-            _synchronizationContext = synchronizationContext;
             _commandProcessorFactory = commandProcessor;
 
             _moduleConnectionManager = moduleConnectionManager;
@@ -171,7 +169,14 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private void Timer_Tick(ThreadPoolTimer timer)
         {
-            RequestArduinoData();
+            try
+            {
+                RequestModuleData();
+            }
+            catch (Exception ex)
+            {
+               LogEventSource.Log.Error("Exception requesting data from the modules: " + ex.ToString());
+            }
         }
         #endregion
 
@@ -333,7 +338,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         #endregion
 
         #region Arduino / Module Connections
-        private void RequestArduinoData()
+        private void RequestModuleData()
         {
             var sensorData = _moduleConnectionManager.GetSensorData();
          

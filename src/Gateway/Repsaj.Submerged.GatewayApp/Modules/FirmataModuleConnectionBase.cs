@@ -96,7 +96,6 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Initializing connection to module [{ModuleName}] failed: {ex}");
                 LogEventSource.Log.Error($"Initializing connection to module [{ModuleName}] failed: {ex}");
                 ResetConnection();
             }
@@ -109,62 +108,53 @@ namespace Repsaj.Submerged.GatewayApp.Modules
 
         private void _adapter_ConnectionLost(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} lost BluetoothSerial connection.");
             LogEventSource.Log.Warn($"Bluetooth connection to [{ModuleName}] lost.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionFailed(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} could not create BluetoothSerial connection.");
             LogEventSource.Log.Error($"Bluetooth connection to [{ModuleName}] failed.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionEstablished()
         {
-            Debug.WriteLine($"Bluetooth connection to [{ModuleName}] established.");
             LogEventSource.Log.Info($"Bluetooth connection to [{ModuleName}] established.");
             _firmata.begin(_adapter);
         }
 
         private void _firmata_FirmataConnectionReady()
         {
-            Debug.WriteLine($"Firmata connection ready for action on module {ModuleName}.");
             LogEventSource.Log.Info($"Firmata connection ready for action on module {ModuleName}.");
         }
 
         private void _firmata_FirmataConnectionLost(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} lost Firmata connection.");
             LogEventSource.Log.Warn($"Firmata connection lost on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _firmata_FirmataConnectionFailed(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} could not create Firmata connection.");
             LogEventSource.Log.Error($"Firmata connection failed on module {ModuleName}.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         virtual internal void _arduino_DeviceReady()
         {
-            Debug.WriteLine($"Remote device connection for [{ModuleName}] ready for action!");
             LogEventSource.Log.Info($"Remote device connection for [{ModuleName}] ready for action!");
             SetModuleStatus(ModuleConnectionStatus.Connected);
         }
 
         private void _arduino_DeviceConnectionLost(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} lost RemoteDevice connection.");
             LogEventSource.Log.Warn($"Remote device connection for [{ModuleName}] lost.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _arduino_DeviceConnectionFailed(string message)
         {
-            Debug.WriteLine($"Module {this.ModuleName} could not create RemoteDevice connection.");
             LogEventSource.Log.Error($"Remote device connection for [{ModuleName}] failed.");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
