@@ -83,7 +83,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules
             // we ignore "connecting" because that would cause a lot of chatter with Azure since a disconnected 
             // module will be connecting every x minutes
             //bool connectionToggle = false;
-
+            Debug.WriteLine($"ModuleStatusChanged was invoked for module {moduleName}, switching from  {oldStatus} to {newStatus}.");
             if (newStatus != ModuleConnectionStatus.Connecting && _moduleStatuses[moduleName] != newStatus)
             {
                 _moduleStatuses[moduleName] = newStatus;

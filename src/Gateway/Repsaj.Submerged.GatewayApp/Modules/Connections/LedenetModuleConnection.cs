@@ -33,11 +33,14 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
         int _devicePort = 5577;
         Socket _socket;
 
+        UdpClient _udp;
         RGBWValue[] _program;
 
         bool isOn;
 
-        ThreadPoolTimer _timer;
+        ThreadPoolTimer _colorUpdateTimer;
+        ThreadPoolTimer _timeoutTimer;
+        ThreadPoolTimer _retryTimer;
 
         public LedenetModuleConnection(string name, LedenetModuleConfiguration config) : base (name)
         {
@@ -66,6 +69,11 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
                 SetModuleStatus(ModuleConnectionStatus.Connected);
             }
+            catch (ObjectDisposedException)
+            {
+                // disposed exception is caused by the timer cancelling connecting 
+                SetModuleStatus(ModuleConnectionStatus.Disconnected);
+            }
             catch (Exception ex)
             {
                 LogEventSource.Log.Error("Initializing Ledenet module failed: " + ex.ToString());
@@ -75,7 +83,7 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
 
         void StartTimer()
         {
-            _timer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, new TimeSpan(0, 1, 0));
+            _colorUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, new TimeSpan(0, 1, 0));
         }
 
         private void Timer_Tick(ThreadPoolTimer timer)
@@ -114,18 +122,29 @@ namespace Repsaj.Submerged.GatewayApp.Modules.Connections
             string msg = "HF-A11ASSISTHREAD";
             byte[] msgBytes = Encoding.ASCII.GetBytes(msg);
 
-            UdpClient udp = new UdpClient();
-            await udp.SendAsync(msgBytes, msgBytes.Length, broadcastEndPoint);
+            _udp = new UdpClient();
+            await _udp.SendAsync(msgBytes, msgBytes.Length, broadcastEndPoint);
 
             do
             {
+                // start the timeout timer which will handle a connection timeout
+                _timeoutTimer = ThreadPoolTimer.CreateTimer(TimeoutTimer_Tick, new TimeSpan(0, 0, 30));
+
                 // all active devices will reply, select the one we need 
-                UdpReceiveResult receiveResult = await udp.ReceiveAsync();
+                UdpReceiveResult receiveResult = await _udp.ReceiveAsync();
+                _timeoutTimer.Cancel();
+
                 string returnData = Encoding.ASCII.GetString(receiveResult.Buffer);
 
                 if (returnData.Contains(this._config.Device))
                     _deviceAddress = returnData.Substring(0, returnData.IndexOf(','));
             } while (_deviceAddress == null);
+        }
+
+        private void TimeoutTimer_Tick(ThreadPoolTimer timer)
+        {
+            _udp.Dispose();
+            SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         byte[] ReadRaw(int byte_count = 1024)

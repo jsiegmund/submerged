@@ -149,6 +149,8 @@ namespace Repsaj.Submerged.GatewayApp.Device
         #region Timer
         private void StartTimer()
         {
+            Debug.WriteLine("Starting timer for sending device updates to the cloud.");
+
             if (_timer == null)
             {
                 // when all modules have initialized; create a new timer 
@@ -171,6 +173,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         {
             try
             {
+                Debug.WriteLine("Timer tick. Requesting module data to send to Azure IoT hub.");
                 RequestModuleData();
             }
             catch (Exception ex)
@@ -410,7 +413,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async void _moduleConnectionManager_ModulesInitialized()
         {
-            NewLogLine?.Invoke("All modules have been intialized.");
+            NewLogLine?.Invoke("All modules have intialized.");
             
             await SendDeviceData();
             StartTimer();
