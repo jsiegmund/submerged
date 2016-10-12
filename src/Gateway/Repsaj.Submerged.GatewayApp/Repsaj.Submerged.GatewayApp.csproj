@@ -100,52 +100,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\Randomizer.cs" />
-    <Compile Include="Helpers\TrulyObservableCollection.cs" />
-    <Compile Include="Modules\Connections\FirmataModuleConnection.cs" />
-    <Compile Include="Modules\Connections\LedenetModuleConnection.cs" />
-    <Compile Include="Modules\GenericModuleConnectionBase.cs" />
-    <Compile Include="Modules\IModuleConnection.cs" />
-    <Compile Include="Modules\IModuleConnectionFactory.cs" />
-    <Compile Include="Modules\FirmataModuleConnectionBase.cs" />
-    <Compile Include="Modules\IRelayModule.cs" />
-    <Compile Include="Modules\ISensorModule.cs" />
-    <Compile Include="Modules\ModuleConnectionManager.cs" />
-    <Compile Include="Modules\ModuleConnectionFactory.cs" />
-    <Compile Include="Modules\IModuleConnectionManager.cs" />
-    <Compile Include="Modules\ModuleConnectionStatus.cs" />
-    <Compile Include="Device\AzureConnection.cs" />
-    <Compile Include="Modules\Connections\CabinetModuleConnection.cs" />
-    <Compile Include="Commands\CommandProcessingResult.cs" />
-    <Compile Include="Commands\CommandProcessorFactory.cs" />
-    <Compile Include="Commands\ReceivedCommand.cs" />
-    <Compile Include="Commands\ICommandProcessor.cs" />
-    <Compile Include="Commands\ICommandProcessorFactory.cs" />
-    <Compile Include="Commands\SwitchRelayCommandProcessor.cs" />
-    <Compile Include="Commands\DeviceInfoCommandProcessor.cs" />
-    <Compile Include="Models\DeviceTelemetryModel.cs" />
-    <Compile Include="Device\DeviceManager.cs" />
-    <Compile Include="Device\IDeviceManager.cs" />
-    <Compile Include="Hardware\GPIOController.cs" />
-    <Compile Include="Hardware\HardwareException.cs" />
-    <Compile Include="Hardware\IGPIOController.cs" />
-    <Compile Include="Device\IAzureConnection.cs" />
+    <Compile Include="Autofac.cs" />
     <Compile Include="IsNullToVisibilityConverter.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\MainDisplayModel.cs" />
-    <Compile Include="Models\ModuleDisplayModel.cs" />
-    <Compile Include="Models\RelayDisplayModel.cs" />
-    <Compile Include="Models\SensorDisplayModel.cs" />
-    <Compile Include="Modules\SensorData.cs" />
-    <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
-    <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
-    <Compile Include="Modules\Simulated\SimulatedLedenetModuleConnection.cs" />
-    <Compile Include="Modules\Simulated\SimulatedModuleConnectionBase.cs" />
-    <Compile Include="Modules\Simulated\SimulatedSensorModuleConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Modules\Connections\SensorModuleConnection.cs" />
     <Compile Include="UserControls\ModuleRowControl.xaml.cs">
       <DependentUpon>ModuleRowControl.xaml</DependentUpon>
     </Compile>
@@ -155,13 +115,11 @@
     <Compile Include="UserControls\SensorTileControl.xaml.cs">
       <DependentUpon>SensorTileControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Models\NotificationBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="RemoteArduino_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icons\Cloud-Download-48.png" />
@@ -209,29 +167,34 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\remote-wiring\Microsoft.Maker.win10\Microsoft.Maker.Firmata\Microsoft.Maker.Firmata.vcxproj">
+      <Project>{f0a53bc9-c617-47dd-8b68-f91e3502d633}</Project>
+      <Name>Microsoft.Maker.Firmata</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\remote-wiring\Microsoft.Maker.win10\Microsoft.Maker.RemoteWiring\Microsoft.Maker.RemoteWiring.vcxproj">
+      <Project>{5a8b1bb1-7cd5-47c4-a1f7-d7bcf5facad1}</Project>
+      <Name>Microsoft.Maker.RemoteWiring</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\remote-wiring\source\Serial\Microsoft.Maker.Serial.win10\Microsoft.Maker.Serial.vcxproj">
+      <Project>{8376216c-282a-4927-b9ef-c2d545fe0bca}</Project>
+      <Name>Microsoft.Maker.Serial</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Repsaj.Submerged.Gateway.Univeral\Repsaj.Submerged.Gateway.Universal.csproj">
       <Project>{076a30e5-58be-4d13-8d82-2c7bb88f15e9}</Project>
       <Name>Repsaj.Submerged.Gateway.Universal</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <SDKReference Include="Microsoft.VCLibs, Version=14.0">
+      <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
+    </SDKReference>
     <SDKReference Include="WindowsIoT, Version=10.0.10586.0">
       <Name>Windows IoT Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Maker.Firmata, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\remote-wiring-lib\Microsoft.Maker.Firmata.winmd</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Maker.RemoteWiring, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\remote-wiring-lib\Microsoft.Maker.RemoteWiring.winmd</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Maker.Serial, Version=255.255.255.255, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\remote-wiring-lib\Microsoft.Maker.Serial.winmd</HintPath>
-    </Reference>
+    <Folder Include="Helpers\" />
+    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -21,8 +21,6 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Core;
 using System.Diagnostics;
-using RemoteArduino.Commands;
-using RemoteArduino.Hardware;
 using Autofac;
 using Windows.UI.Popups;
 using System.Dynamic;
@@ -30,13 +28,12 @@ using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Windows.System.Threading;
-using Repsaj.Submerged.GatewayApp.Models;
 using System.Text;
 using Repsaj.Submerged.GatewayApp.Device;
 using Autofac.Core;
 using System.Threading;
 using Windows.UI.Xaml.Media.Imaging;
-using Repsaj.Submerged.GatewayApp.Modules;
+using Repsaj.Submerged.GatewayApp.Universal.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using System.Diagnostics.Tracing;
 using Repsaj.Submerged.Gateway.Common.Log;
@@ -50,7 +47,7 @@ namespace Repsaj.Submerged.GatewayApp
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private IContainer _autofacContainer;
+        //private IContainer _autofacContainer;
         private IConfigurationRepository _configRepository;
         IDeviceManager _deviceManager;
 
@@ -66,7 +63,7 @@ namespace Repsaj.Submerged.GatewayApp
             LogEventSource.Log.Info("The application is booting.");
 
             InitializeComponent();
-            InitializeAutofac();
+            Autofac.InitializeAutofac();
 
             this.DataModel = new MainDisplayModel();
             this.Loaded += MainPage_Loaded;
@@ -82,7 +79,7 @@ namespace Repsaj.Submerged.GatewayApp
         private async void Init()
         {
             // resolve the config repository for saving and storing the configuration
-            _configRepository = _autofacContainer.Resolve<IConfigurationRepository>();
+            _configRepository = Autofac.Container.Resolve<IConfigurationRepository>();
             var connectionInfo = await _configRepository.GetConnectionInformationModel();
 
             // set the instruction text
@@ -102,7 +99,7 @@ namespace Repsaj.Submerged.GatewayApp
             }
             else
             {
-                _deviceManager = _autofacContainer.Resolve<IDeviceManager>();
+                _deviceManager = Autofac.Container.Resolve<IDeviceManager>();
                 _deviceManager.NewLogLine += UpdateLog;
 
                 _deviceManager.ModulesUpdated += _deviceManager_ModulesUpdated;
@@ -127,9 +124,11 @@ namespace Repsaj.Submerged.GatewayApp
                     instruction = "Uh-oh! The device key you've entered is not a correct one. You should double check the key and try again.";
                     ShowConnectionInfoBox(instruction, connectionInfo);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    instruction = "Uh-oh! We could not connect to the submerged back-end. Your internet connection might have an issue, in rare " +
+                    LogEventSource.Log.Error("Could not initialize due to this exception: " + ex.ToString());
+
+                        instruction = "Uh-oh! We could not connect to the submerged back-end. Your internet connection might have an issue, in rare " +
                                   "cases the problem could be at the back-end or maybe it's very clouded. Check the details below to ensure your " +
                                   "connection is set-up ok.";
                     ShowConnectionInfoBox(instruction, connectionInfo);
@@ -192,45 +191,12 @@ namespace Repsaj.Submerged.GatewayApp
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            //MinimalEventSource.Log.LogInfo("Suspending the application, killing the connection manager.");
+            LogEventSource.Log.Info("Suspending the application, killing the connection manager.");
             if (_deviceManager != null)
             {
                 _deviceManager.Dispose();
                 _deviceManager = null;
             }
-        }
-
-        private void Current_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            // gracefully ignore all unhandled exceptions
-            //MinimalEventSource.Log.LogError("Unhandled exception was caught: " + e.Exception.ToString());
-        }
-
-        private void InitializeAutofac()
-        {
-            var builder = new ContainerBuilder();
-
-            // register all implementations
-            builder.RegisterType<StorageRepository>().As<IStorageRepository>();
-            builder.RegisterType<ConfigurationRepository>().As<IConfigurationRepository>();
-
-            // register single instances
-            builder.RegisterType<GPIOController>().As<IGPIOController>().SingleInstance();
-            builder.RegisterType<CommandProcessorFactory>().As<ICommandProcessorFactory>().SingleInstance();
-            builder.RegisterType<ModuleConnectionManager>().As<IModuleConnectionManager>().SingleInstance();
-            builder.RegisterType<ModuleConnectionFactory>().As<IModuleConnectionFactory>().SingleInstance();
-
-            builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance()
-                   .WithParameter(new ResolvedParameter(
-                        (pi, ctx) => pi.ParameterType == typeof(SynchronizationContext),
-                        (pi, ctx) => SynchronizationContext.Current));
-
-            // register command processors
-            builder.RegisterType<SwitchRelayCommandProcessor>().As<SwitchRelayCommandProcessor>();
-            builder.RegisterType<DeviceInfoCommandProcessor>().As<DeviceInfoCommandProcessor>();
-
-            var container = builder.Build();
-            _autofacContainer = container;
         }
 
         private async void UpdateLog(string text)
@@ -271,8 +237,14 @@ namespace Repsaj.Submerged.GatewayApp
             }
             catch (Exception ex)
             {
-
+                LogEventSource.Log.Error("Failure saving settings: " + ex.ToString());
             }
         }
+        private void Current_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            // gracefully ignore all unhandled exceptions
+            LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString());
+        }
+
     }
 }

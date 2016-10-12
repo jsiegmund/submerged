@@ -7,7 +7,7 @@
     xmlns:UniversalWrapPanel="using:Gregstoll"   
     xmlns:GatewayApp="using:Repsaj.Submerged.GatewayApp"
     xmlns:Submerged="using:Repsaj.Submerged.GatewayApp.UserControls"
-    xmlns:viewModels="using:Repsaj.Submerged.GatewayApp.Models"
+    xmlns:viewModels="using:Repsaj.Submerged.GatewayApp.Universal.Models"
     x:Class="Repsaj.Submerged.GatewayApp.MainPage"   
     mc:Ignorable="d">
 
