@@ -18,7 +18,8 @@ public static async void Run(string myEventHubMessage, TraceWriter log)
     string apiUpdateRequestUrl = System.Configuration.ConfigurationManager.AppSettings["API_UPDATEREQUEST_URL"];
     
     log.Info($"Getting authentication token from Azure AD");
-    string authToken = await GetAuthAsync(apiClientTokenEndpoint, apiClientId, apiClientSecret, log);
+    //string authToken = await GetAuthAsync(apiClientTokenEndpoint, apiClientId, apiClientSecret, log);
+	string authToken = "none";
     log.Info($"Forwarding incoming device message to API");
     
     dynamic eventData = ((JArray)JsonConvert.DeserializeObject(myEventHubMessage))[0];
