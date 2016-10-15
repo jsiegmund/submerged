@@ -1,4 +1,6 @@
-﻿interface Array<T> {
+﻿"use strict";
+
+interface Array<T> {
     select(expr: any): any;
     where(filter: any): Array<T>;
     firstOrDefault(func: any): T;

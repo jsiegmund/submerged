@@ -1,10 +1,10 @@
-﻿"use strict";
-
+﻿/// <reference path="../shared/app.ts" />
 interface Window {
     encodeURIComponent(url: string): string;
 }
 
 namespace Submerged.Controllers {
+    "use strict";
 
     export class MainController {
 

@@ -1,4 +1,6 @@
-﻿namespace Submerged.Directives {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Directives {
+    "use strict";
 
     class SensorStockFloat implements ng.IDirective {
         public restrict = 'E'; //E = element, A = attribute, C = class, M = comment    

@@ -1,4 +1,6 @@
-﻿module Submerged.Statics {
+﻿/// <reference path="../shared/app.ts" />
+module Submerged.Statics {
+    "use strict";
 
     export class HTTP_VERBS {
         public static get GET(): string { return "get"; }

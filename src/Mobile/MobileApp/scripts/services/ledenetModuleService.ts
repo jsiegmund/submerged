@@ -1,4 +1,6 @@
-﻿namespace Submerged.Services {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Services {
+    "use strict";
 
     export interface ILedenetModuleService {
         selectPointInTime(point: Models.ModuleConfiguration.LedenetPointInTime);

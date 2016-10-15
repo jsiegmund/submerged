@@ -1,12 +1,6 @@
-﻿namespace Submerged.Controllers {
-
-    class DeviceDisplayModel extends Models.DeviceModel {
-        selected: boolean;
-    }
-
-    class ModuleDisplayModel extends Models.ModuleModel {
-        sensorCount: number;
-    }
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Controllers {
+    "use strict";
 
     export class SettingsController {
         loading: boolean = true;
@@ -14,7 +8,7 @@
         newDeviceEnabled: boolean = true;
 
         tanks: Models.TankModel[];
-        devices: DeviceDisplayModel[];
+        devices: Models.DeviceDisplayModel[];
         sensorTypes: any[];
 
         selectedTabIndex: number;
@@ -113,7 +107,7 @@
             this.subscriptionService.load().then((subscription) => {
 
                 this.tanks = subscription.tanks;
-                this.devices = <DeviceDisplayModel[]>subscription.devices;
+                this.devices = <Models.DeviceDisplayModel[]>subscription.devices;
 
                 this.loading = false;
             },
@@ -148,7 +142,7 @@
             }, "Delete device?");
         }
 
-        deviceSelectionChanged(device: DeviceDisplayModel) {
+        deviceSelectionChanged(device: Models.DeviceDisplayModel) {
             // allow only one selection, so toggle all others back to false
             var others = this.devices.where(x => x.selected == true && x.deviceProperties.deviceID != device.deviceProperties.deviceID);
             for (var other of others) {
@@ -172,12 +166,12 @@
             }
         }
 
-        toggleDeviceSelected(device: DeviceDisplayModel) {
+        toggleDeviceSelected(device: Models.DeviceDisplayModel) {
             device.selected = !device.selected;
             this.deviceSelectionChanged(device);
         };
 
-        deviceClicked(device: DeviceDisplayModel, $event: ng.IAngularEvent): void {
+        deviceClicked(device: Models.DeviceDisplayModel, $event: ng.IAngularEvent): void {
             var selected = this.devices.any({ selected: true });
 
             if (!selected) {

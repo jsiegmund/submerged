@@ -1,4 +1,7 @@
-﻿namespace Submerged.Services {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Services {
+    "use strict";
+
     export interface ITankLogService {
         getTankLogs(tankId: string): ng.IPromise<Models.TankLogModel[]>;
         saveTankLog(newLog: Models.TankLogModel): ng.IPromise<{}>;

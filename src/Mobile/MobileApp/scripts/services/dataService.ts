@@ -1,4 +1,7 @@
-﻿namespace Submerged.Services {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Services {
+    "use strict";
+
     export interface IDataService {
         toggleMaintenance(deviceId: string, maintenanceMode: boolean): ng.IPromise<void>;
 

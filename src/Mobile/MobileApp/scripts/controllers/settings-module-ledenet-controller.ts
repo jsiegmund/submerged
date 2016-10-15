@@ -1,16 +1,14 @@
-﻿namespace Submerged.Controllers {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Controllers {
+    "use strict";
 
     interface ISettingsModuleScope extends ng.IScope {
         colorPickerOptions: any;
     }
 
-    class LedenetPointInTime extends Models.ModuleConfiguration.LedenetPointInTime {
-        timeString: string;
-    }
-
     export class SettingsModuleLedenetController extends BaseController {
 
-        point: LedenetPointInTime;
+        point: Models.ModuleConfiguration.LedenetPointInTimeDisplayModel;
         config: Models.ModuleConfiguration.LedenetModuleConfigurationModel;
         module: Models.ModuleModel;
 
@@ -23,7 +21,7 @@
 
             this.module = subscriptionService.getSelectedModule();
             this.config = this.module.configuration;
-            this.point = <LedenetPointInTime>ledenetModuleService.getSelectedPointInTime();
+            this.point = <Models.ModuleConfiguration.LedenetPointInTimeDisplayModel>ledenetModuleService.getSelectedPointInTime();
 
             if (this.point.time) {
                 // initialize the string representation of the time

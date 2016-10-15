@@ -1,4 +1,6 @@
-﻿namespace Submerged.Controllers {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Controllers {
+    "use strict";
 
     interface ISettingsModuleScope extends ng.IScope {
     }

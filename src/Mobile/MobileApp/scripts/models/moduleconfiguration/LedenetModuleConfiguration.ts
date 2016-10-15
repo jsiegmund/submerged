@@ -1,4 +1,5 @@
 ﻿namespace Submerged.Models.ModuleConfiguration {
+    "use strict";
 
     export class LedenetPointInTime {
         time: number;
@@ -12,5 +13,10 @@
         device: string;
         pointsInTime: LedenetPointInTime[] = new Array<LedenetPointInTime>();        
     }
+
+    export class LedenetPointInTimeDisplayModel extends LedenetPointInTime {
+        timeString: string;
+    }
+
 
 }

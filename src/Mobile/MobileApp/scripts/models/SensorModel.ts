@@ -1,4 +1,6 @@
 ﻿namespace Submerged.Models {
+    "use strict";
+
     export class SensorModel {
         name: string;
         displayName: string;

@@ -1,4 +1,6 @@
 ﻿namespace Submerged.Models {
+    "use strict";
+
     export class RelayModel {
         relayNumber: number;
         name: string;

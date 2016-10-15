@@ -1,13 +1,11 @@
-﻿namespace Submerged.Controllers {
-
-    class TankLogModel extends Models.TankLogModel {
-        selected: boolean;
-    }
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Controllers {
+    "use strict";
 
     export class TankLogController extends BaseController {
 
-        private logs: TankLogModel[];
-        private newLog: TankLogModel;
+        private logs: Models.TankLogDisplayModel[];
+        private newLog: Models.TankLogDisplayModel;
         private selectedLog: Models.TankLogModel;
         private loading: boolean = true;
 
@@ -20,11 +18,11 @@
 
             subscriptionService.load().then((subscription) => {
                 var tank = subscription.tanks.first();
-                this.newLog = new TankLogModel;
+                this.newLog = new Models.TankLogDisplayModel;
                 this.newLog.tankId = tank.name;
 
                 this.tankLogService.getTankLogs(tank.name).then((result) => {
-                    this.logs = <TankLogModel[]>result;
+                    this.logs = <Models.TankLogDisplayModel[]>result;
                     this.loading = false;
                 }, (error) => {
                     this.loading = false;
@@ -52,12 +50,12 @@
             }
         }
 
-        toggleLogSelected(log: TankLogModel) {
+        toggleLogSelected(log: Models.TankLogDisplayModel) {
             log.selected = !log.selected;
             this.logSelectionChanged();
         };
 
-        logClicked(log: TankLogModel, $event: ng.IAngularEvent): void {
+        logClicked(log: Models.TankLogDisplayModel, $event: ng.IAngularEvent): void {
             var selected = this.logs.any({ selected: true });
 
             if (!selected)
@@ -95,7 +93,7 @@
             });
         }
 
-        deleteLog(log: TankLogModel): ng.IPromise<boolean> {
+        deleteLog(log: Models.TankLogDisplayModel): ng.IPromise<boolean> {
             var deferred = this.$q.defer();
 
             this.tankLogService.deleteLog(log.tankId, log.logId).then(() => {

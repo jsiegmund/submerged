@@ -1,4 +1,7 @@
-﻿namespace Submerged.Controllers {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Controllers {
+    "use strict";
+
     export class SettingsRelayController extends BaseController {
 
         relay: Models.RelayModel;

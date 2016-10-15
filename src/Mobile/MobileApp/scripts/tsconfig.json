@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "noImplicitAny": false,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "removeComments": false,
     "sourceMap": true,
     "inlineSources": true,
     "out": "www/scripts/appBundle.js",
-    "target": "es6"
+    "target": "es5",
+    "allowUnreachableCode": false,
+    "allowJs": false,
+    "module": "amd"
   },
   "exclude": [
     "typings/main",

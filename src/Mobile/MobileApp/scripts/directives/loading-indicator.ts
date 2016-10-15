@@ -1,4 +1,6 @@
-﻿namespace Submerged.Directives {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Directives {
+    "use strict";
 
     export class LoadingIndicatorDirective implements ng.IDirective {
         public restrict = 'EA'; //E = element, A = attribute, C = class, M = comment    

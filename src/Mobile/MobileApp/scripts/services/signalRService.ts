@@ -1,4 +1,6 @@
-﻿namespace Submerged.Services {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Services {
+    "use strict";
 
     export interface ISignalRService {
         init(callback: (data: any) => void): ng.IPromise<{}>;
@@ -153,6 +155,6 @@
     };
 
     signalR.hub = $.hubConnection("https://neptune-mobileapi.azurewebsites.net/signalr/signalr", { useDefaultPath: false });
-    $.extend(signalR, signalR.hub.createHubProxies());
+    $.extend(signalR, signalR.hub.createHubProxy('liveHub'));
 
 } ($, jQuery, window));

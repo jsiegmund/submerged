@@ -1,4 +1,6 @@
 ﻿namespace Submerged.Models {
+    "use strict";
+
     export class DeviceModel {
         deviceProperties: DeviceProperties;
         modules: ModuleModel[];
@@ -9,4 +11,9 @@
             this.deviceProperties = new DeviceProperties();
         }
     }
+
+    export class DeviceDisplayModel extends Models.DeviceModel {
+        selected: boolean;
+    }
+
 }

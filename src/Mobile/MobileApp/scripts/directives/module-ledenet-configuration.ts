@@ -1,4 +1,6 @@
-﻿namespace Submerged.Directives {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Directives {
+    "use strict";
 
     interface IModuleLedenetScope extends ng.IScope {
         module: Models.ModuleModel;

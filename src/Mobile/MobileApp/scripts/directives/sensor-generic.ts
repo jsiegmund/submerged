@@ -1,4 +1,6 @@
-﻿namespace Submerged.Directives {
+﻿/// <reference path="../shared/app.ts" />
+namespace Submerged.Directives {
+    "use strict";
 
     interface ISensorGenericScope extends ng.IScope {
         formatSensorValue(sensor: Models.SensorModel, value: any): any;

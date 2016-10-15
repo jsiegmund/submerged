@@ -1,4 +1,5 @@
-﻿interface FileReaderEventTarget extends EventTarget {
+﻿/// <reference path="../shared/app.ts" />
+interface FileReaderEventTarget extends EventTarget {
     result: string
 }
 
@@ -8,6 +9,7 @@ interface FileReaderEvent extends ProgressEvent {
 }
 
 namespace Submerged.Services {
+    "use strict";
 
     export interface IFileService {
         getJsonFile<T>(filename: string, folder: string): ng.IPromise<T>;

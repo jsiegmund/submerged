@@ -1,8 +1,10 @@
-﻿interface Window {
+﻿/// <reference path="../shared/app.ts" />
+interface Window {
     ripple: any;
 }
 
 namespace Submerged.Services {
+    "use strict";
 
     export class ApiInfo {
         apiUrl: string;
