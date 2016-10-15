@@ -14,8 +14,8 @@ namespace Repsaj.Submerged.API.Controllers
 {
     [AllowAnonymous]
     //[Authorize] TODO: switch back to authenticated calls
+    //[HostAuthentication("OAuth2Bearer")]
     [RoutePrefix("api/device")]
-    [HostAuthentication("OAuth2Bearer")]
     [System.Web.Mvc.OutputCache(CacheProfile = "NoCacheProfile")]
     public class DeviceController : ApiController
     {
