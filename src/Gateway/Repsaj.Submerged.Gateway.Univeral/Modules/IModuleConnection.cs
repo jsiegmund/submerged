@@ -16,7 +16,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         event IModuleConnectionStatusChanged ModuleStatusChanged;
 
-        void Init();
-        void Reconnect();
+        Task Init();
+        Task Reconnect();
     }
 }

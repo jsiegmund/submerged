@@ -27,7 +27,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Commands
                 {
                     JObject deviceObject = (JObject)command.Command.Parameters;
                     DeviceModel deviceModel = deviceObject.ToObject<DeviceModel>();
-                    await _configRepository.SaveDeviceModel(deviceModel);
+                    await _configRepository.SaveDeviceModelAsync(deviceModel);
 
                     DeviceModelChanged?.Invoke(deviceModel);
 

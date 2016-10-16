@@ -35,16 +35,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
             this.ModuleName = moduleName;
         }
 
-        public void Init()
+        public async Task Init()
         {
             // does nothing because this is a simulated module
-            SetConnectedDelayed().Wait();
+            await SetConnectedDelayed();
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
             // does nothing because this is a simulated module
-            SetConnectedDelayed().Wait();
+            await SetConnectedDelayed();
         }
 
         private async Task SetConnectedDelayed()

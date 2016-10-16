@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Repsaj.Submerged.Gateway.Common.Log;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using System;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.System.Threading;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Azure
 {
@@ -71,10 +73,18 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
         }
         public async Task Init()
         {
-            await TestConnection();
-
-            // start listening for Cloud 2 Device messages 
-            ReceiveC2dAsync();
+            try
+            {
+                await TestConnection();
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Task.Run(() => { ListenToCloudMessagesAsync(); });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error($"Could not connect to Azure because: {ex}");
+                throw;
+            }
         }
 
         private void SetDisconnected()
@@ -134,15 +144,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
             }
         }
 
-        private async void ReceiveC2dAsync()
+        private async Task ListenToCloudMessagesAsync()
         {
             while (true)
             {
                 Message receivedMessage = null;
+                await Task.Delay(1000);
 
                 try
                 {
-                    receivedMessage = await _deviceClient.ReceiveAsync();
+                   receivedMessage = await _deviceClient.ReceiveAsync(TimeSpan.FromSeconds(1));
                 }
                 catch (Exception ex)
                 {
@@ -153,19 +164,24 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
                 }
 
                 if (receivedMessage == null) continue;
+                Debug.WriteLine($"Received a message from Azure!");
 
                 try
                 {
                     DeserializableCommand command = new DeserializableCommand(receivedMessage);
                     await CommandReceived(command);
 
-                    await _deviceClient.CompleteAsync(receivedMessage);
                     SetConnected();
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("Could not process the command received: " + ex);
                     SetDisconnected();
+                }
+                finally
+                {
+                    await _deviceClient.CompleteAsync(receivedMessage);
+                    SetConnected();
                 }
 
             }

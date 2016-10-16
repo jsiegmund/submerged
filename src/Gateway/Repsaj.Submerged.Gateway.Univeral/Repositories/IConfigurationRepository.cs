@@ -12,11 +12,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
         //Task<IEnumerable<ModuleConfigurationModel>> GetModuleConfiguration();
         //Task SaveModuleConfiguration(ModuleConfigurationModel[] moduleConfiguration);
 
-        Task<ConnectionInformationModel> GetConnectionInformationModel();
-        Task SaveConnectionInformationModel(ConnectionInformationModel model);
+        Task<ConnectionInformationModel> GetConnectionInformationModelAsync();
+        Task SaveConnectionInformationModelAsync(ConnectionInformationModel model);
 
-        Task<DeviceModel> GetDeviceModel();
-        Task SaveDeviceModel(DeviceModel model);
+        Task<DeviceModel> GetDeviceModelAsync();
+        Task SaveDeviceModelAsync(DeviceModel model);
 
         string GetConnectionInfoPath();
     }

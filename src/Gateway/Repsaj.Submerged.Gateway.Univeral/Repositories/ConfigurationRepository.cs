@@ -21,7 +21,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
             _storageRepository = storageRepository;
         }
 
-        public async Task<ConnectionInformationModel> GetConnectionInformationModel()
+        public async Task<ConnectionInformationModel> GetConnectionInformationModelAsync()
         {
             try
             {
@@ -41,12 +41,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
             return null;
         }
 
-        public async Task SaveConnectionInformationModel(ConnectionInformationModel model)
+        public async Task SaveConnectionInformationModelAsync(ConnectionInformationModel model)
         {
             await _storageRepository.SaveObjectToStorage(model, FILE_CONNECTION);
         }
 
-        public async Task<DeviceModel> GetDeviceModel()
+        public async Task<DeviceModel> GetDeviceModelAsync()
         {
             dynamic stored = await _storageRepository.GetStoredObject(FILE_DEVICE);
 
@@ -59,7 +59,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Repositories
                 return null;
         }
 
-        public async Task SaveDeviceModel(DeviceModel model)
+        public async Task SaveDeviceModelAsync(DeviceModel model)
         {
             await _storageRepository.SaveObjectToStorage(model, FILE_DEVICE);
         }

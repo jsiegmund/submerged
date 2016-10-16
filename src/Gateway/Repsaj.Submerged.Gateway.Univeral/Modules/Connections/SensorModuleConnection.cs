@@ -131,7 +131,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             catch (Exception ex)
             {
                 LogEventSource.Log.Error("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
-                SetModuleStatus(ModuleConnectionStatus.Disconnected);
             }
         }
     }

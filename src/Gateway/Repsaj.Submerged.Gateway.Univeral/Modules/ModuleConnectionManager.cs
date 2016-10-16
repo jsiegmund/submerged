@@ -104,9 +104,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             // automatically try to reconnect disconnected modules in 5 minutes time
             if (newStatus == ModuleConnectionStatus.Disconnected)
             {
-                await Task.Delay(new TimeSpan(0, 5, 0));
-                moduleConnection.Reconnect();
+                await ReconnectModule(moduleConnection);
             }
+        }
+
+        private async Task ReconnectModule(IModuleConnection moduleConnection)
+        {
+            Debug.WriteLine($"Delaying 5 minutes before reconnecting module {moduleConnection.ModuleName}");
+            await Task.Delay(new TimeSpan(0, 5, 0));
+            Debug.WriteLine($"Calling reconnect on module {moduleConnection.ModuleName}");
+            await moduleConnection.Reconnect();
         }
 
         public void Dispose()

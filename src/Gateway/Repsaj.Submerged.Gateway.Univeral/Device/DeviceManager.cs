@@ -69,7 +69,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             // initialize the Azure connection to test it for connectivity
             await InitializeAzure();
 
-            _deviceModel = await _configurationRepository.GetDeviceModel();
+            _deviceModel = await _configurationRepository.GetDeviceModelAsync();
 
             if (_deviceModel == null)
             {
@@ -136,7 +136,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             UpdateRelayData(relayName, relayState);
 
             // when successful; save the altered device model to store state
-            await _configurationRepository.SaveDeviceModel(this._deviceModel);
+            await _configurationRepository.SaveDeviceModelAsync(this._deviceModel);
         }
 
         private void DeviceInfoProcessor_DeviceModelChanged(DeviceModel deviceModel)
@@ -285,7 +285,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
         private async Task InitializeAzure()
         {
             // Fetch the configuration information from the config file
-            _connectionInfo = await _configurationRepository.GetConnectionInformationModel();
+            _connectionInfo = await _configurationRepository.GetConnectionInformationModelAsync();
 
             // Create an AzureConnection class to connect to Azure
             _azureConnection = new AzureConnection(_connectionInfo.IoTHubHostname, _connectionInfo.DeviceId, _connectionInfo.DeviceKey);

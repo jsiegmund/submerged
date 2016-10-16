@@ -45,14 +45,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             this._config = config;
         }
 
-        public void Init()
+        public async Task Init()
         {
             SetModuleStatus(ModuleConnectionStatus.Connecting);
 
             try
             {
-                Task discoverTask = DiscoverDevice();
-                discoverTask.Wait();
+                await DiscoverDevice();
 
                 // connect the socket to the endpoint
                 IPEndPoint endpoint = new IPEndPoint(IPAddress.Parse(this._deviceAddress), _devicePort);
@@ -90,9 +89,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             }
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
-            Init();
+            await Init();
         }  
 
         void StartTimer()

@@ -55,7 +55,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         }
 
 
-        public void Init()
+        public async Task Init()
         {
             // when no valid device info was passed in, this module will remain idle
             if (_device == null)
@@ -85,7 +85,10 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 _arduino.DeviceConnectionLost += _arduino_DeviceConnectionLost;
                 _arduino.DeviceReady += _arduino_DeviceReady;
 
-                _adapter.begin(9600, SerialConfig.SERIAL_8N1);
+                await Task.Run(() =>
+                {
+                    _adapter.begin(9600, SerialConfig.SERIAL_8N1);
+                });
             }
             catch (Exception ex)
             {
@@ -165,7 +168,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             }
         }
 
-        public void Reconnect()
+        public async Task Reconnect()
         {
             this._timer = null;
 
@@ -180,7 +183,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 DisposeConnections();
 
                 // run the initialization again to create & connect
-                Init();
+                await Init();
             }
             catch (Exception ex)
             {

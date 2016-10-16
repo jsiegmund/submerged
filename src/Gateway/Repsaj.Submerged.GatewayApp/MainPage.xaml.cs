@@ -37,6 +37,7 @@ using Repsaj.Submerged.GatewayApp.Universal.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 using System.Diagnostics.Tracing;
 using Repsaj.Submerged.Gateway.Common.Log;
+using Windows.ApplicationModel.Core;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -53,6 +54,7 @@ namespace Repsaj.Submerged.GatewayApp
 
         public MainPage()
         {
+            CoreApplication.UnhandledErrorDetected += CoreApplication_UnhandledErrorDetected;
             Application.Current.UnhandledException += Current_UnhandledException;
             Application.Current.Suspending += Current_Suspending;
 
@@ -69,18 +71,26 @@ namespace Repsaj.Submerged.GatewayApp
             this.Loaded += MainPage_Loaded;
         }
 
-        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            Init();
+            try
+            {
+                // run the initialization code in a new background task
+                await Init();
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error($"Error during initialization of the Gateway: {ex}");
+            }
         }
 
-        public MainDisplayModel DataModel{ get; set; }
-         
-        private async void Init()
+        public MainDisplayModel DataModel { get; set; }
+
+        private async Task Init()
         {
             // resolve the config repository for saving and storing the configuration
             _configRepository = Autofac.Container.Resolve<IConfigurationRepository>();
-            var connectionInfo = await _configRepository.GetConnectionInformationModel();
+            var connectionInfo = await _configRepository.GetConnectionInformationModelAsync();
 
             // set the instruction text
             string storagePath = _configRepository.GetConnectionInfoPath();
@@ -128,9 +138,9 @@ namespace Repsaj.Submerged.GatewayApp
                 {
                     LogEventSource.Log.Error("Could not initialize due to this exception: " + ex.ToString());
 
-                        instruction = "Uh-oh! We could not connect to the submerged back-end. Your internet connection might have an issue, in rare " +
-                                  "cases the problem could be at the back-end or maybe it's very clouded. Check the details below to ensure your " +
-                                  "connection is set-up ok.";
+                    instruction = "Uh-oh! We could not connect to the submerged back-end. Your internet connection might have an issue, in rare " +
+                              "cases the problem could be at the back-end or maybe it's very clouded. Check the details below to ensure your " +
+                              "connection is set-up ok.";
                     ShowConnectionInfoBox(instruction, connectionInfo);
                 }
             }
@@ -149,19 +159,25 @@ namespace Repsaj.Submerged.GatewayApp
             messageBox.Visibility = Visibility.Visible;
         }
 
-        private async void _deviceManager_AzureDisconnected()
+        private void _deviceManager_AzureDisconnected()
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            Task.Factory.StartNew(async () =>
             {
-                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Download-48.png", UriKind.Absolute));
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Download-48.png", UriKind.Absolute));
+                });
             });
         }
 
-        private async void _deviceManager_AzureConnected()
+        private void _deviceManager_AzureConnected()
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            Task.Factory.StartNew(async () =>
             {
-                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Upload-48.png", UriKind.Absolute));
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Upload-48.png", UriKind.Absolute));
+                });
             });
         }
 
@@ -199,25 +215,28 @@ namespace Repsaj.Submerged.GatewayApp
             }
         }
 
-        private async void UpdateLog(string text)
+        private void UpdateLog(string text)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            Task.Factory.StartNew(async () =>
             {
-                string[] lines = tbLog.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                List<string> linesList = new List<string>(lines);
+               await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+               {
+                   string[] lines = tbLog.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                   List<string> linesList = new List<string>(lines);
 
-                // remove old lines when the count reaches 100 
-                while (linesList.Count > 100)
-                    linesList.RemoveAt(linesList.Count - 1);
+                    // remove old lines when the count reaches 100 
+                    while (linesList.Count > 100)
+                       linesList.RemoveAt(linesList.Count - 1);
 
-                // insert the new line at the top of the list
-                linesList.Insert(0, text);
+                    // insert the new line at the top of the list
+                    linesList.Insert(0, text);
 
-                tbLog.Text = string.Join(Environment.NewLine, linesList);
-            });
+                   tbLog.Text = string.Join(Environment.NewLine, linesList);
+               });
+           });
         }
 
-        private async void SetupButton_Click(object sender, RoutedEventArgs e)
+        private void SetupButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -229,8 +248,12 @@ namespace Repsaj.Submerged.GatewayApp
                     IoTHubHostname = "repsaj-neptune-iothub.azure-devices.net"      // TODO: hardcoded for now, should probably be moved somewhere else?
                 };
 
-                await _configRepository.SaveConnectionInformationModel(connectionInfo);
-                Init();
+                _configRepository.SaveConnectionInformationModelAsync(connectionInfo);
+
+                Task.Factory.StartNew(async () =>
+                {
+                    await Init();
+                });
 
                 // hide the messagebox
                 messageBox.Visibility = Visibility.Collapsed;
@@ -243,6 +266,11 @@ namespace Repsaj.Submerged.GatewayApp
         private void Current_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // gracefully ignore all unhandled exceptions
+            LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString());
+        }
+
+        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        {
             LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString());
         }
 
