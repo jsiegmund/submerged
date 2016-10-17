@@ -10,9 +10,18 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
 {
     class SimulatedCabinetModuleConnection : SimulatedModuleConnectionBase, ISensorModule
     {
-        public SimulatedCabinetModuleConnection(string moduleName) : base(moduleName)
-        {
+        private Sensor[] _sensors;
+        private Relay[] _relays;
 
+        public IEnumerable<Sensor> Sensors
+        {
+            get { return _sensors; }
+        }
+
+        public SimulatedCabinetModuleConnection(string moduleName, Sensor[] sensors, Relay[] relays) : base(moduleName)
+        {
+            this._sensors = sensors;
+            this._relays = relays;
         }
 
         public override string ModuleType

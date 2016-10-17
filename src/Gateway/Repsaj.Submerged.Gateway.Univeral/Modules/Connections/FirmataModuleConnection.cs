@@ -18,6 +18,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
         Sensor[] _sensors;
         Relay[] _relays;
 
+        public IEnumerable<Sensor> Sensors
+        {
+            get { return _sensors; }
+        }
+
         public FirmataModuleConnection(DeviceInformation device, string name, Sensor[] sensors, Relay[] relays) : base(device, name)
         {
             _sensors = sensors;

@@ -78,9 +78,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         private IModuleConnection CreateSimulatedConnection(Module module, Sensor[] sensors, Relay[] relays)
         {
             if (module.ModuleType == ModuleTypes.CABINET)
-                return new SimulatedCabinetModuleConnection(module.Name);
+                return new SimulatedCabinetModuleConnection(module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.SENSORS)
-                return new SimulatedSensorModuleConnection(module.Name);
+                return new SimulatedSensorModuleConnection(module.Name, sensors);
             else if (module.ModuleType == ModuleTypes.FIRMATA)
                 return new SimulatedFirmataModuleConnection(module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.LEDENET)
@@ -94,7 +94,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             if (module.ModuleType == ModuleTypes.CABINET)
                 return new CabinetModuleConnection(device, module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.SENSORS)
-                return new SensorModuleConnection(device, module.Name);
+                return new SensorModuleConnection(device, module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.FIRMATA)
                 return new FirmataModuleConnection(device, module.Name, sensors, relays);
             else if (module.ModuleType == ModuleTypes.LEDENET)

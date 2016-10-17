@@ -101,6 +101,8 @@
     </Compile>
     <Compile Include="UnitTests\LEDUnitTests.cs" />
     <Compile Include="UnitTests\MiscellaneousTests.cs" />
+    <Compile Include="UnitTests\SensorDatastoreContext.cs" />
+    <Compile Include="UnitTests\SensorDatastoreTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="UnitTestApp.xaml">

@@ -10,5 +10,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
     public interface ISensorModule : IModuleConnection
     {
         Task<IEnumerable<SensorTelemetryModel>> RequestSensorData();
+        IEnumerable<Sensor> Sensors { get; }
     }
 }

@@ -29,6 +29,7 @@ namespace Repsaj.Submerged.GatewayApp
             // register all implementations
             builder.RegisterType<StorageRepository>().As<IStorageRepository>();
             builder.RegisterType<ConfigurationRepository>().As<IConfigurationRepository>();
+            builder.RegisterType<SensorDatastore>().As<ISensorDataStore>();
 
             // register single instances
             builder.RegisterType<CommandProcessorFactory>().As<ICommandProcessorFactory>().SingleInstance();

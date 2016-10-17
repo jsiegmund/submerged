@@ -21,15 +21,23 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
     struct Measurement
     {
-        public double temperature1;
-        public double temperature2;
-        public double pH;
+        public double? temperature1;
+        public double? temperature2;
+        public double? pH;
     }
 
     class SensorModuleConnection : FirmataModuleConnectionBase, ISensorModule
     {
-        ConcurrentQueue<Measurement> _measurementQueue = new ConcurrentQueue<Measurement>();
-//        ConcurrentBag<SensorTelemetryModel> _sensorData;
+        Measurement _measurement;
+
+        public IEnumerable<Sensor> Sensors
+        {
+            get { return _sensors; }
+        }
+
+        SemaphoreSlim _measurementSemaphore = new SemaphoreSlim(1, 1);
+        Sensor[] _sensors;
+        Relay[] _relays;
 
         public override string ModuleType
         {
@@ -39,10 +47,14 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             }
         }
 
-        public SensorModuleConnection(DeviceInformation device, string name) : base(device, name)
+        public SensorModuleConnection(DeviceInformation device, string name, Sensor[] sensors, Relay[] relays) : base(device, name)
         {
             // create a new completion source which will be set by the firmata response event
-  //          _sensorData = new ConcurrentBag<SensorTelemetryModel>();
+            //          _sensorData = new ConcurrentBag<SensorTelemetryModel>();
+            this._sensors = sensors;
+            this._relays = relays;
+
+            this._measurement = new Measurement();
         }
 
         public async Task<IEnumerable<SensorTelemetryModel>> RequestSensorData()
@@ -80,22 +92,19 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
                 _connectionLock.Release();
             }
 
-            if (_measurementQueue.Count > 0)
-            {
-                List<SensorTelemetryModel> result = new List<SensorTelemetryModel>();
+            List<SensorTelemetryModel> result = new List<SensorTelemetryModel>();
 
-                var temp1 = _measurementQueue.Sum(s => s.temperature1) / _measurementQueue.Count;
-                var temp2 = _measurementQueue.Sum(s => s.temperature2) / _measurementQueue.Count;
-                var pH = _measurementQueue.Sum(s => s.pH) / _measurementQueue.Count;
+            // build the result, don't add records for null measurements 
+            _measurementSemaphore.Wait();
+            if (this._measurement.temperature1 != null)
+                result.Add(new SensorTelemetryModel("temperature1", this._measurement.temperature1));
+            if (this._measurement.temperature2 != null)
+                result.Add(new SensorTelemetryModel("temperature2", this._measurement.temperature2));
+            if (this._measurement.pH != null)
+                result.Add(new SensorTelemetryModel("pH", this._measurement.pH));
+            _measurementSemaphore.Release();
 
-                result.Add(new SensorTelemetryModel("temperature1", temp1));
-                result.Add(new SensorTelemetryModel("temperature2", temp2));
-                result.Add(new SensorTelemetryModel("pH", pH));
-
-                return result;
-            }
-            else
-                return null;
+            return result;
         }
 
         override internal void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv)
@@ -104,24 +113,22 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 
             try
             {
-                dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+                _measurementSemaphore.Wait();
+                
+                // reset the measurement object to null
+                this._measurement.temperature1 = null;
+                this._measurement.temperature2 = null;
+                this._measurement.pH = null;
 
+                // deserialize the json into a dynamic object, return when failed
+                dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                 if (jsonObject == null)
                     return;
 
-                Measurement measurement = new Measurement()
-                {
-                    temperature1 = jsonObject.temp1,
-                    temperature2 = jsonObject.temp2,
-                    pH = jsonObject.pH
-                };
-
-                _measurementQueue.Enqueue(measurement);
-
-                // ensure there's a maximum of 6 items in the queue at any given time
-                Measurement deletedMeasurement;
-                while (_measurementQueue.Count > 6)
-                    _measurementQueue.TryDequeue(out deletedMeasurement);
+                // copy the values onto the measurement object
+                this._measurement.temperature1 = jsonObject.temp1;
+                this._measurement.temperature2 = jsonObject.temp2;
+                this._measurement.pH = jsonObject.pH;
             }
             catch (Exception ex) when (ex is JsonSerializationException | ex is JsonReaderException)
             {
@@ -131,6 +138,10 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             catch (Exception ex)
             {
                 LogEventSource.Log.Error("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
+            }
+            finally
+            {
+                _measurementSemaphore.Release();
             }
         }
     }

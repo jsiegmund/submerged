@@ -23,6 +23,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             this.Value = value;
         }
 
+        public string ModuleName { get; set; }
         public string SensorName { get; set; }
         public object Value { get; set; }
     }

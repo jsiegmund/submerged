@@ -18,6 +18,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
     public class ModuleConnectionManager : IModuleConnectionManager
     {
         IModuleConnectionFactory _moduleConnectionFactory;
+        ISensorDataStore _sensorDatastore;
         
         ConcurrentDictionary<string, IModuleConnection> _moduleConnections = new ConcurrentDictionary<string, IModuleConnection>();
         ConcurrentDictionary<string, ModuleConnectionStatus> _moduleStatuses = new ConcurrentDictionary<string, ModuleConnectionStatus>();
@@ -27,9 +28,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         public bool AllModulesInitialized { get; private set; }
 
-        public ModuleConnectionManager(IModuleConnectionFactory moduleConnectionFactory)
+        public ModuleConnectionManager(IModuleConnectionFactory moduleConnectionFactory, ISensorDataStore sensorDatastore)
         {
             _moduleConnectionFactory = moduleConnectionFactory;
+            _sensorDatastore = sensorDatastore;
+
             AllModulesInitialized = false;
         }
 
@@ -133,8 +136,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         public async Task<IEnumerable<SensorTelemetryModel>> GetSensorData()
         {
-            ConcurrentBag<SensorTelemetryModel> data = new ConcurrentBag<SensorTelemetryModel>();
-
             var type = typeof(ISensorModule);
             var connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected &&
                                                                         m is ISensorModule).Cast<ISensorModule>();
@@ -142,28 +143,23 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             // loop all of the available modules, request their data and merge it into our data object
             foreach (var module in connectedModules)
             {
+                IEnumerable<SensorTelemetryModel> moduleData = null;
+
                 try
                 {
-                    var moduleData = await module.RequestSensorData().TimeoutAfter(new TimeSpan(0, 0, 30));
-
-                    if (moduleData != null)
-                    {
-                        foreach (var item in moduleData)
-                            data.Add(item);
-                    }
-                    else
-                        LogEventSource.Log.Warn($"Module {module.ModuleName} returned a null response to RequestSensorData.");
+                    moduleData = await module.RequestSensorData().TimeoutAfter(new TimeSpan(0, 0, 30));
                 }
                 catch (Exception ex)
                 {
                     LogEventSource.Log.Error($"Failure requesting sensor data from module {module.ModuleName}: {ex}");
                 }
+
+                // store all of the data in the data store; even when it's null
+                _sensorDatastore.ProcessData(module, moduleData);
             }
 
-            if (data.Count > 0)
-                return data;
-            else
-                return null;
+            // return the data from the datastore which will automatically provide averages and factor out not functioning hardware
+            return _sensorDatastore.GetData();            
         }
 
         public ModuleConnectionStatus GetModuleStatus(string moduleName)

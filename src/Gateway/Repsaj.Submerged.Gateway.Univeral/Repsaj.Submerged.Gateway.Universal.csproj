@@ -166,10 +166,12 @@
     <Compile Include="Modules\IModuleConnectionFactory.cs" />
     <Compile Include="Modules\IModuleConnectionManager.cs" />
     <Compile Include="Modules\IRelayModule.cs" />
+    <Compile Include="Modules\ISensorDataStore.cs" />
     <Compile Include="Modules\ISensorModule.cs" />
     <Compile Include="Modules\ModuleConnectionFactory.cs" />
     <Compile Include="Modules\ModuleConnectionManager.cs" />
     <Compile Include="Modules\ModuleConnectionStatus.cs" />
+    <Compile Include="Modules\SensorDataStore.cs" />
     <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedLedenetModuleConnection.cs" />

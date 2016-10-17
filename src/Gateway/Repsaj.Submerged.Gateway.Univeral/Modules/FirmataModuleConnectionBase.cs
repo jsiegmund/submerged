@@ -179,11 +179,20 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 LogEventSource.Log.Info($"Reconnecting module {ModuleName} after a loss of connection.");
                 SetModuleStatus(ModuleConnectionStatus.Connecting);
 
-                // dispose any connections still lying around
-                DisposeConnections();
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        if (_adapter.connectionReady())
+                            _adapter.end();
+                    }
+                    catch
+                    {
+                        // ignore any exceptions
+                    }
 
-                // run the initialization again to create & connect
-                await Init();
+                    _adapter.begin(9600, SerialConfig.SERIAL_8N1);
+                });
             }
             catch (Exception ex)
             {

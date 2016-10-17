@@ -19,6 +19,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
         double baseTemp = 24;
         double rangeTemp = 5;
 
+        public IEnumerable<Sensor> Sensors
+        {
+            get { return _sensors; }
+        }
+
         public SimulatedFirmataModuleConnection(string moduleName, Sensor[] sensors, Relay[] relays) : base(moduleName)
         {
             _sensors = sensors;
