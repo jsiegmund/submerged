@@ -65,96 +65,89 @@ namespace Submerged.Services {
 
     angular.module('ngapp').service('signalRService', SignalRService);
 
-}
+    function registerHubProxies() {
+        if (typeof ($.signalR) !== "function") {
+            throw new Error("SignalR: SignalR is not loaded. Please ensure jquery.signalR-x.js is referenced before ~/signalr/js.");
+        }
 
-"use strict";
+        var signalR = $.signalR;
 
-/// <reference path="..\..\SignalR.Client.JS\Scripts\jquery-1.6.4.js" />
-/// <reference path="jquery.signalR.js" />
-(function ($, window, undefined) {
-    /// <param name="$" type="jQuery" />
-    "use strict";
+        function makeProxyCallback(hub, callback) {
+            return function () {
+                // Call the client hub method
+                callback.apply(hub, $.makeArray(arguments));
+            };
+        }
 
-    if (typeof ($.signalR) !== "function") {
-        throw new Error("SignalR: SignalR is not loaded. Please ensure jquery.signalR-x.js is referenced before ~/signalr/js.");
-    }
+        function registerHubProxies(instance, shouldSubscribe) {
+            var key, hub, memberKey, memberValue, subscriptionMethod;
 
-    var signalR = $.signalR;
+            for (key in instance) {
+                if (instance.hasOwnProperty(key)) {
+                    hub = instance[key];
 
-    function makeProxyCallback(hub, callback) {
-        return function () {
-            // Call the client hub method
-            callback.apply(hub, $.makeArray(arguments));
-        };
-    }
+                    if (!(hub.hubName)) {
+                        // Not a client hub
+                        continue;
+                    }
 
-    function registerHubProxies(instance, shouldSubscribe) {
-        var key, hub, memberKey, memberValue, subscriptionMethod;
+                    if (shouldSubscribe) {
+                        // We want to subscribe to the hub events
+                        subscriptionMethod = hub.on;
+                    } else {
+                        // We want to unsubscribe from the hub events
+                        subscriptionMethod = hub.off;
+                    }
 
-        for (key in instance) {
-            if (instance.hasOwnProperty(key)) {
-                hub = instance[key];
+                    // Loop through all members on the hub and find client hub functions to subscribe/unsubscribe
+                    for (memberKey in hub.client) {
+                        if (hub.client.hasOwnProperty(memberKey)) {
+                            memberValue = hub.client[memberKey];
 
-                if (!(hub.hubName)) {
-                    // Not a client hub
-                    continue;
-                }
+                            if (!$.isFunction(memberValue)) {
+                                // Not a client hub function
+                                continue;
+                            }
 
-                if (shouldSubscribe) {
-                    // We want to subscribe to the hub events
-                    subscriptionMethod = hub.on;
-                } else {
-                    // We want to unsubscribe from the hub events
-                    subscriptionMethod = hub.off;
-                }
-
-                // Loop through all members on the hub and find client hub functions to subscribe/unsubscribe
-                for (memberKey in hub.client) {
-                    if (hub.client.hasOwnProperty(memberKey)) {
-                        memberValue = hub.client[memberKey];
-
-                        if (!$.isFunction(memberValue)) {
-                            // Not a client hub function
-                            continue;
+                            subscriptionMethod.call(hub, memberKey, makeProxyCallback(hub, memberValue));
                         }
-
-                        subscriptionMethod.call(hub, memberKey, makeProxyCallback(hub, memberValue));
                     }
                 }
             }
         }
-    }
 
-    $.hubConnection.prototype.createHubProxies = function () {
-        var proxies = {};
-        this.starting(function () {
-            // Register the hub proxies as subscribed
-            // (instance, shouldSubscribe)
-            registerHubProxies(proxies, true);
+        $.hubConnection.prototype.createHubProxies = function () {
+            var proxies = {};
+            this.starting(function () {
+                // Register the hub proxies as subscribed
+                // (instance, shouldSubscribe)
+                registerHubProxies(proxies, true);
 
-            this._registerSubscribedHubs();
-        }).disconnected(function () {
-            // Unsubscribe all hub proxies when we "disconnect".  This is to ensure that we do not re-add functional call backs.
-            // (instance, shouldSubscribe)
-            registerHubProxies(proxies, false);
-        });
+                this._registerSubscribedHubs();
+            }).disconnected(function () {
+                // Unsubscribe all hub proxies when we "disconnect".  This is to ensure that we do not re-add functional call backs.
+                // (instance, shouldSubscribe)
+                registerHubProxies(proxies, false);
+            });
 
-        proxies['liveHub'] = this.createHubProxy('liveHub');
-        proxies['liveHub'].client = {};
-        proxies['liveHub'].server = {
-            getServerTime: function () {
-                return proxies['liveHub'].invoke.apply(proxies['liveHub'], $.merge(["GetServerTime"], $.makeArray(arguments)));
-            },
+            proxies['liveHub'] = this.createHubProxy('liveHub');
+            proxies['liveHub'].client = {};
+            proxies['liveHub'].server = {
+                getServerTime: function () {
+                    return proxies['liveHub'].invoke.apply(proxies['liveHub'], $.merge(["GetServerTime"], $.makeArray(arguments)));
+                },
 
-            sendMessage: function (name, message) {
-                return proxies['liveHub'].invoke.apply(proxies['liveHub'], $.merge(["SendMessage"], $.makeArray(arguments)));
-            }
+                sendMessage: function (name, message) {
+                    return proxies['liveHub'].invoke.apply(proxies['liveHub'], $.merge(["SendMessage"], $.makeArray(arguments)));
+                }
+            };
+
+            return proxies;
         };
 
-        return proxies;
-    };
+        signalR.hub = $.hubConnection("https://neptune-mobileapi.azurewebsites.net/signalr/signalr", { useDefaultPath: false });
+        $.extend(signalR, signalR.hub.createHubProxies());
+    }
 
-    signalR.hub = $.hubConnection("https://neptune-mobileapi.azurewebsites.net/signalr/signalr", { useDefaultPath: false });
-    $.extend(signalR, signalR.hub.createHubProxy('liveHub'));
-
-} ($, jQuery, window));
+    registerHubProxies();
+}

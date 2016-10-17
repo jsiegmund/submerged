@@ -91,6 +91,7 @@ declare namespace SignalR {
             * @param hubName The name of the hub on the server to create the proxy for.
             */
             createHubProxy(hubName: string): Proxy;
+            createHubProxies(): any;
         }
 
         interface HubCreator {
