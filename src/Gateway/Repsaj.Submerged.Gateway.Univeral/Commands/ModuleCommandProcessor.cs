@@ -34,8 +34,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Commands
                     if (module == null || module.ModuleStatus != ModuleConnectionStatus.Connected)
                         return CommandProcessingResult.CannotComplete;
 
-                    // execute the command, switch the relay
-                    await module.ProcessCommand(parameters);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Task.Run(() => { module.ProcessCommand(parameters); });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
                     return CommandProcessingResult.Success;
                 }

@@ -35,6 +35,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
                    W == 0;
         }
 
+        public override String ToString()
+        {
+            return $"RGBW({R}, {G}, {B}, {W})";
+        }
+
         #region Equality checking
         public override bool Equals(object obj)
         {

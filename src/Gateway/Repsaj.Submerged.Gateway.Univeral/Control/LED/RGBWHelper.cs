@@ -11,6 +11,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
 {
     public class RGBWHelper
     {
+        public static RGBWValue Blackout = new RGBWValue(0, 0, 0, 0);
+
         public static RGBWValue[] CalculateProgram(IEnumerable<LightingPointInTime> points)
         {
             // This method calculates the program by calculating the color as expected
@@ -91,8 +93,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
         /// <returns></returns>
         public static RGBWValue CalculateRGBWValue(RGBWValue previous, LightingPointInTime nextPoint, double time)
         {
-            RGBWValue result = new RGBWValue();
-
             // we first need to calculate how far along the fade we are
             double startFade = nextPoint.Time - nextPoint.FadeIn;
             double endFade = nextPoint.Time;
@@ -100,12 +100,15 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Control.LED
 
             RGBWValue nextColor = FromLedenetPointInTime(nextPoint);
 
+            RGBWValue result = new RGBWValue();
             // now we need to find the correct color value based on the previous 
             // color, the next color and the progress number
             result.R = CalculateFadingColor(previous.R, nextColor.R, progress);
-            result.G = CalculateFadingColor(previous.R, nextColor.G, progress);
-            result.B = CalculateFadingColor(previous.R, nextColor.B, progress);
-            result.W = CalculateFadingColor(previous.R, nextColor.W, progress);
+            result.G = CalculateFadingColor(previous.G, nextColor.G, progress);
+            result.B = CalculateFadingColor(previous.B, nextColor.B, progress);
+            result.W = CalculateFadingColor(previous.W, nextColor.W, progress);
+
+            Debug.WriteLine($"Calculated fade from {previous} to {nextColor} as {result} for time {time} to {nextPoint.Time}");
 
             return result;
         }

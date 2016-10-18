@@ -100,8 +100,19 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             _colorUpdateTimer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, new TimeSpan(0, 1, 0));
         }
 
+        void StopTimer()
+        {
+            _colorUpdateTimer.Cancel();
+            _colorUpdateTimer = null;
+        }
+
         private void Timer_Tick(ThreadPoolTimer timer)
         {
+            UpdateLED();
+        }
+
+        private void UpdateLED()
+        { 
             // all times are stored in UTC by default, so always use the UTC number of minutes.
             int time = (int)DateTime.UtcNow.TimeOfDay.TotalMinutes;
 
@@ -278,15 +289,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
         {
             try
             {
-
                 // add the checksum to the package as last byte
                 var checksum = ComputeAdditionChecksum(data.ToArray());
                 data.Add(checksum);
 
                 byte[] buffer = data.ToArray();
                 int result = _socket.Send(buffer, buffer.Length, SocketFlags.None);
-
-                Debug.WriteLine($"SendPacket returned: {result}");
             }
             catch (Exception ex)
             {
@@ -299,6 +307,14 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             SetRgb(color.R, color.G, color.B, color.W);
         }
 
+        /// <summary>
+        /// Sets the connected controller to the request value
+        /// </summary>
+        /// <param name="r">Value for RED (0 - 255)</param>
+        /// <param name="g">Value for GREEN (0 - 255)</param>
+        /// <param name="b">Value for BLUE (0 - 255)</param>
+        /// <param name="w">Value for WHITE (0 - 255)</param>
+        /// <param name="persist">When true, the controller will persist this value upon rebooting / losing power</param>
         void SetRgb(byte r, byte g, byte b, byte w, bool persist = true)
         {
             List<byte> msg = new List<byte>();
@@ -321,17 +337,67 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
 
         public void Dispose()
         {
-            
+            if (this._colorUpdateTimer != null)
+            {
+                this._colorUpdateTimer.Cancel();
+                this._colorUpdateTimer = null;
+            }
+
+            if (this._discoverTimeout != null)
+            {
+                this._discoverTimeout.Cancel();
+                this._discoverTimeout = null;
+            }
         }
         
         public Task ProcessCommand(dynamic command)
         {
             if (command.Action == "TestProgram")
             {
-                // start playback of the current program in fast mode (complete program in 1 minute)
+                return TestProgram();
             }
 
             return Task.FromResult(0);
+        }
+
+        private async Task TestProgram()
+        {
+            // if there's no program or its empty, just return
+            if (!(_program?.Length > 0))
+                return;
+
+            // stop the timer so it does not interfere
+            StopTimer();
+
+            List<RGBWValue> trimmedProgram = new List<RGBWValue>(_program);
+
+            // trim off all rgbw(0,0,0,0) values from the beginning and end of the list
+            while (trimmedProgram.First().Equals(RGBWHelper.Blackout))
+                trimmedProgram.RemoveAt(0);
+            while (trimmedProgram.Last().Equals(RGBWHelper.Blackout))
+                trimmedProgram.RemoveAt(trimmedProgram.Count - 1);
+
+            // start with a blackout
+            SetRgb(0, 0, 0, 0);
+            await Task.Delay(new TimeSpan(0, 0, 1));
+
+            // the entire playback should half a minute, calcute the milliseconds delay between steps
+            int delay = 30000 / trimmedProgram.Count;
+
+            // start playback of the current program in fast mode (complete program in 1 minute)
+            for (int i = 0; i < trimmedProgram.Count; i++)
+            {
+                await Task.Delay(new TimeSpan(0, 0, 0, 0, delay));
+                RGBWValue value = trimmedProgram[i];
+                SetRgb(value);
+            }
+
+            // delay for another second because it looks nice
+            await Task.Delay(new TimeSpan(0, 0, 1));
+
+            // send the values for NOW again and restart the timer
+            UpdateLED();
+            StartTimer();
         }
     }
 }

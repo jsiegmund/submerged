@@ -128,5 +128,47 @@ namespace Repsaj.Submerged.Gateway.Tests.UnitTests
             for (int i = 1380; i < 1440; i++)
                 Assert.AreEqual(black, program[i]);
         }
+
+        [TestMethod]
+        public void LED_CalculateFade_Success()
+        {
+            RGBWValue previous = new RGBWValue(136, 85, 34, 10);
+            LightingPointInTime nextPoint = new LightingPointInTime()
+            {
+                Time = 1320,
+                Color = "#000000",
+                FadeIn = 30,
+                Level = 0,
+                White = 0
+            };
+
+            var result = RGBWHelper.CalculateRGBWValue(previous, nextPoint, 1290);
+
+            RGBWValue expected = new RGBWValue(136, 85, 34, 10);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestMethod]
+        public void LED_CalculateFade2_Success()
+        {
+            RGBWValue previous = new RGBWValue(136, 86, 34, 10);
+            LightingPointInTime nextPoint = new LightingPointInTime()
+            {
+                Time = 1320,
+                Color = "#000000",
+                FadeIn = 30,
+                Level = 0,
+                White = 0
+            };
+
+            var result = RGBWHelper.CalculateRGBWValue(previous, nextPoint, 1305);
+
+            RGBWValue expected = new RGBWValue(68, 43, 17, 5);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expected, result);
+        }
     }
 }
