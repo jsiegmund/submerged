@@ -88,6 +88,10 @@ namespace Submerged.Controllers {
             this.$location.path("/settings/module/ledenet/pointintime");
         }
 
+        testProgram() {
+            this.ledenetModuleService.testProgram();
+        }
+
         savePoint() {
             this.ledenetModuleService.savePoint(this.point);
             this.$location.path("settings/module");

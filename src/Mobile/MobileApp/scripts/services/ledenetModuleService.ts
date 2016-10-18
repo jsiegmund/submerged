@@ -6,13 +6,15 @@ namespace Submerged.Services {
         selectPointInTime(point: Models.ModuleConfiguration.LedenetPointInTime);
         getSelectedPointInTime(): Models.ModuleConfiguration.LedenetPointInTime;
         savePoint(point: Models.ModuleConfiguration.LedenetPointInTime);
+        testProgram();
     }
 
     export class LedenetModuleService implements ILedenetModuleService {
 
         selectedPoint: Models.ModuleConfiguration.LedenetPointInTime;
 
-        constructor(private subscriptionService: ISubscriptionService) {
+        constructor(private subscriptionService: ISubscriptionService, private dataService: IDataService,
+            private sharedService: ISharedService) {
             
         }                
 
@@ -43,6 +45,17 @@ namespace Submerged.Services {
 
         selectPointInTime(point: Models.ModuleConfiguration.LedenetPointInTime) {
             this.selectedPoint = point;
+        }
+
+        testProgram() {
+            var deviceId = this.subscriptionService.getSelectedDeviceID();
+            var moduleName = this.subscriptionService.getSelectedModule().name;
+
+            var command = {
+                Action: "TestProgram"
+            };
+
+            this.dataService.sendModuleCommand(deviceId, moduleName, command);
         }
     }
 

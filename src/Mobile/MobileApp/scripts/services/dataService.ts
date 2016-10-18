@@ -39,6 +39,8 @@ namespace Submerged.Services {
         getData(rangeType: string, date: Date, deviceId: string): ng.IPromise<Models.AnalyticsDataModel>;
 
         getSubscription(): ng.IPromise<Models.SubscriptionModel>;  
+
+        sendModuleCommand(deviceId: string, moduleName: string, command: any);
     }
 
     export class DataService implements IDataService {
@@ -184,6 +186,10 @@ namespace Submerged.Services {
             return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, null);
         }
 
+        sendModuleCommand(deviceId: string, moduleName: string, command: any) {
+            var apiUrl = `control/sendcommand?deviceId=${deviceId}&moduleName=${moduleName}`;
+            return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, command);
+        }
 
         private apiFunctionCall<T>(apiUrl: string, method: string, body: any): ng.IPromise<T> {
             var deferred = this.$q.defer<T>();
