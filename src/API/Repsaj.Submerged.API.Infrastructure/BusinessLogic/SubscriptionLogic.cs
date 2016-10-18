@@ -767,5 +767,21 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
             await _notificationHubRepository.CreateOrUpdateInstallationAsync(installationId, registrationId, tags);
         }
+
+        public async Task SendModuleCommand(string deviceId, string moduleName, dynamic command, string owner)
+        {
+            DeviceModel device = await GetDeviceAsync(deviceId, owner);
+
+            if (device == null)
+                throw new SubscriptionValidationException(Strings.DeviceNotRegisteredExceptionMessage);
+            if (!device.Modules.Any(m => m.Name == moduleName))
+                throw new SubscriptionValidationException(Strings.ValidationModuleUnknown);
+
+            // manually set the module name on the command so we know for sure
+            // that it's there
+            command.ModuleName = moduleName;
+
+            await _deviceLogic.SendCommandAsync(deviceId, DeviceCommandTypes.MODULE_COMMAND, command);
+        }
     }
 }

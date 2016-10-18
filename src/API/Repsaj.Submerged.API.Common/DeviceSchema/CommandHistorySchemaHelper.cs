@@ -59,7 +59,8 @@ namespace Repsaj.Submerged.Common.DeviceSchema
                 }
                 command.Add(DeviceCommandConstants.PARAMETERS, newParam);
             }
-            else if (parameters.GetType() == typeof(JArray))
+            else if (parameters.GetType() == typeof(JArray) || 
+                     parameters.GetType() == typeof(JObject))
             {
                 //We have JSON
                 command.Parameters = parameters;

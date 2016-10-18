@@ -53,6 +53,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
 
 
         Task<dynamic> UpdateDeviceFromDeviceInfoPacketAsync(dynamic device);
+        Task SendModuleCommand(string deviceId, string moduleName, dynamic command, string userId);
         Task<bool> ValidateDeviceOwnerAsync(string deviceId, string owner);
         Task SendDeviceConfigurationMessage(string deviceId);
         Task<DeviceModel> SetMaintenance(string deviceId, bool inMaintenance, string owner);

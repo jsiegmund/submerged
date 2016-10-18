@@ -21,5 +21,6 @@ namespace Repsaj.Submerged.Common.Models.Commands
     {
         public const string SWITCH_RELAY = "SwitchRelay";
         public const string UPDATE_INFO = "UpdateInfo";
+        public const string MODULE_COMMAND = "ModuleCommand";
     }
 }

@@ -79,5 +79,20 @@ namespace Repsaj.Submerged.API.Controllers
             }
         }
 
+        [Route("sendcommand")]
+        [HttpPost]
+        public async Task<IHttpActionResult> SendCommand(string deviceId, string moduleName, [FromBody]dynamic command)
+        {
+            try
+            {
+                await _subscriptionLogic.SendModuleCommand(deviceId, moduleName, command, AuthenticationHelper.UserId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failure in SendCommand call: {0}", ex);
+                return InternalServerError();
+            }
+        }
     }
 }
