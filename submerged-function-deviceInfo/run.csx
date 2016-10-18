@@ -5,6 +5,7 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
+using Microsoft.Azure.Devices;
 //using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 public static async void Run(string myEventHubMessage, TraceWriter log)
@@ -23,7 +24,7 @@ public static async void Run(string myEventHubMessage, TraceWriter log)
     log.Info($"Forwarding incoming device message to API");
     
     dynamic eventData = ((JArray)JsonConvert.DeserializeObject(myEventHubMessage))[0];
-    string objectType = eventData.ObjectType ?? eventData.objectType ?? "";
+    string objectType = eventData.ObjectType ?? eventData.objectType ?? eventData.objecttype ?? "";
     if (objectType == "DeviceInfo")
     {
         log.Info("Sending device info to API back-end");
@@ -36,9 +37,37 @@ public static async void Run(string myEventHubMessage, TraceWriter log)
         await SendUpdateRequestAsync(apiUpdateRequestUrl, myEventHubMessage, authToken, log);
         log.Info($"Device update request sent to API back-end");
     }
+    else if (objectType == "DeviceThrottleRequest")
+    {
+        await DisableDevice(myEventHubMessage, log);
+    }
     else
     {
         log.Info($"Unknown object type {objectType}");
+    }
+}
+
+public static async Task DisableDevice(string input, TraceWriter log)
+{
+    log.Info("Received request to throttle device.");
+
+    try {
+        dynamic eventData = ((JArray)JsonConvert.DeserializeObject(input))[0];
+        string deviceId = eventData.deviceid;
+
+        string iotHubConnectionString = System.Configuration.ConfigurationManager.AppSettings["iotHub.ConnectionString"];
+        var registry = RegistryManager.CreateFromConnectionString(iotHubConnectionString);
+
+        log.Info($"Disabling device {deviceId} in IoT hub.");
+        var device = await registry.GetDeviceAsync(deviceId);
+        device.Status = DeviceStatus.Disabled;
+        await registry.UpdateDeviceAsync(device);
+
+        log.Info("Successfully disabled device.");       
+    } 
+    catch (Exception ex)
+    {
+        log.Error("Failure trying to disable a device: " + ex.ToString());
     }
 }
 

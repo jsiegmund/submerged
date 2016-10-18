@@ -1,1 +1,13 @@
-{"bindings":[{"type":"eventHubTrigger","name":"myEventHubMessage","direction":"in","path":"repsaj-neptune-eventhub-out","connection":"repsaj-neptune-eventhub-out"}],"disabled":false}
+{
+  "bindings": [
+    {
+      "type": "eventHubTrigger",
+      "name": "myEventHubMessage",
+      "direction": "in",
+      "path": "submerged-eventhub-out",
+      "connection": "submerged-eventhub-out",
+      "consumerGroup": "$Default"
+    }
+  ],
+  "disabled": false
+}
