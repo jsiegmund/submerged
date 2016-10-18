@@ -5,16 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using Repsaj.Submerged.GatewayApp.Universal.Helpers;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 {
     public class SensorDatastore : ISensorDataStore
     {
-        Dictionary<Tuple<string, string>, Queue<SensorTelemetryModel>> _datastore;
+        Dictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>> _datastore;
 
         public SensorDatastore()
         {
-            this._datastore = new Dictionary<Tuple<string, string>, Queue<SensorTelemetryModel>>();
+            this._datastore = new Dictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>>();
         }
 
         /// <summary>
@@ -47,9 +49,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             // ensure there will be a queue for every sensor in the colletion
             if (! _datastore.Keys.Any(k => k.Item1 == module.ModuleName && k.Item2 == sensorName))
             {
-                Sensor sensorDefinition = module.Sensors.Single(s => s.Name == sensorName);
+                Sensor sensorDefinition = module.Sensors.SingleOrDefault(s => s.Name == sensorName);
+
+                if (sensorDefinition == null)
+                    throw new ArgumentException($"Module {module.ModuleName} is not configured for sensor {sensorName}");
+
                 int queueCapacity = GetQueueCapacityForSensor(sensorDefinition);
-                _datastore.Add(new Tuple<string, string>(module.ModuleName, sensorName), new Queue<SensorTelemetryModel>(queueCapacity));
+                _datastore.Add(new Tuple<string, string>(module.ModuleName, sensorName), new FixedSizeQueue<SensorTelemetryModel>(queueCapacity));
             }
             
             // fetch the queue, store the item and pop off any excess items
@@ -82,24 +88,32 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         {
             List<SensorTelemetryModel> result = new List<SensorTelemetryModel>();
 
-            foreach (var sensorQueue in _datastore)
+            try
             {
-                // if all of the queue values are null, the sensor is skipped
-                if (sensorQueue.Value.All(v => v == null))
-                    continue;
-                // if the queue length is just one, simply return the value
-                else if (sensorQueue.Value.Count == 1)
-                    result.Add(sensorQueue.Value.First());
-                // if the queue length is larger then one the sensor values should be numeric and we'll calculate
-                // the running average
-                else
+                foreach (var sensorQueue in _datastore)
                 {
-                    var values = sensorQueue.Value.Where(v => v != null);
-                    double sensorSum = values.Sum(v => (double)v.Value);
-                    double sensorAverage = sensorSum / (double)values.Count();
+                    // if all of the queue values are null, the sensor is skipped
+                    if (sensorQueue.Value.All(v => v == null))
+                        continue;
+                    // if the queue length is just one, simply return the value
+                    else if (sensorQueue.Value.Count == 1)
+                        result.Add(sensorQueue.Value.First());
+                    // if the queue length is larger then one the sensor values should be numeric and we'll calculate
+                    // the running average
+                    else
+                    {
+                        var values = sensorQueue.Value.Where(v => v != null);
+                        double sensorSum = values.Sum(v => Convert.ToDouble(v.Value));
+                        double sensorAverage = sensorSum / (double)values.Count();
 
-                    result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, sensorAverage));
-                };                   
+                        result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, sensorAverage));
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                throw;
             }
 
             return result;

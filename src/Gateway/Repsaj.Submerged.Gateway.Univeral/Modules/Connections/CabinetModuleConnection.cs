@@ -13,6 +13,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
@@ -71,7 +72,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             catch (Exception ex)
             {
                 LogEventSource.Log.Error($"Could not switch relay {relayName} to state {high} because: {ex}");
-                throw ex;       // error needs to be rethrown so the commandprocessor notices the problem
+                throw;       // error needs to be rethrown so the commandprocessor notices the problem
             }
         }
 
@@ -133,6 +134,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
         }
 
         override internal void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task ProcessCommand(dynamic command)
         {
             throw new NotImplementedException();
         }

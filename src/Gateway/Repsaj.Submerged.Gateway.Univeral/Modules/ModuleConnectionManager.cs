@@ -136,30 +136,38 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         public async Task<IEnumerable<SensorTelemetryModel>> GetSensorData()
         {
-            var type = typeof(ISensorModule);
-            var connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected &&
-                                                                        m is ISensorModule).Cast<ISensorModule>();
-
-            // loop all of the available modules, request their data and merge it into our data object
-            foreach (var module in connectedModules)
+            try
             {
-                IEnumerable<SensorTelemetryModel> moduleData = null;
+                var type = typeof(ISensorModule);
+                var connectedModules = _moduleConnections.Values.Where(m => m.ModuleStatus == ModuleConnectionStatus.Connected &&
+                                                                            m is ISensorModule).Cast<ISensorModule>();
 
-                try
+                // loop all of the available modules, request their data and merge it into our data object
+                foreach (var module in connectedModules)
                 {
-                    moduleData = await module.RequestSensorData().TimeoutAfter(new TimeSpan(0, 0, 30));
-                }
-                catch (Exception ex)
-                {
-                    LogEventSource.Log.Error($"Failure requesting sensor data from module {module.ModuleName}: {ex}");
+                    IEnumerable<SensorTelemetryModel> moduleData = null;
+
+                    try
+                    {
+                        moduleData = await module.RequestSensorData().TimeoutAfter(new TimeSpan(0, 0, 30));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogEventSource.Log.Error($"Failure requesting sensor data from module {module.ModuleName}: {ex}");
+                    }
+
+                    // store all of the data in the data store; even when it's null
+                    _sensorDatastore.ProcessData(module, moduleData);
                 }
 
-                // store all of the data in the data store; even when it's null
-                _sensorDatastore.ProcessData(module, moduleData);
+                // return the data from the datastore which will automatically provide averages and factor out not functioning hardware
+                return _sensorDatastore.GetData();
             }
-
-            // return the data from the datastore which will automatically provide averages and factor out not functioning hardware
-            return _sensorDatastore.GetData();            
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error($"ModuleConnectionManager encountered an error trying to get sensor data: {ex}");
+                return null;
+            }
         }
 
         public ModuleConnectionStatus GetModuleStatus(string moduleName)

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
+using Repsaj.Submerged.GatewayApp.Universal.Modules.LED;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 {

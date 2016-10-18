@@ -44,6 +44,7 @@ namespace Repsaj.Submerged.GatewayApp
             // register command processors
             builder.RegisterType<SwitchRelayCommandProcessor>().As<SwitchRelayCommandProcessor>();
             builder.RegisterType<DeviceInfoCommandProcessor>().As<DeviceInfoCommandProcessor>();
+            builder.RegisterType<ModuleCommandProcessor>().As<ModuleCommandProcessor>();
 
             _container = builder.Build();
         }

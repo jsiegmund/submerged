@@ -14,6 +14,7 @@ using System.Threading;
 using Newtonsoft.Json.Linq;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Repsaj.Submerged.Gateway.Common.Log;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 { 
@@ -27,6 +28,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         internal UwpFirmata _firmata;
 
         internal abstract void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv);
+        public abstract Task ProcessCommand(dynamic command);
 
         public string ModuleName { get; private set; }
         public abstract string ModuleType { get; }
@@ -40,6 +42,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         internal readonly SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
         private ThreadPoolTimer _timer;
+
 
         public FirmataModuleConnectionBase(DeviceInformation device, string name)
         {

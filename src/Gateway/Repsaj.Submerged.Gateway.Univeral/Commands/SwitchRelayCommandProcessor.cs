@@ -47,6 +47,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Commands
 
                     // execute the command, switch the relay
                     relayConnection.SwitchRelay(relayName, relayState.Value);
+
+                    return CommandProcessingResult.Success;
                 }
                 catch (Exception)
                 {

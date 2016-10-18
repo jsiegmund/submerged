@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
 {
@@ -71,6 +72,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
                 // ignore status Connecting because that would cause a lot of chatter
                 ModuleStatusChanged?.Invoke(ModuleName, oldStatus, newStatus);
             }
+        }
+
+        public Task ProcessCommand(dynamic command)
+        {
+            throw new NotImplementedException();
         }
     }
 }

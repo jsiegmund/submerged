@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Repsaj.Submerged.GatewayApp.Universal.Extensions;
 using Newtonsoft.Json;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
@@ -143,6 +144,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             {
                 _measurementSemaphore.Release();
             }
+        }
+
+        public override Task ProcessCommand(dynamic command)
+        {
+            throw new NotImplementedException();
         }
     }
 }

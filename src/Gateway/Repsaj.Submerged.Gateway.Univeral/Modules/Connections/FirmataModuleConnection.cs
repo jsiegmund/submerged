@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Maker.RemoteWiring;
 using System.Diagnostics;
 using Repsaj.Submerged.Gateway.Universal.Arduino;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
@@ -201,6 +202,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
         }
 
         public void SwitchRelay(string name, bool high)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task ProcessCommand(dynamic command)
         {
             throw new NotImplementedException();
         }

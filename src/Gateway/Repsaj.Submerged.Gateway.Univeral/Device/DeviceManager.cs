@@ -38,6 +38,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
         ConnectionInformationModel _connectionInfo;
         DeviceModel _deviceModel;
 
+        TimeSpan _dataInterval = new TimeSpan(0, 0, 10);
+        int _sendDataEveryN = 6;
+
         int requestCounter = 0;
 
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
@@ -154,7 +157,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             {
                 // when all modules have initialized; create a new timer 
                 // and kick off the timer event once manually to immediately send the latest data
-                _timer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, new TimeSpan(0, 0, 10));
+                _timer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, _dataInterval);
                 Timer_Tick(_timer);
             }
         }
@@ -170,15 +173,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async void Timer_Tick(ThreadPoolTimer timer)
         {
-            try
-            {
-                Debug.WriteLine("Timer tick. Requesting module data.");
-                await RequestModuleData();
-            }
-            catch (Exception ex)
-            {
-               LogEventSource.Log.Error("Exception requesting data from the modules: " + ex.ToString());
-            }
+            Debug.WriteLine("Timer tick. Requesting module data.");
+            await RequestModuleData();
+            Debug.WriteLine("Request done.");
         }
         #endregion
 
@@ -315,18 +312,19 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             dynamic data = DeviceFactory.GetDevice(_connectionInfo.DeviceId, _connectionInfo.DeviceKey, statusesAsText);
 
-            try
+            if (data == null)
             {
-                // push the data to Azure for cloud processing
-                await _azureConnection.SendDeviceToCloudMessageAsync(data);
+                LogEventSource.Log.Error($"DeviceFactory returned a null object for device {_connectionInfo.DeviceId}.");
+                return;
+            }
 
-                NewLogLine?.Invoke(String.Format("Device data sent @ {0:G}", DateTime.Now));
-            }
-            catch (Exception ex)
-            {
-                LogEventSource.Log.Error($"Failure trying to send device data to Azure: {ex}");
-                NewLogLine?.Invoke(ex.ToString());
-            }
+            // push the data to Azure for cloud processing
+            bool success = await _azureConnection.SendDeviceToCloudMessageAsync(data);
+
+            if (success)
+                NewLogLine?.Invoke("Sent a status update to back-end.");
+            else
+                NewLogLine?.Invoke("The device could not send device data because the back-end connection is down.");
         }
 
         public async Task RequestDeviceUpdate()
@@ -335,32 +333,30 @@ namespace Repsaj.Submerged.GatewayApp.Device
             requestObject.Add(DeviceModelConstants.OBJECT_TYPE, DeviceMessageObjectTypes.UPDATE_REQUEST);
             requestObject.Add(DevicePropertiesConstants.DEVICE_ID, _connectionInfo.DeviceId);
 
-            await _azureConnection.SendDeviceToCloudMessageAsync(requestObject);
+            bool success = await _azureConnection.SendDeviceToCloudMessageAsync(requestObject);
         }
         #endregion
 
         #region Arduino / Module Connections
         private async Task RequestModuleData()
         {
+            // The module connection manager already returns running averages of sensor values
             var sensorData = await _moduleConnectionManager.GetSensorData();
-         
+
             if (sensorData?.Count() > 0)
             {
                 // Update the sensor data in the UI after each new data packet
                 UpdateSensorData(sensorData);
 
-                // we want to send new telemetry data every 6 requests ( = once a minute)
-                requestCounter = (requestCounter + 1) % 6;
+                // the data is sent out to the cloud every N times after fetching it
+                requestCounter = ++requestCounter % _sendDataEveryN;
                 if (requestCounter == 0)
                 {
                     await SendTelemetryAsync(sensorData);
                 }
             }
-            else
-            {
-                LogEventSource.Log.Warn($"The connectionmanager did not return any sensor data.");
-            }            
         }
+
         private async Task SendTelemetryAsync(IEnumerable<SensorTelemetryModel> sensorData)
         { 
             try
@@ -376,16 +372,18 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 string payload = Newtonsoft.Json.JsonConvert.SerializeObject(telemetryModel);
 
                 // push the data to Azure for cloud processing
-                string message = await _azureConnection.SendDeviceToCloudMessageAsync(payload);
+                bool success = await _azureConnection.SendDeviceToCloudMessageAsync(payload);
 
-                NewLogLine?.Invoke(String.Format("Telemetry sent @ {0:G}", DateTime.Now));
+                if (success)
+                    NewLogLine?.Invoke(String.Format("Telemetry sent @ {0:G}", DateTime.Now));
+                else
+                    NewLogLine?.Invoke(String.Format("Could not send telemetry, the connection is down.", DateTime.Now));
             }
             catch (Exception ex)
             {
                 LogEventSource.Log.Error($"Failure trying to send the data to Azure: {ex}");
                 NewLogLine?.Invoke(String.Format("Failure trying to send the data to Azure."));
             }
-
         }
 
         private IEnumerable<SensorTelemetryModel> PrepareSensorData(IEnumerable<SensorTelemetryModel> sensorData)

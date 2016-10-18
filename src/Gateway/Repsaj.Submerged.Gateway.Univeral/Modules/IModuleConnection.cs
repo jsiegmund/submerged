@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,5 +19,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         Task Init();
         Task Reconnect();
+
+        Task ProcessCommand(dynamic command);
     }
 }

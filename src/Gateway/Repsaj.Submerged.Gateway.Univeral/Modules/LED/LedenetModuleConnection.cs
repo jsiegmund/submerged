@@ -13,8 +13,9 @@ using Windows.UI;
 using System.Text.RegularExpressions;
 using Repsaj.Submerged.GatewayApp.Universal.Control.LED;
 using Repsaj.Submerged.Gateway.Common.Log;
+using Repsaj.Submerged.GatewayApp.Universal.Commands;
 
-namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
+namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
 {
     class LedenetModuleConnection : GenericModuleConnectionBase, IModuleConnection
     {
@@ -321,6 +322,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
         public void Dispose()
         {
             
+        }
+        
+        public Task ProcessCommand(dynamic command)
+        {
+            if (command.Action == "TestProgram")
+            {
+                // start playback of the current program in fast mode (complete program in 1 minute)
+            }
+
+            return Task.FromResult(0);
         }
     }
 }

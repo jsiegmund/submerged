@@ -17,7 +17,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
         event Action Disconnected;
 
         Task Init();
-        Task<string> SendDeviceToCloudMessageAsync(JObject eventData);
-        Task<string> SendDeviceToCloudMessageAsync(string payload);
+        Task<bool> SendDeviceToCloudMessageAsync(JObject eventData);
+        Task<bool> SendDeviceToCloudMessageAsync(string payload);
     }
 }

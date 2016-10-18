@@ -121,6 +121,7 @@
     <Compile Include="Commands\DeviceInfoCommandProcessor.cs" />
     <Compile Include="Commands\ICommandProcessor.cs" />
     <Compile Include="Commands\ICommandProcessorFactory.cs" />
+    <Compile Include="Commands\ModuleCommandProcessor.cs" />
     <Compile Include="Commands\SwitchRelayCommandProcessor.cs" />
     <Compile Include="Control\LED\RGBWHelper.cs" />
     <Compile Include="Control\LED\RGBWValue.cs" />
@@ -137,6 +138,7 @@
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Helpers\Converters.cs" />
+    <Compile Include="Helpers\FizedSizeQueue.cs" />
     <Compile Include="Helpers\Randomizer.cs" />
     <Compile Include="Helpers\TrulyObservableCollection.cs" />
     <Compile Include="Log\LogEventSource.cs" />
@@ -158,7 +160,7 @@
     <Compile Include="Models\SensorDisplayModel.cs" />
     <Compile Include="Modules\Connections\CabinetModuleConnection.cs" />
     <Compile Include="Modules\Connections\FirmataModuleConnection.cs" />
-    <Compile Include="Modules\Connections\LedenetModuleConnection.cs" />
+    <Compile Include="Modules\LED\LedenetModuleConnection.cs" />
     <Compile Include="Modules\Connections\SensorModuleConnection.cs" />
     <Compile Include="Modules\FirmataModuleConnectionBase.cs" />
     <Compile Include="Modules\GenericModuleConnectionBase.cs" />
