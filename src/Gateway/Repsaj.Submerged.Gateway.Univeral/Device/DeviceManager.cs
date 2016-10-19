@@ -82,7 +82,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (_deviceModel == null)
             {
                 await RequestDeviceUpdate();
-                NewLogLine?.Invoke("Devicemodel is missing, requesting from the cloud.");
+                NewLogLine?.Invoke("Didn't find any information about this device, sent a request to the back-end to aqcuire it. It might take some time to get here, hold on.");
             }
             else
             {
@@ -406,7 +406,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async Task _azureConnection_CommandReceived(DeserializableCommand command)
         {
-            NewLogLine?.Invoke(String.Format("Received cloud 2 device message: {0} @ {1:G}", command.CommandName, DateTime.UtcNow));
+            NewLogLine?.Invoke(String.Format("Received cloud 2 device message: {0} @ {1:G}", command.CommandName, DateTime.Now));
             ICommandProcessor processor = _commandProcessorFactory.FindCommandProcessor(command);
 
             if (processor != null)
