@@ -1,7 +1,5 @@
 ﻿using Repsaj.Submerged.GatewayApp.Universal.Device;
 using Microsoft.Azure.Devices.Client;
-using Microsoft.Maker.RemoteWiring;
-using Microsoft.Maker.Serial;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -159,25 +157,19 @@ namespace Repsaj.Submerged.GatewayApp
             messageBox.Visibility = Visibility.Visible;
         }
 
-        private void _deviceManager_AzureDisconnected()
+        private async void _deviceManager_AzureDisconnected()
         {
-            Task.Factory.StartNew(async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Download-48.png", UriKind.Absolute));
-                });
+                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Download-48.png", UriKind.Absolute));
             });
         }
 
-        private void _deviceManager_AzureConnected()
+        private async void _deviceManager_AzureConnected()
         {
-            Task.Factory.StartNew(async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                {
-                    this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Upload-48.png", UriKind.Absolute));
-                });
+                this._imgCloudLogo.Source = new BitmapImage(new Uri("ms-appx:///Icons/Cloud-Upload-48.png", UriKind.Absolute));
             });
         }
 
@@ -208,6 +200,7 @@ namespace Repsaj.Submerged.GatewayApp
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
             LogEventSource.Log.Info("Suspending the application, killing the connection manager.");
+
             if (_deviceManager != null)
             {
                 _deviceManager.Dispose();
@@ -215,28 +208,25 @@ namespace Repsaj.Submerged.GatewayApp
             }
         }
 
-        private void UpdateLog(string text)
+        private async void UpdateLog(string text)
         {
-            Task.Factory.StartNew(async () =>
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-               await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-               {
-                   string[] lines = tbLog.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                   List<string> linesList = new List<string>(lines);
+                string[] lines = tbLog.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                List<string> linesList = new List<string>(lines);
 
-                    // remove old lines when the count reaches 100 
-                    while (linesList.Count > 100)
-                       linesList.RemoveAt(linesList.Count - 1);
+                   // remove old lines when the count reaches 100 
+                   while (linesList.Count > 100)
+                    linesList.RemoveAt(linesList.Count - 1);
 
-                    // insert the new line at the top of the list
-                    linesList.Insert(0, text);
+                   // insert the new line at the top of the list
+                   linesList.Insert(0, text);
 
-                   tbLog.Text = string.Join(Environment.NewLine, linesList);
-               });
-           });
+                tbLog.Text = string.Join(Environment.NewLine, linesList);
+            });
         }
 
-        private void SetupButton_Click(object sender, RoutedEventArgs e)
+        private async void SetupButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -248,12 +238,11 @@ namespace Repsaj.Submerged.GatewayApp
                     IoTHubHostname = "repsaj-neptune-iothub.azure-devices.net"      // TODO: hardcoded for now, should probably be moved somewhere else?
                 };
 
-                _configRepository.SaveConnectionInformationModelAsync(connectionInfo);
+                // save the configuration data to file
+                await _configRepository.SaveConnectionInformationModelAsync(connectionInfo);
 
-                Task.Factory.StartNew(async () =>
-                {
-                    await Init();
-                });
+                // start initialization
+                await Init();
 
                 // hide the messagebox
                 messageBox.Visibility = Visibility.Collapsed;
@@ -263,15 +252,15 @@ namespace Repsaj.Submerged.GatewayApp
                 LogEventSource.Log.Error("Failure saving settings: " + ex.ToString());
             }
         }
-        private void Current_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void Current_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // gracefully ignore all unhandled exceptions
-            LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString());
+            await Task.Run(() => { LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString()); });
         }
 
-        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        private async void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
         {
-            LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString());
+            await Task.Run(() => { LogEventSource.Log.Error("Unhandled exception crashed the app: " + e.ToString()); });
         }
 
     }

@@ -21,5 +21,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         Task Reconnect();
 
         Task ProcessCommand(dynamic command);
+        Task UpdateConfiguration(JObject configuration);
     }
 }

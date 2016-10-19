@@ -48,7 +48,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             {
                 // skip the module when we already have it
                 if (_moduleConnections.ContainsKey(module.Name))
+                {
+                    var existingConnection = _moduleConnections[module.Name];
+                    existingConnection.UpdateConfiguration(module.Configuration);
+
                     continue;
+                }
 
                 // if there's a new module to initialize; set the 'all initialized' flag to false again
                 AllModulesInitialized = false;
@@ -72,6 +77,15 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 {
                     LogEventSource.Log.Error($"Exception during initialization of modules in connection manager: {ex}");
                 }
+            }
+
+            // modules that have been deleted from the model have to be disconnected and removed 
+            var deletedModuleNames = _moduleConnections.Keys.Where(k => !modules.Any(m => m.Name == k));
+            foreach (string name in deletedModuleNames)
+            {
+                IModuleConnection deletedModule = _moduleConnections[name];
+                deletedModule.Dispose();
+                _moduleConnections.TryRemove(name, out deletedModule);
             }
         }
         

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
+using Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated;
 
-namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
+namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
 {
     class SimulatedLedenetModuleConnection : SimulatedModuleConnectionBase
     {
@@ -21,12 +22,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
         {
             
         }
-
-        public override void SwitchRelay(string name, bool high)
-        {
-            throw new NotImplementedException();
-        }
-
         
     }
 }

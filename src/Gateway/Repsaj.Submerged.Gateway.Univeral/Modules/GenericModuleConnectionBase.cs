@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Windows.Devices.Enumeration;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 {
-    abstract class GenericModuleConnectionBase
+    abstract class GenericModuleConnectionBase : IModuleConnection
     {
         public event IModuleConnectionStatusChanged ModuleStatusChanged;
 
@@ -42,6 +43,35 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     ModuleStatusChanged?.Invoke(ModuleName, oldStatus, newStatus);
                 }
             }
+        }
+
+        public virtual Task Init()
+        {
+            // base class does not implement Init, but allow it to be overridden
+            return Task.FromResult(0);
+        }
+
+        public virtual Task Reconnect()
+        {
+            // base class does not implement Init, but allow it to be overridden
+            return Task.FromResult(0);
+        }
+
+        public virtual Task ProcessCommand(dynamic command)
+        {
+            // base class does not implement Init, but allow it to be overridden
+            return Task.FromResult(0);
+        }
+
+        public virtual Task UpdateConfiguration(JObject configuration)
+        {
+            // base class does not implement Init, but allow it to be overridden
+            return Task.FromResult(0);
+        }
+
+        public virtual void Dispose()
+        {
+            // base class does not implement Init, but allow it to be overridden
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Autofac.Core;
 using Repsaj.Submerged.GatewayApp.Device;
+using Repsaj.Submerged.GatewayApp.Universal.Azure;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
 using Repsaj.Submerged.GatewayApp.Universal.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
@@ -30,6 +31,7 @@ namespace Repsaj.Submerged.GatewayApp
             builder.RegisterType<StorageRepository>().As<IStorageRepository>();
             builder.RegisterType<ConfigurationRepository>().As<IConfigurationRepository>();
             builder.RegisterType<SensorDatastore>().As<ISensorDataStore>();
+            builder.RegisterType<AzureConnection>().As<IAzureConnection>();
 
             // register single instances
             builder.RegisterType<CommandProcessorFactory>().As<ICommandProcessorFactory>().SingleInstance();

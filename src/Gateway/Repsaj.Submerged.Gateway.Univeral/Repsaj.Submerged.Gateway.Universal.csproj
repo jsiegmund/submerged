@@ -114,6 +114,7 @@
   <ItemGroup>
     <Compile Include="Arduino\ArduinoPinMapper.cs" />
     <Compile Include="Azure\AzureConnection.cs" />
+    <Compile Include="Azure\AzureConnectionStatus.cs" />
     <Compile Include="Azure\IAzureConnection.cs" />
     <Compile Include="Commands\CommandProcessingResult.cs" />
     <Compile Include="Commands\CommandProcessorFactory.cs" />
@@ -176,7 +177,7 @@
     <Compile Include="Modules\SensorDataStore.cs" />
     <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
-    <Compile Include="Modules\Simulated\SimulatedLedenetModuleConnection.cs" />
+    <Compile Include="Modules\LED\SimulatedLedenetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedModuleConnectionBase.cs" />
     <Compile Include="Modules\Simulated\SimulatedSensorModuleConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

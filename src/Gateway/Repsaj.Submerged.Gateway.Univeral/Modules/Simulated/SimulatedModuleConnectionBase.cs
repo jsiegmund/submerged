@@ -24,8 +24,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
             private set { _moduleStatus = value; }
         }
 
-        public abstract void SwitchRelay(string name, bool high);
-
         public string StatusAsText
         {
             get { return Enum.GetName(typeof(ModuleConnectionStatus), this.ModuleStatus); }
@@ -74,9 +72,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
             }
         }
 
-        public Task ProcessCommand(dynamic command)
+        public virtual Task ProcessCommand(dynamic command)
         {
-            throw new NotImplementedException();
+            // allow method to be overridden by implementation class
+            return Task.FromResult(0);
+        }
+
+        public virtual Task UpdateConfiguration(JObject configuration)
+        {
+            // allow method to be overridden by implementation class
+            return Task.FromResult(0);
         }
     }
 }

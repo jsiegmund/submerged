@@ -51,10 +51,5 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
             IEnumerable<SensorTelemetryModel> result = sensorData;
             return Task.FromResult(result);
         }
-
-        public override void SwitchRelay(string name, bool high)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

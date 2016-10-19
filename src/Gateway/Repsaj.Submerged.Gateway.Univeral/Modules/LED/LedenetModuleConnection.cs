@@ -14,6 +14,8 @@ using System.Text.RegularExpressions;
 using Repsaj.Submerged.GatewayApp.Universal.Control.LED;
 using Repsaj.Submerged.Gateway.Common.Log;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
+using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
 {
@@ -41,12 +43,14 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
         ThreadPoolTimer _colorUpdateTimer;
         ThreadPoolTimer _discoverTimeout;
 
+        SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+
         public LedenetModuleConnection(string name, LedenetModuleConfiguration config) : base (name)
         {
             this._config = config;
         }
 
-        public async Task Init()
+        public new async Task Init()
         {
             SetModuleStatus(ModuleConnectionStatus.Connecting);
 
@@ -82,6 +86,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
                 SetModuleStatus(ModuleConnectionStatus.Disconnected);
 
                 // clean up the socket when needed, garbage collection
+                if (_udp != null)
+                {
+                    _udp.Dispose();
+                    _udp = null;
+                }
                 if (_socket != null)
                 {
                     _socket.Dispose();
@@ -90,10 +99,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             }
         }
 
-        public async Task Reconnect()
-        {
-            await Init();
-        }  
+        #region LED Program implementation
 
         void StartTimer()
         {
@@ -111,8 +117,24 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             UpdateLED();
         }
 
+        private void TimeoutTimer_Tick(ThreadPoolTimer timer)
+        {
+            if (_udp != null)
+            {
+                _udp.Dispose();
+                _udp = null;
+            }
+
+            SetModuleStatus(ModuleConnectionStatus.Disconnected);
+        }
+
+
         private void UpdateLED()
-        { 
+        {
+            // when we're not connected, we cannot perform any updates; return 
+            if (ModuleStatus != ModuleConnectionStatus.Connected)
+                return;
+
             // all times are stored in UTC by default, so always use the UTC number of minutes.
             int time = (int)DateTime.UtcNow.TimeOfDay.TotalMinutes;
 
@@ -139,218 +161,29 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             }
         }
 
-        async Task DiscoverDevice()
+        #endregion
+
+        #region Module Implementation
+        public override Task UpdateConfiguration(JObject configObj)
         {
-            IPEndPoint broadcastEndPoint = new IPEndPoint(IPAddress.Broadcast, _groupPort);
+            LedenetModuleConfiguration newConfig = configObj.ToObject<LedenetModuleConfiguration>();
+            this._config = newConfig;
 
-            // the broadcast message is a fixed one, do not change
-            string msg = "HF-A11ASSISTHREAD";
-            byte[] msgBytes = Encoding.ASCII.GetBytes(msg);
+            // calculate the colors per minute to send to the controller
+            _program = RGBWHelper.CalculateProgram(this._config.PointsInTime);
 
-            // start the timeout timer which will handle a connection timeout
-            _discoverTimeout = ThreadPoolTimer.CreateTimer(TimeoutTimer_Tick, new TimeSpan(0, 0, 30));
+            // just because we can, immediately update to the correct color
+            UpdateLED();
 
-            _udp = new UdpClient();
-            await _udp.SendAsync(msgBytes, msgBytes.Length, broadcastEndPoint);
-
-            do
-            {
-                // all active devices will reply, select the one we need 
-                UdpReceiveResult receiveResult = await _udp.ReceiveAsync();
-                _discoverTimeout.Cancel();
-
-                string returnData = Encoding.ASCII.GetString(receiveResult.Buffer);
-
-                if (returnData.Contains(this._config.Device))
-                    _deviceAddress = returnData.Substring(0, returnData.IndexOf(','));
-
-            } while (_deviceAddress == null);
+            return Task.FromResult(0);
         }
 
-        private void TimeoutTimer_Tick(ThreadPoolTimer timer)
+        public new async Task Reconnect()
         {
-            if (_udp != null)
-            {
-                _udp.Dispose();
-                _udp = null;
-            }
-
-            SetModuleStatus(ModuleConnectionStatus.Disconnected);
+            await Init();
         }
 
-        byte[] ReadRaw(int byte_count = 1024)
-        {
-            byte[] buffer = new byte[byte_count];
-            _socket.Receive(buffer);
-            return buffer;
-        }
-
-        byte[] ReadResponse(int expected)
-        {
-            var remaining = expected;
-            var rx = new List<byte>();
-
-            while (remaining > 0)
-            {
-                var chunk = ReadRaw(remaining);
-                remaining -= chunk.Length;
-                rx.AddRange(chunk);
-            }
-
-            return rx.ToArray();
-        }
-
-        string DetermineMode(byte level, byte pattern)
-        {
-            string mode = "unknown";
-
-            if (pattern == 0x61 || pattern == 0x62)
-            {
-                if (level != 0)
-                    return "ww";
-                else
-                    return "color";
-            }
-            else if (pattern == 0x60)
-            {
-                return "custom";
-            }
-
-            // did not implement patterns since Submerged doesn't use these
-            return mode;
-        }
-
-        void RefreshState()
-        {
-            List<byte> msg = new List<byte>();
-
-            msg.Add(0x81);
-            msg.Add(0x8a);
-            msg.Add(0x8b);
-
-            SendPacket(msg);
-            byte[] rx = ReadResponse(14);
-
-            var power_state = rx[2];
-            var power_str = "Unknown power state";
-
-            if (power_state == 0x23)
-            {
-                this.isOn = true;
-                power_str = "ON ";
-            }
-            else if (power_state == 0x24)
-            {
-                this.isOn = false;
-                power_str = "OFF";
-            }
-
-            var pattern = rx[3];
-            var ww_level = rx[9];
-            var mode = DetermineMode(ww_level, pattern);
-            var delay = rx[5];
-        }
-
-        void TurnOn(bool on = true)
-        {
-            List<byte> msg = new List<byte>();
-            if (on)
-            {
-                msg.AddRange(new byte[] { 0x71, 0x23, 0x0f });
-            }
-            else
-            {
-                msg.AddRange(new byte[] { 0x71, 0x24, 0x0f });
-            }
-
-            SendPacket(msg);
-            this.isOn = on;
-        }
-
-        void TurnOff()
-        {
-            TurnOn(false);
-        }
-
-        public static byte ComputeAdditionChecksum(byte[] data)
-        {
-            byte sum = 0;
-            unchecked // Let overflow occur without exceptions
-            {
-                foreach (byte b in data)
-                {
-                    sum += b;
-                }
-            }
-            return sum;
-        }
-
-        void SendPacket(List<byte> data)
-        {
-            try
-            {
-                // add the checksum to the package as last byte
-                var checksum = ComputeAdditionChecksum(data.ToArray());
-                data.Add(checksum);
-
-                byte[] buffer = data.ToArray();
-                int result = _socket.Send(buffer, buffer.Length, SocketFlags.None);
-            }
-            catch (Exception ex)
-            {
-                LogEventSource.Log.Error("Failure sending a packet to Ledenet module: " + ex.ToString());
-            }
-        }
-
-        void SetRgb(RGBWValue color)
-        {
-            SetRgb(color.R, color.G, color.B, color.W);
-        }
-
-        /// <summary>
-        /// Sets the connected controller to the request value
-        /// </summary>
-        /// <param name="r">Value for RED (0 - 255)</param>
-        /// <param name="g">Value for GREEN (0 - 255)</param>
-        /// <param name="b">Value for BLUE (0 - 255)</param>
-        /// <param name="w">Value for WHITE (0 - 255)</param>
-        /// <param name="persist">When true, the controller will persist this value upon rebooting / losing power</param>
-        void SetRgb(byte r, byte g, byte b, byte w, bool persist = true)
-        {
-            List<byte> msg = new List<byte>();
-
-            if (persist)
-                msg.Add(0x31);
-            else
-                msg.Add(0x41);
-
-            msg.Add(r);         // Red
-            msg.Add(g);         // Green
-            msg.Add(b);         // Blue
-            msg.Add(w);         // White
-
-            msg.Add(0x00);
-            msg.Add(0x0f);
-
-            SendPacket(msg);            
-        }
-
-        public void Dispose()
-        {
-            if (this._colorUpdateTimer != null)
-            {
-                this._colorUpdateTimer.Cancel();
-                this._colorUpdateTimer = null;
-            }
-
-            if (this._discoverTimeout != null)
-            {
-                this._discoverTimeout.Cancel();
-                this._discoverTimeout = null;
-            }
-        }
-        
-        public Task ProcessCommand(dynamic command)
+        public new Task ProcessCommand(dynamic command)
         {
             if (command.Action == "TestProgram")
             {
@@ -399,5 +232,257 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.LED
             UpdateLED();
             StartTimer();
         }
+        #endregion
+
+        #region Socket Connectivity Methods
+        async Task DiscoverDevice()
+        {
+            IPEndPoint broadcastEndPoint = new IPEndPoint(IPAddress.Broadcast, _groupPort);
+
+            // the broadcast message is a fixed one, do not change
+            string msg = "HF-A11ASSISTHREAD";
+            byte[] msgBytes = Encoding.ASCII.GetBytes(msg);
+
+            // start the timeout timer which will handle a connection timeout
+            _discoverTimeout = ThreadPoolTimer.CreateTimer(TimeoutTimer_Tick, new TimeSpan(0, 0, 30));
+
+            _udp = new UdpClient();
+            await _udp.SendAsync(msgBytes, msgBytes.Length, broadcastEndPoint);
+
+            do
+            {
+                // all active devices will reply, select the one we need 
+                UdpReceiveResult receiveResult = await _udp.ReceiveAsync();
+                _discoverTimeout.Cancel();
+
+                string returnData = Encoding.ASCII.GetString(receiveResult.Buffer);
+
+                if (returnData.Contains(this._config.Device))
+                    _deviceAddress = returnData.Substring(0, returnData.IndexOf(','));
+
+            } while (_deviceAddress == null);
+        }
+        byte[] ReadRaw(int byte_count = 1024)
+        {
+            byte[] buffer = new byte[byte_count];
+            _socket.Receive(buffer);
+            return buffer;
+        }
+
+        byte[] ReadResponse(int expected)
+        {
+            var remaining = expected;
+            var rx = new List<byte>();
+
+            while (remaining > 0)
+            {
+                var chunk = ReadRaw(remaining);
+                remaining -= chunk.Length;
+                rx.AddRange(chunk);
+            }
+
+            return rx.ToArray();
+        }
+
+        byte[] SendAndReceive(List<byte> data, int reponseSize)
+        {
+            try
+            {
+                _semaphore.Wait();
+
+                SendPacket(data);
+                return ReadResponse(reponseSize);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        void SendPacket(List<byte> data)
+        {
+            try
+            {
+                // add the checksum to the package as last byte
+                var checksum = ComputeAdditionChecksum(data.ToArray());
+                data.Add(checksum);
+
+                byte[] buffer = data.ToArray();
+                int result = _socket.Send(buffer, buffer.Length, SocketFlags.None);
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error("Failure sending a packet to Ledenet module: " + ex.ToString());
+            }
+        }
+
+        #endregion
+
+        #region Ledenet commands
+        void SetRgb(RGBWValue color)
+        {
+            SetRgb(color.R, color.G, color.B, color.W);
+        }
+
+        /// <summary>
+        /// Sets the connected controller to the request value
+        /// </summary>
+        /// <param name="r">Value for RED (0 - 255)</param>
+        /// <param name="g">Value for GREEN (0 - 255)</param>
+        /// <param name="b">Value for BLUE (0 - 255)</param>
+        /// <param name="w">Value for WHITE (0 - 255)</param>
+        /// <param name="persist">When true, the controller will persist this value upon rebooting / losing power</param>
+        void SetRgb(byte r, byte g, byte b, byte w, bool persist = true)
+        {
+            List<byte> msg = new List<byte>();
+
+            if (persist)
+                msg.Add(0x31);
+            else
+                msg.Add(0x41);
+
+            msg.Add(r);         // Red
+            msg.Add(g);         // Green
+            msg.Add(b);         // Blue
+            msg.Add(w);         // White
+
+            msg.Add(0x00);
+            msg.Add(0x0f);
+
+            try
+            {
+                _semaphore.Wait();
+                SendPacket(msg);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        void RefreshState()
+        {
+            List<byte> msg = new List<byte>();
+
+            msg.Add(0x81);
+            msg.Add(0x8a);
+            msg.Add(0x8b);
+
+            byte[] rx = SendAndReceive(msg, 14);
+
+            var power_state = rx[2];
+            var power_str = "Unknown power state";
+
+            if (power_state == 0x23)
+            {
+                this.isOn = true;
+                power_str = "ON ";
+            }
+            else if (power_state == 0x24)
+            {
+                this.isOn = false;
+                power_str = "OFF";
+            }
+
+            var pattern = rx[3];
+            var ww_level = rx[9];
+            var mode = DetermineMode(ww_level, pattern);
+            var delay = rx[5];
+        }
+
+        private void TurnOn(bool on = true)
+        {
+            List<byte> msg = new List<byte>();
+
+            if (on)
+            {
+                msg.AddRange(new byte[] { 0x71, 0x23, 0x0f });
+            }
+            else
+            {
+                msg.AddRange(new byte[] { 0x71, 0x24, 0x0f });
+            }
+
+            try
+            {
+                _semaphore.Wait();
+
+                SendPacket(msg);
+                this.isOn = on;
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        void TurnOff()
+        {
+            TurnOn(false);
+        }
+
+        #endregion
+
+        #region Ledenet Helper methods
+
+        string DetermineMode(byte level, byte pattern)
+        {
+            string mode = "unknown";
+
+            if (pattern == 0x61 || pattern == 0x62)
+            {
+                if (level != 0)
+                    return "ww";
+                else
+                    return "color";
+            }
+            else if (pattern == 0x60)
+            {
+                return "custom";
+            }
+
+            // did not implement patterns since Submerged doesn't use these
+            return mode;
+        }
+
+        public static byte ComputeAdditionChecksum(byte[] data)
+        {
+            byte sum = 0;
+            unchecked // Let overflow occur without exceptions
+            {
+                foreach (byte b in data)
+                {
+                    sum += b;
+                }
+            }
+            return sum;
+        }
+
+        #endregion
+
+        public new void Dispose()
+        {
+            if (this._udp != null)
+            {
+                _udp.Dispose();
+                _udp = null;
+            }
+            if (this._socket != null)
+            {
+                _socket.Dispose();
+                _socket = null;
+            }
+            if (this._colorUpdateTimer != null)
+            {
+                this._colorUpdateTimer.Cancel();
+                this._colorUpdateTimer = null;
+            }
+
+            if (this._discoverTimeout != null)
+            {
+                this._discoverTimeout.Cancel();
+                this._discoverTimeout = null;
+            }
+        }       
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
 {
-    class SimulatedCabinetModuleConnection : SimulatedModuleConnectionBase, ISensorModule
+    class SimulatedCabinetModuleConnection : SimulatedModuleConnectionBase, ISensorModule, IRelayModule
     {
         private Sensor[] _sensors;
         private Relay[] _relays;
@@ -42,9 +42,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated
             return Task.FromResult(result);
         }
 
-        public override void SwitchRelay(string name, bool high)
+        public void SwitchRelay(String port, Boolean value)
         {
-            
+            throw new NotImplementedException();
         }
     }
 }

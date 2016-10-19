@@ -57,7 +57,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             set { _deviceProperties = value; }
         }
 
-
         public async Task Init()
         {
             // when no valid device info was passed in, this module will remain idle
@@ -231,6 +230,12 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         public void Dispose()
         {
             DisposeConnections();
+        }
+
+        public virtual Task UpdateConfiguration(JObject configuration)
+        {
+            // allow this method to be overriden by an implementing class, otherwise do nothing
+            return Task.FromResult(0);
         }
     }
 }

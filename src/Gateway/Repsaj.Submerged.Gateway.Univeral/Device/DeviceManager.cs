@@ -34,26 +34,29 @@ namespace Repsaj.Submerged.GatewayApp.Device
         IConfigurationRepository _configurationRepository;
         IAzureConnection _azureConnection;
 
-        ThreadPoolTimer _timer;
         ConnectionInformationModel _connectionInfo;
         DeviceModel _deviceModel;
 
+        ThreadPoolTimer _timer;
         TimeSpan _dataInterval = new TimeSpan(0, 0, 10);
         int _sendDataEveryN = 6;
-
         int requestCounter = 0;
 
         public DeviceManager(ICommandProcessorFactory commandProcessor, IModuleConnectionManager moduleConnectionManager, 
-            IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext)
+            IConfigurationRepository configurationRepository, SynchronizationContext synchronizationContext, IAzureConnection azureConnection)
         {
             _configurationRepository = configurationRepository;
             _commandProcessorFactory = commandProcessor;
+            _azureConnection = azureConnection;
 
             _moduleConnectionManager = moduleConnectionManager;
             _moduleConnectionManager.ModulesInitialized += _moduleConnectionManager_ModulesInitialized;
-            //_moduleConnectionManager.ModuleConnected += _arduinoConnectionManager_ModuleStatusChanged;
-            //_moduleConnectionManager.ModuleDisconnected += _arduinoConnectionManager_ModuleStatusChanged;
             _moduleConnectionManager.ModuleStatusChanged += _moduleConnectionManager_ModuleStatusChanged;
+
+            _azureConnection.CommandReceived += _azureConnection_CommandReceived;
+            _azureConnection.Connected += _azureConnection_Connected;
+            _azureConnection.Disconnected += _azureConnection_Disconnected;
+
         }
 
         public async Task Init()
@@ -67,10 +70,12 @@ namespace Repsaj.Submerged.GatewayApp.Device
             SwitchRelayCommandProcessor switchRelayProcessor = (SwitchRelayCommandProcessor)_commandProcessorFactory.FindCommandProcessor(CommandNames.SWITCH_RELAY);
             switchRelayProcessor.RelaySwitched += SwitchRelayProcessor_RelaySwitched;
 
-            await _moduleConnectionManager.Init();
-
             // initialize the Azure connection to test it for connectivity
-            await InitializeAzure();
+            _connectionInfo = await _configurationRepository.GetConnectionInformationModelAsync();
+            await _azureConnection.Init(_connectionInfo);
+
+            // initialize the module connection manager
+            await _moduleConnectionManager.Init();
 
             _deviceModel = await _configurationRepository.GetDeviceModelAsync();
 
@@ -113,11 +118,17 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
             // add any modules that might not yet exist in the current model
             // note; the ToList is there because newModules is otherwise evaluated as Count == 0 below
-            // TODO: remove any modules that might have been deleted
             var newModules = updatedModel.Modules.Where(m => !_deviceModel.Modules.Any(m2 => m.Name == m2.Name)).ToList();
             foreach (var newModule in newModules)
             {
                 _deviceModel.Modules.Add(newModule);
+            }
+
+            // Remove modules that are no longer in the updated model
+            var deletedModules = _deviceModel.Modules.Where(m => !updatedModel.Modules.Any(m2 => m.Name == m2.Name)).ToList();
+            foreach (var deletedModule in deletedModules)
+            {
+                _deviceModel.Modules.Remove(deletedModule);
             }
 
             // update the list of sensors and relays by clearing and re-adding 
@@ -127,9 +138,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
             _deviceModel.Relays.Clear();
             _deviceModel.Relays.AddRange(updatedModel.Relays);
 
-            // run the initialization of any new modules that might have been added
-            if (newModules.Count() > 0)
-                _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
+            // Run the module initialization again. This will add new modules, update existing 
+            // ones and deleted the ones that have been removed from the model.
+            _moduleConnectionManager.InitializeModules(_deviceModel.Modules, _deviceModel.Sensors, _deviceModel.Relays);
         }
 
         #region Command Processor Callbacks
@@ -158,7 +169,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 // when all modules have initialized; create a new timer 
                 // and kick off the timer event once manually to immediately send the latest data
                 _timer = ThreadPoolTimer.CreatePeriodicTimer(Timer_Tick, _dataInterval);
-                Timer_Tick(_timer);
+
+                // kick off the request manually first time
+                Task.Run(() => RequestModuleData());
             }
         }
 
@@ -173,9 +186,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async void Timer_Tick(ThreadPoolTimer timer)
         {
-            Debug.WriteLine("Timer tick. Requesting module data.");
             await RequestModuleData();
-            Debug.WriteLine("Request done.");
         }
         #endregion
 
@@ -279,21 +290,6 @@ namespace Repsaj.Submerged.GatewayApp.Device
         #endregion
 
         #region Azure 
-        private async Task InitializeAzure()
-        {
-            // Fetch the configuration information from the config file
-            _connectionInfo = await _configurationRepository.GetConnectionInformationModelAsync();
-
-            // Create an AzureConnection class to connect to Azure
-            _azureConnection = new AzureConnection(_connectionInfo.IoTHubHostname, _connectionInfo.DeviceId, _connectionInfo.DeviceKey);
-            _azureConnection.CommandReceived += _azureConnection_CommandReceived;
-            _azureConnection.Connected += _azureConnection_Connected;
-            _azureConnection.Disconnected += _azureConnection_Disconnected;
-
-            await _azureConnection.Init();
-            Debug.WriteLine("Azure connection initialized.");
-        }
-
         private void _azureConnection_Disconnected()
         {
             this.AzureDisconnected?.Invoke();
@@ -324,7 +320,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             if (success)
                 NewLogLine?.Invoke("Sent a status update to back-end.");
             else
-                NewLogLine?.Invoke("The device could not send device data because the back-end connection is down.");
+                NewLogLine?.Invoke("The device could not send device data.");
         }
 
         public async Task RequestDeviceUpdate()
@@ -340,20 +336,27 @@ namespace Repsaj.Submerged.GatewayApp.Device
         #region Arduino / Module Connections
         private async Task RequestModuleData()
         {
-            // The module connection manager already returns running averages of sensor values
-            var sensorData = await _moduleConnectionManager.GetSensorData();
-
-            if (sensorData?.Count() > 0)
+            try
             {
-                // Update the sensor data in the UI after each new data packet
-                UpdateSensorData(sensorData);
+                // The module connection manager already returns running averages of sensor values
+                var sensorData = await _moduleConnectionManager.GetSensorData();
 
-                // the data is sent out to the cloud every N times after fetching it
-                requestCounter = ++requestCounter % _sendDataEveryN;
-                if (requestCounter == 0)
+                if (sensorData?.Count() > 0)
                 {
-                    await SendTelemetryAsync(sensorData);
+                    // Update the sensor data in the UI after each new data packet
+                    UpdateSensorData(sensorData);
+
+                    // the data is sent out to the cloud every N times after fetching it
+                    requestCounter = ++requestCounter % _sendDataEveryN;
+                    if (requestCounter == 0)
+                    {
+                        await SendTelemetryAsync(sensorData);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error($"Something went wrong requesting module data: {ex}");
             }
         }
 
