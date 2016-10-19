@@ -12,12 +12,21 @@ namespace Submerged.Controllers {
         config: Models.ModuleConfiguration.LedenetModuleConfigurationModel;
         module: Models.ModuleModel;
 
+        minDate: number;
+        maxDate: number;
+
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ISettingsModuleScope,
             private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
             private $compile: ng.ICompileService, private ledenetModuleService: Services.ILedenetModuleService,
             private sharedService: Services.ISharedService) {
 
             super($mdToast);
+
+            var today = new Date(moment.now());
+            var tomorrow = new Date(new Date(moment.now()).setDate(today.getDate() + 1));
+
+            this.minDate = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0).valueOf();
+            this.maxDate = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 0, 0, 0).valueOf();
 
             this.module = subscriptionService.getSelectedModule();
             this.config = this.module.configuration;

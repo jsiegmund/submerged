@@ -5,9 +5,10 @@
         <md-subheader class="md-primary">Time (HH:mm)</md-subheader>
         <div moment-picker="vm.point.timeString"
              format="HH:mm"
-             min-view="hour"
-             min-date="'00:00'"
-             max-date="'23:55'"
+             min-view="day"
+             max-view="day"
+             min-date="vm.minDate"
+             max-date="vm.maxDate"
              autoclose="true"
              today="true">
             {{ vm.point.timeString }}
