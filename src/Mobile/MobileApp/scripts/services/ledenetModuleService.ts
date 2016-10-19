@@ -6,7 +6,7 @@ namespace Submerged.Services {
         selectPointInTime(point: Models.ModuleConfiguration.LedenetPointInTime);
         getSelectedPointInTime(): Models.ModuleConfiguration.LedenetPointInTime;
         savePoint(point: Models.ModuleConfiguration.LedenetPointInTime);
-        testProgram();
+        testProgram(): ng.IPromise<void>;
     }
 
     export class LedenetModuleService implements ILedenetModuleService {
@@ -47,15 +47,18 @@ namespace Submerged.Services {
             this.selectedPoint = point;
         }
 
-        testProgram() {
+        testProgram() : ng.IPromise<void> {
             var deviceId = this.subscriptionService.getSelectedDeviceID();
-            var moduleName = this.subscriptionService.getSelectedModule().name;
+            var module = this.subscriptionService.getSelectedModule();
 
             var command = {
                 Action: "TestProgram"
             };
 
-            this.dataService.sendModuleCommand(deviceId, moduleName, command);
+            // to run the program we first need to save the module and then start the test
+            return this.subscriptionService.saveModule(module).then(() => {
+                this.dataService.sendModuleCommand(deviceId, module.name, command);
+            });
         }
     }
 

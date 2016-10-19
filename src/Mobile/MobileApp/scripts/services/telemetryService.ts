@@ -133,7 +133,7 @@ namespace Submerged.Services {
         };
 
         stopSignalR(): void {
-            jQuery.connection.hub.stop();
+            this.signalRService.stop();
         }
 
         startSignalR(): void {

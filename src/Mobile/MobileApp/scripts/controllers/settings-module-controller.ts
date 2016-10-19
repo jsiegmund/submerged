@@ -12,9 +12,9 @@ namespace Submerged.Controllers {
 
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ISettingsModuleScope,
             private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
-            private $compile: ng.ICompileService) {
+            private $compile: ng.ICompileService, $q: ng.IQService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             this.moduleTypeOptions = subscriptionService.getModuleTypes();
             this.module = subscriptionService.getSelectedModule();

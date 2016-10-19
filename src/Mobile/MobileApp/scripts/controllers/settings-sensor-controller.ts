@@ -16,9 +16,10 @@ namespace Submerged.Controllers {
 
 
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ng.IRootScopeService,
-            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService) {
+            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
+            $q: ng.IQService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             this.sensorTypes = subscriptionService.getSensorTypes();
             this.pinConfigOptions = subscriptionService.getPinList();

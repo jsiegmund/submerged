@@ -18,9 +18,9 @@ namespace Submerged.Controllers {
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ISettingsModuleScope,
             private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
             private $compile: ng.ICompileService, private ledenetModuleService: Services.ILedenetModuleService,
-            private sharedService: Services.ISharedService) {
+            private sharedService: Services.ISharedService, $q: ng.IQService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             var today = new Date(moment.now());
             var tomorrow = new Date(new Date(moment.now()).setDate(today.getDate() + 1));
@@ -98,7 +98,19 @@ namespace Submerged.Controllers {
         }
 
         testProgram() {
-            this.ledenetModuleService.testProgram();
+            this.busy = true;
+
+            try {
+                var text = "Testing the program will save the updated configuration and then run the program  on the device. Continue?";
+                this.requireConfirmation("Test program", text).then((result) => {
+                    if (result === true) {
+                        this.ledenetModuleService.testProgram();
+                    }
+                });
+            }
+            finally {
+                this.busy = false;
+            }
         }
 
         savePoint() {

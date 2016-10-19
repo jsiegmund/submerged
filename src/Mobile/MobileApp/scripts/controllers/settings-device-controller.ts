@@ -7,9 +7,10 @@ namespace Submerged.Controllers {
         device: Models.DeviceModel;
 
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ng.IRootScopeService,
-            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService) {
+            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
+            $q: ng.IQService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             this.device = this.subscriptionService.getSelectedDevice();
         }

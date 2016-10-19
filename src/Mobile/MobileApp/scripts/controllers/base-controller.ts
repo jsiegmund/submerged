@@ -6,8 +6,22 @@ namespace Submerged.Controllers {
 
         busy: boolean = false;
 
-        constructor(private $mdToast: ng.material.IToastService) {
+        constructor(private $mdToast: ng.material.IToastService, protected $q: ng.IQService) {
 
+        }
+
+        requireConfirmation(title: string, text: string): ng.IPromise<boolean> {
+            var deferred = this.$q.defer<boolean>();
+
+            navigator.notification.confirm(
+                text,  // message
+                (choice: number) => {
+                    deferred.resolve(choice === 1);
+                },              // callback to invoke with index of button pressed
+                title            // title
+            );
+
+            return deferred.promise;
         }
 
         showSimpleToast(text: string) {

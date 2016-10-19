@@ -40,7 +40,7 @@ namespace Submerged.Services {
 
         getSubscription(): ng.IPromise<Models.SubscriptionModel>;  
 
-        sendModuleCommand(deviceId: string, moduleName: string, command: any);
+        sendModuleCommand(deviceId: string, moduleName: string, command: any): ng.IPromise<any>;
     }
 
     export class DataService implements IDataService {
@@ -186,7 +186,7 @@ namespace Submerged.Services {
             return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, null);
         }
 
-        sendModuleCommand(deviceId: string, moduleName: string, command: any) {
+        sendModuleCommand(deviceId: string, moduleName: string, command: any): ng.IPromise<void> {
             var apiUrl = `control/sendcommand?deviceId=${deviceId}&moduleName=${moduleName}`;
             return this.apiFunctionCall<void>(apiUrl, Statics.HTTP_VERBS.POST, command);
         }

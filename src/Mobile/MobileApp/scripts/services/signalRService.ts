@@ -4,15 +4,21 @@ namespace Submerged.Services {
 
     export interface ISignalRService {
         init(callback: (data: any) => void): ng.IPromise<{}>;
+        stop();
     }
 
     export class SignalRService {
 
+        _started: boolean = false;
+
         constructor(private mobileService: IMobileService, private $q: ng.IQService) {
+
         }
 
         init(callback: (data: any) => void): ng.IPromise<{}> {
             var deferred = this.$q.defer();
+
+            this._started = true;
 
             var errorCallback = (err) => {
                 console.log("SignalR connection failed: " + err);
@@ -42,10 +48,17 @@ namespace Submerged.Services {
             return deferred.promise;
         }
 
+        stop() {
+            jQuery.connection.hub.stop(false, true);
+            this._started = false;
+        }
+
         hubDisconnected() { 
-            setTimeout(() => {
-                jQuery.connection.hub.start();
-            }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
+            if (this._started) {
+                setTimeout(() => {
+                    jQuery.connection.hub.start();
+                }, 5000); // Restart connection after 5 seconds.you can set the time based your requirement
+            }
         }
 
         startHub(headers: any): ng.IPromise < void> {

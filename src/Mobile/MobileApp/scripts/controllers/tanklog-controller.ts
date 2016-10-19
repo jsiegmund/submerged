@@ -12,9 +12,9 @@ namespace Submerged.Controllers {
         private logTypes: {}[];
 
         constructor(private sharedService: Services.ISharedService, private tankLogService: Services.ITankLogService, private $location: ng.ILocationService,
-            private menuService: Services.IMenuService, $mdToast: ng.material.IToastService, private $q: ng.IQService, subscriptionService: Services.ISubscriptionService) {
+            private menuService: Services.IMenuService, $mdToast: ng.material.IToastService, $q: ng.IQService, subscriptionService: Services.ISubscriptionService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             subscriptionService.load().then((subscription) => {
                 var tank = subscription.tanks.first();

@@ -9,9 +9,10 @@ namespace Submerged.Controllers {
         moduleOptions: Models.ModuleModel[];
 
         constructor(private subscriptionService: Services.ISubscriptionService, private $scope: ng.IRootScopeService,
-            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService) {
+            private $location: ng.ILocationService, $mdToast: ng.material.IToastService, menuService: Services.IMenuService,
+            $q: ng.IQService) {
 
-            super($mdToast);
+            super($mdToast, $q);
 
             this.pinConfigOptions = subscriptionService.getPinList();
             this.moduleOptions = subscriptionService.getSelectedDevice().modules; 
