@@ -128,6 +128,10 @@ namespace Submerged.Controllers {
         };
 
         onTimeout(): void {
+            this.updateLastModified();
+        }
+
+        updateLastModified() {
             var dif: number;
             dif = new Date().valueOf() - this.lastUpdated;
 

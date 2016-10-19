@@ -28,6 +28,10 @@ namespace Submerged.Directives {
 
         formatSensorValue = (sensor: Models.SensorModel, value: any): any => {
             var result: string = "";
+
+            if (value == null)
+                return result;
+
             switch (sensor.sensorType) {
                 case "temperature":
                     result = value.toFixed(1) + '&deg;';
