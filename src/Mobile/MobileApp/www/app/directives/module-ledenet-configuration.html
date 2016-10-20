@@ -2,10 +2,13 @@
     <md-subheader class="md-primary">Time program</md-subheader>
 
     <md-list>
-        <md-list-item ng-repeat="point in vm.config.pointsInTime" class="md-2-line" ng-click="vm.pointClicked(point)">
-            <div class="md-list-item-text" layout="column">
-                <h3>{{vm.timeAsString(point.time)}}</h3>
-                <h4>{{point.color}}</h4>
+        <md-list-item ng-repeat="point in vm.config.pointsInTime" class="md-2-line" 
+                      ng-click="vm.pointClicked(point)" style="border-left: 10px solid {{point.color}};">
+            <div layout="row">
+                <div class="md-list-item-text" layout="column">
+                    <h3>{{vm.timeAsString(point.time)}}</h3>
+                    <h4>Level: {{point.level}}%</h4>
+                </div>
             </div>
             <md-divider></md-divider>
         </md-list-item>
