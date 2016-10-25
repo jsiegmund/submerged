@@ -3,10 +3,10 @@
     {
       "type": "eventHubTrigger",
       "name": "inputEventMessage",
-      "direction": "in",
-      "path": "repsaj-neptune-eventhub-ruleout",
-      "connection": "repsaj-neptune-eventhub-ruleout",
-      "consumerGroup": "$Default"
+      "path": "submerged-eventhub-ruleout",
+      "consumerGroup": "$Default",
+      "connection": "submerged-eventhub-ruleout",
+      "direction": "in"
     },
     {
       "type": "blob",
