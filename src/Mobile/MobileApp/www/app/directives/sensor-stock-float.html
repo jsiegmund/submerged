@@ -5,7 +5,7 @@
             <span class="md-body-1">{{sensor.description}}</span>
         </div>
         <div flex layout="column" layout-align="center end">
-            <md-button class="{{calculateSensorClass(sensor)}}"><span ng-bind-html="formatSensorValue(sensor, sensor.reading)"></span></md-button>
+            <md-button class="{{vm.calculateSensorClass(sensor)}}"><span ng-bind-html="vm.formatSensorValue(sensor, sensor.reading)"></span></md-button>
         </div>
     </div>
 </md-card>

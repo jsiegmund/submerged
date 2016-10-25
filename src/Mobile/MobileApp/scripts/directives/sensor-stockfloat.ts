@@ -14,6 +14,7 @@ namespace Submerged.Directives {
         };
 
         link = ($scope, element, attrs, controller: ISensorController) => {
+            $scope.formatSensorRange = controller.formatSensorRange;
             $scope.formatSensorValue = controller.formatSensorValue;
             $scope.calculateSensorClass = controller.calculateSensorClass;
         }

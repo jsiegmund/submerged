@@ -4,6 +4,7 @@ namespace Submerged.Directives {
 
     interface ISensorGenericScope extends ng.IScope {
         formatSensorValue(sensor: Models.SensorModel, value: any): any;
+        formatSensorRange(sensor: Models.SensorModel): any;
         calculateSensorClass(sensor: Models.SensorModel): string;
         openDetails: any;
     }
@@ -24,6 +25,7 @@ namespace Submerged.Directives {
 
         link = ($scope: ISensorGenericScope, element, attrs, controller: ISensorController) => {
             $scope.formatSensorValue = controller.formatSensorValue;
+            $scope.formatSensorRange = controller.formatSensorRange;
             $scope.calculateSensorClass = controller.calculateSensorClass;
             $scope.openDetails = controller.openDetails;
 
