@@ -12,11 +12,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 {
     public class SensorDatastore : ISensorDataStore
     {
-        Dictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>> _datastore;
+        ConcurrentDictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>> _datastore;
 
         public SensorDatastore()
         {
-            this._datastore = new Dictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>>();
+            this._datastore = new ConcurrentDictionary<Tuple<string, string>, FixedSizeQueue<SensorTelemetryModel>>();
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     throw new ArgumentException($"Module {module.ModuleName} is not configured for sensor {sensorName}");
 
                 int queueCapacity = GetQueueCapacityForSensor(sensorDefinition);
-                _datastore.Add(new Tuple<string, string>(module.ModuleName, sensorName), new FixedSizeQueue<SensorTelemetryModel>(queueCapacity));
+                _datastore.TryAdd(new Tuple<string, string>(module.ModuleName, sensorName), new FixedSizeQueue<SensorTelemetryModel>(queueCapacity));
             }
             
             // fetch the queue, store the item and pop off any excess items
@@ -93,16 +93,21 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 foreach (var sensorQueue in _datastore)
                 {
                     // if all of the queue values are null, the sensor is skipped
-                    if (sensorQueue.Value.All(v => v == null))
-                        continue;
+                    if (sensorQueue.Value.All(v => v.Value == null))
+                    {
+                        result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, null));
+                    }
                     // if the queue length is just one, simply return the value
                     else if (sensorQueue.Value.Count == 1)
+                    {
                         result.Add(sensorQueue.Value.First());
+                    }
                     // if the queue length is larger then one the sensor values should be numeric and we'll calculate
                     // the running average
                     else
                     {
-                        var values = sensorQueue.Value.Where(v => v != null);
+                        var values = sensorQueue.Value.Where(v => v.Value != null);
+
                         double sensorSum = values.Sum(v => Convert.ToDouble(v.Value));
                         double sensorAverage = sensorSum / (double)values.Count();
 
@@ -112,8 +117,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
-                throw;
+                Debug.WriteLine($"Cannot calculate stored sensor values due to: {ex}.");
             }
 
             return result;

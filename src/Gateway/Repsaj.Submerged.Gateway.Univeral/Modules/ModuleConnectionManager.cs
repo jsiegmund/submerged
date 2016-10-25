@@ -173,15 +173,14 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     // store all of the data in the data store; even when it's null
                     _sensorDatastore.ProcessData(module, moduleData);
                 }
-
-                // return the data from the datastore which will automatically provide averages and factor out not functioning hardware
-                return _sensorDatastore.GetData();
             }
             catch (Exception ex)
             {
                 LogEventSource.Log.Error($"ModuleConnectionManager encountered an error trying to get sensor data: {ex}");
-                return null;
             }
+
+            // return the data from the datastore which will automatically provide averages and factor out not functioning hardware
+            return _sensorDatastore.GetData();
         }
 
         public ModuleConnectionStatus GetModuleStatus(string moduleName)

@@ -17,6 +17,7 @@ using Windows.Devices.Enumeration;
 using Repsaj.Submerged.GatewayApp.Universal.Extensions;
 using Newtonsoft.Json;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
+using Repsaj.Submerged.GatewayApp.Universal.Helpers;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
@@ -68,19 +69,20 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
                     return null;
                 }
 
-                Debug.WriteLine("Awaiting connection lock");
                 // wait for the connection lock and for the firmata response
                 _connectionLock.Wait();
 
-                Debug.WriteLine("Sending request");
                 // send out the request
                 byte NEPTUNE_DATA = 0x44;
                 _firmata.sendSysex(NEPTUNE_DATA, new byte[] { }.AsBuffer());
                 _firmata.flush();
 
-                Debug.WriteLine("Awaiting firmata response for thirty seconds");
+                // reset the measurement object which should be re-populated
+                // when the module returns its data
+                this._measurement = new Measurement();
+
                 // Wait for 30 seconds for the response to come in
-                await Task.Delay(new TimeSpan(0, 0, 5));
+                await Task.Delay(new TimeSpan(0, 0, 10));
             }
             catch (Exception ex)
             {
@@ -89,20 +91,17 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             }
             finally
             {
-                Debug.WriteLine("Releasing connection lock");
                 _connectionLock.Release();
             }
 
             List<SensorTelemetryModel> result = new List<SensorTelemetryModel>();
 
             // build the result, don't add records for null measurements 
+            // await the semaphore so we know we have a complete reading and not just part of it
             _measurementSemaphore.Wait();
-            if (this._measurement.temperature1 != null)
-                result.Add(new SensorTelemetryModel("temperature1", this._measurement.temperature1));
-            if (this._measurement.temperature2 != null)
-                result.Add(new SensorTelemetryModel("temperature2", this._measurement.temperature2));
-            if (this._measurement.pH != null)
-                result.Add(new SensorTelemetryModel("pH", this._measurement.pH));
+            result.Add(new SensorTelemetryModel("temperature1", this._measurement.temperature1));
+            result.Add(new SensorTelemetryModel("temperature2", this._measurement.temperature2));
+            result.Add(new SensorTelemetryModel("pH", this._measurement.pH));
             _measurementSemaphore.Release();
 
             return result;
@@ -111,16 +110,18 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
         override internal void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv)
         {
             var content = argv.getString();
+            Debug.WriteLine($"Received firmata string: {content}");
 
             try
             {
+                if (! JSONHelper.IsValidJson(content))
+                {
+                    LogEventSource.Log.Warn($"JSON string received was not valid JSON (communication fault?): '{content}'.");
+                    return;   
+                }
+
                 _measurementSemaphore.Wait();
                 
-                // reset the measurement object to null
-                this._measurement.temperature1 = null;
-                this._measurement.temperature2 = null;
-                this._measurement.pH = null;
-
                 // deserialize the json into a dynamic object, return when failed
                 dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                 if (jsonObject == null)

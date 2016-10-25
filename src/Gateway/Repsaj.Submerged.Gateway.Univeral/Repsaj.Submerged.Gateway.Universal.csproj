@@ -140,6 +140,7 @@
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Helpers\Converters.cs" />
     <Compile Include="Helpers\FizedSizeQueue.cs" />
+    <Compile Include="Helpers\JSONHelper.cs" />
     <Compile Include="Helpers\Randomizer.cs" />
     <Compile Include="Helpers\TrulyObservableCollection.cs" />
     <Compile Include="Log\LogEventSource.cs" />
