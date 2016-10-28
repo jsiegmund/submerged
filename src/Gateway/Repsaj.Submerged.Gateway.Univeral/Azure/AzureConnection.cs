@@ -39,21 +39,28 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
 
         public async Task Init(ConnectionInformationModel connectionInfo)
         {
-            string iotHubHostname = connectionInfo.IoTHubHostname;
-            string deviceId = connectionInfo.DeviceId;
-            string deviceKey = connectionInfo.DeviceKey;
+            try
+            {
+                string iotHubHostname = connectionInfo.IoTHubHostname;
+                string deviceId = connectionInfo.DeviceId;
+                string deviceKey = connectionInfo.DeviceKey;
 
-            string deviceConnectionString = $"HostName={iotHubHostname};DeviceId={deviceId};SharedAccessKey={deviceKey}";
+                string deviceConnectionString = $"HostName={iotHubHostname};DeviceId={deviceId};SharedAccessKey={deviceKey}";
 
-            // Initialize the device client object which is used to connect to Azure IoT hub
-            // Create the IoT Hub Device Client instance
-            _deviceConnectionString = deviceConnectionString;
+                // Initialize the device client object which is used to connect to Azure IoT hub
+                // Create the IoT Hub Device Client instance
+                _deviceConnectionString = deviceConnectionString;
 
-            // use camlCasing for json objects
-            _settings = new JsonSerializerSettings();
-            _settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                // use camlCasing for json objects
+                _settings = new JsonSerializerSettings();
+                _settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-            await Connect();
+                await Connect();
+            }
+            catch (Exception ex)
+            {
+                LogEventSource.Log.Error($"Could not initialize the connection to Azure: {ex}.");
+            }
         }
 
         private async Task Connect()
@@ -205,7 +212,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("Failure occurred whilst waiting for a cloud to device message: " + ex);
+                        LogEventSource.Log.Warn("Failure occurred whilst waiting for a cloud to device message: " + ex);
                     }
 
                     if (receivedMessage == null) continue;
@@ -220,7 +227,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine("Could not process the command received: " + ex);
+                        LogEventSource.Log.Warn("Could not process the command received: " + ex);
                     }
                     finally
                     {
@@ -230,7 +237,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Azure
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Unexpected exception listening to incoming cloud messages: " + ex.ToString());
+                LogEventSource.Log.Error("Unexpected exception listening to incoming cloud messages: " + ex.ToString());
             }
         } 
     }
