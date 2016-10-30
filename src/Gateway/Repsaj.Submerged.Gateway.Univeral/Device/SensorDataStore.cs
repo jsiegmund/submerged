@@ -36,11 +36,15 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
             // check for sensors which have a queue but were not present in the collection
             var missingSensorQueues = this._datastore.Where(d => d.Key.Item1 == module.ModuleName && (sensorTelemetry?.Any(s => d.Key.Item2 == s.SensorName) == false))
-                                                     .Select(d => d.Value);
+                                                     .Select(d => new
+                                                     {
+                                                         SensorName = d.Key.Item2,
+                                                         SensorQueue = d.Value
+                                                     });
 
             // store a null for each queue that was not present
-            foreach (var queue in missingSensorQueues)
-                queue.Enqueue(null);                                                
+            foreach (var missing in missingSensorQueues)
+                missing.SensorQueue.Enqueue(new SensorTelemetryModel(missing.SensorName, null));                                                
         }
 
         private void SaveSensorData(ISensorModule module, SensorTelemetryModel telemetryRecord)
@@ -79,6 +83,45 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             throw new ArgumentException($"The sensor type {sensor.SensorType} was not configured to return a queue capacity.");
         }
 
+        private TelemetryTrendIndication CalculateTrend(IEnumerable<SensorTelemetryModel> telemetry)
+        {
+            int hasGoneUp = 0;
+            int hasGoneDown = 0;
+            int hasRemainedEqual = 0;
+            SensorTelemetryModel previous = null;
+
+            foreach (var item in telemetry)
+            {
+                if (previous == null)
+                {
+                    previous = item;
+                    continue;
+                }
+
+                // skip when the value inserted is not a double value
+                if (!(item.Value is double))
+                    continue;
+
+                // increase the correct instance based on comparing current value with previous
+                hasGoneUp += (double)item.Value > (double)previous.Value ? 1 : 0;
+                hasGoneDown += (double)item.Value < (double)previous.Value ? 1 : 0;
+                hasRemainedEqual += (double)item.Value == (double)previous.Value ? 1 : 0;
+
+                previous = item;
+            }
+
+            // Exactly one of hasGoneUp and hasGoneDown is true by this point
+            double criticalCount = telemetry.Count() * 0.75;
+            if (hasGoneUp > criticalCount)
+                return TelemetryTrendIndication.Increasing;
+            else if (hasGoneDown > criticalCount)
+                return TelemetryTrendIndication.Decreasing;
+            else if (hasRemainedEqual > criticalCount)
+                return TelemetryTrendIndication.Equal;
+            else
+                return TelemetryTrendIndication.Unknown;
+        }
+
         /// <summary>
         /// Returns the average of the sensordata stored in the datastore. Stored null values will not weigh in for the average,
         /// but sensors which only have null values will not be returned.
@@ -111,7 +154,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                         double sensorSum = values.Sum(v => Convert.ToDouble(v.Value));
                         double sensorAverage = sensorSum / (double)values.Count();
 
-                        result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, sensorAverage));
+                        TelemetryTrendIndication trend = CalculateTrend(values);
+
+                        result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, sensorAverage, trend));
                     };
                 }
             }

@@ -137,6 +137,7 @@
     <Compile Include="Exceptions\DeviceNotAuthorizedException.cs" />
     <Compile Include="Exceptions\DeviceNotFoundException.cs" />
     <Compile Include="Exceptions\DeviceRequiredPropertyNotFoundException.cs" />
+    <Compile Include="Exceptions\ModuleDisconnectedException.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Helpers\Converters.cs" />
     <Compile Include="Helpers\FizedSizeQueue.cs" />
@@ -170,12 +171,12 @@
     <Compile Include="Modules\IModuleConnectionFactory.cs" />
     <Compile Include="Modules\IModuleConnectionManager.cs" />
     <Compile Include="Modules\IRelayModule.cs" />
-    <Compile Include="Modules\ISensorDataStore.cs" />
+    <Compile Include="Device\ISensorDataStore.cs" />
     <Compile Include="Modules\ISensorModule.cs" />
     <Compile Include="Modules\ModuleConnectionFactory.cs" />
     <Compile Include="Modules\ModuleConnectionManager.cs" />
     <Compile Include="Modules\ModuleConnectionStatus.cs" />
-    <Compile Include="Modules\SensorDataStore.cs" />
+    <Compile Include="Device\SensorDataStore.cs" />
     <Compile Include="Modules\Simulated\SimulatedCabinetModuleConnection.cs" />
     <Compile Include="Modules\Simulated\SimulatedFirmataModuleConnection.cs" />
     <Compile Include="Modules\LED\SimulatedLedenetModuleConnection.cs" />

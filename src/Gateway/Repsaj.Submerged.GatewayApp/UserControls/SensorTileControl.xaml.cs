@@ -63,12 +63,31 @@ namespace Repsaj.Submerged.GatewayApp.UserControls
             DependencyProperty.Register(nameof(ImageUri), typeof(string), typeof(SensorTileControl), null);
         #endregion
 
+        #region TrendImageUri Property
+        public string TrendImageUri
+        {
+            get { return (string)GetValue(TrendImageUriProperty); }
+            set { SetValue(TrendImageUriProperty, value); }
+        }
+
+        public static readonly DependencyProperty TrendImageUriProperty =
+            DependencyProperty.Register(nameof(TrendImageUri), typeof(string), typeof(SensorTileControl), null);
+        #endregion
 
         private BitmapImage IconImage
         {
             get
             {
                 string imageUri = (string)GetValue(TileImageUriProperty);
+                return !String.IsNullOrEmpty(imageUri) ? new BitmapImage(new Uri(imageUri)) : null;
+            }
+        }
+
+        private BitmapImage TrendImage
+        {
+            get
+            {
+                string imageUri = (string)GetValue(TrendImageUriProperty);
                 return !String.IsNullOrEmpty(imageUri) ? new BitmapImage(new Uri(imageUri)) : null;
             }
         }

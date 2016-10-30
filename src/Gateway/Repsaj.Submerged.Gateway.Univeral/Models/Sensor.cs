@@ -17,6 +17,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
         public bool MinThresholdEnabled { get; set; }
         public bool MaxThresholdEnabled { get; set; }
         public string SensorType { get; set; }
+        public string Trend { get; set; }
         public object Reading { get; set; }
         public string Module { get; set; }
         public string[] PinConfig { get; set; }

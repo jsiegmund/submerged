@@ -37,7 +37,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             get { return _sensors; }
         }
 
-        SemaphoreSlim _measurementSemaphore = new SemaphoreSlim(1, 1);
         Sensor[] _sensors;
         Relay[] _relays;
 
@@ -98,11 +97,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 
             // build the result, don't add records for null measurements 
             // await the semaphore so we know we have a complete reading and not just part of it
-            _measurementSemaphore.Wait();
             result.Add(new SensorTelemetryModel("temperature1", this._measurement.temperature1));
             result.Add(new SensorTelemetryModel("temperature2", this._measurement.temperature2));
             result.Add(new SensorTelemetryModel("pH", this._measurement.pH));
-            _measurementSemaphore.Release();
 
             return result;
         }
@@ -119,8 +116,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
                     LogEventSource.Log.Warn($"JSON string received was not valid JSON (communication fault?): '{content}'.");
                     return;   
                 }
-
-                _measurementSemaphore.Wait();
                 
                 // deserialize the json into a dynamic object, return when failed
                 dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
@@ -140,10 +135,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             catch (Exception ex)
             {
                 LogEventSource.Log.Error("Exception was caught processing firmata message in Sensor Module: " + ex.ToString());
-            }
-            finally
-            {
-                _measurementSemaphore.Release();
             }
         }
 

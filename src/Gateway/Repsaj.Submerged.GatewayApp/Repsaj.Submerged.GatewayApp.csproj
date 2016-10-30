@@ -131,6 +131,9 @@
     <Content Include="Icons\Sensor_StockFloat.png" />
     <Content Include="Icons\Sensor_Temperature.png" />
     <Content Include="Icons\submerged_logo.png" />
+    <Content Include="Icons\trending_down_white.png" />
+    <Content Include="Icons\trending_flat_white.png" />
+    <Content Include="Icons\trending_up.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

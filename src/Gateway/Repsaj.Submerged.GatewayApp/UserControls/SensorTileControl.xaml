@@ -18,6 +18,9 @@
             <Image Grid.Row="0"
                 Name="imgMain"
                 Style="{StaticResource submergedTileImageStyle}" Height="46" Width="46" Source="{x:Bind IconImage, Mode=OneWay}" HorizontalAlignment="Left" Margin="8,0,0,0" VerticalAlignment="Center" />
+            <Image Grid.Row="0"
+                Name="imgTrend"
+                Style="{StaticResource submergedTileImageStyle}" Height="46" Width="46" Source="{x:Bind TrendImage, Mode=OneWay}" HorizontalAlignment="Right" Margin="0,8,8,0" VerticalAlignment="Top" />
             <TextBlock Grid.Row="0"
             	x:Name="tbReading"
             	Style="{StaticResource submergedTileReadingStyle}"

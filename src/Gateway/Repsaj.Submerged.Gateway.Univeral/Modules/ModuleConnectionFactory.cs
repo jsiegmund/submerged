@@ -30,12 +30,14 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             try
             {
                 _devices = await DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort)).AsTask();
-                int count = _devices.Count;
+                Debug.WriteLine($"Found total of {_devices.Count} bluetooth devices in the Windows device registry.");
+
+                foreach (var device in _devices)
+                    Debug.WriteLine($"Device: {device.Id}");
             }
             catch (Exception ex)
             {
-                string msg = $"Failure initializing device registry. Restart the application and try again";
-                LogEventSource.Log.Error(msg);
+                LogEventSource.Log.Error($"Failure initializing device registry. Restart the application and try again. {ex}");
                 throw;
             }
         }
@@ -63,7 +65,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     connection = CreateSimulatedConnection(module, sensors, relays);
 
                 // run the module initialization in a background task
-                Task.Run(() => { connection.Init(); });
+                Task.Run(async () => { await connection.Init(); });
 
                 // add to the list of managed connections
                 _connections.Add(module.Name, connection);

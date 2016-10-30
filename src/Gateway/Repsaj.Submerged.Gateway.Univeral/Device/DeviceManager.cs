@@ -202,6 +202,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
                 if (sensorItem != null)
                 {
                     sensorItem.Reading = sensorData.Value;
+                    sensorItem.Trend = Enum.GetName(typeof(TelemetryTrendIndication), sensorData.TrendIndication);
                     processedSensors.Add(sensorItem.Name);
                 }
             }
@@ -212,6 +213,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
             foreach (var sensor in missingSensors)
             {
                 sensor.Reading = null;
+                sensor.Trend = null;
             }
 
             InvokeSensorsUpdate();
@@ -242,20 +244,25 @@ namespace Repsaj.Submerged.GatewayApp.Device
             RelaysUpdated?.Invoke(relayData);
         }
 
-        private void UpdateModuleData(string moduleName, ModuleConnectionStatus moduleStatus)
+        private async Task UpdateModuleData(string moduleName, ModuleConnectionStatus moduleStatus)
         {
             var moduleItem = _deviceModel.Modules.SingleOrDefault(m => m.Name == moduleName);
 
             if (moduleItem != null)
             {
                 moduleItem.Status = ModuleConnectionStatusAsText(moduleStatus);
-                InvokeModulesUpdate();
+                await InvokeModulesUpdate();
             }
         }
 
-        private void InvokeModulesUpdate()
+        private async Task InvokeModulesUpdate()
         {
             ModulesUpdated?.Invoke(_deviceModel.Modules);
+
+            // when everything was initialized before; send any module update
+            // to the cloud
+            if (_moduleConnectionManager.AllModulesInitialized)
+                await SendDeviceData();
         }
 
         private string ModuleConnectionStatusAsText(ModuleConnectionStatus moduleStatus)
@@ -424,9 +431,9 @@ namespace Repsaj.Submerged.GatewayApp.Device
             StartTimer();
         }
 
-        private void _moduleConnectionManager_ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus)
+        private async void _moduleConnectionManager_ModuleStatusChanged(string moduleName, ModuleConnectionStatus newStatus)
         {
-            UpdateModuleData(moduleName, newStatus);
+            await UpdateModuleData(moduleName, newStatus);
         }
         #endregion
 

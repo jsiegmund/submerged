@@ -11,6 +11,7 @@ using Microsoft.Maker.RemoteWiring;
 using System.Diagnostics;
 using Repsaj.Submerged.Gateway.Universal.Arduino;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
+using Repsaj.Submerged.GatewayApp.Universal.Exceptions;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 {
@@ -52,7 +53,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             {
                 if (sensor.SensorType == SensorTypes.PH ||
                     sensor.SensorType == SensorTypes.TEMPERATURE ||
-                    sensor.SensorType == SensorTypes.MOISTURE || 
+                    sensor.SensorType == SensorTypes.MOISTURE ||
                     sensor.SensorType == SensorTypes.FLOW)
                     SetPinMode(sensor.PinConfig, PinMode.INPUT);
                 else if (sensor.SensorType == SensorTypes.STOCKFLOAT)
@@ -74,7 +75,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             foreach (string pinName in pins)
             {
                 byte pin = ArduinoPinMapper.GetPinNumber(pinName);
-                _arduino.pinMode(pin, pinMode);                
+                _arduino.pinMode(pin, pinMode);
+                Debug.WriteLine($"Configured pin {pin} to mode {pinMode}.");      
             }
         }
 
@@ -180,20 +182,31 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
 
             PinState value = GetDigitalPinValue(sensor.PinConfig[0]);
 
+            Debug.WriteLine($"Float sensor {sensor.Name} reads: {value}");
+
             // this is a switch sensor, return bool instead of value
-            return value == PinState.HIGH;
+            // LOW = circuit closed, fluid present
+            // HIGH = circuit broken, fluid not present
+            return value == PinState.LOW;
         }
 
         private ushort GetAnalogPinValue(string pinName)
         {
+            if (! _adapter.connectionReady())
+                throw new ModuleDisconnectedException();
+
             byte pinNumber = ArduinoPinMapper.GetPinNumber(pinName);
             return _arduino.analogRead(pinName);
         }
 
         private PinState GetDigitalPinValue(string pinName)
         {
+            if (!_adapter.connectionReady())
+                throw new ModuleDisconnectedException();
+
             byte pinNumber = ArduinoPinMapper.GetPinNumber(pinName);
-            return _arduino.digitalRead(pinNumber);
+            PinState result = _arduino.digitalRead(pinNumber);
+            return result;
         }
 
         internal override void _firmata_StringMessageReceived(UwpFirmata caller, StringCallbackEventArgs argv)

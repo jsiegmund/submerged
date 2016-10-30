@@ -49,7 +49,7 @@
                 </ListView.ItemsPanel>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="viewModels:SensorDisplayModel">
-                        <Submerged:SensorTileControl Height="128" Width="128" SensorName="{x:Bind DisplayName, Mode=OneWay}" Reading="{x:Bind ReadingAsText, Mode=OneWay}" ImageUri="{x:Bind IconImageUri, Mode=OneWay}" />
+                        <Submerged:SensorTileControl Height="128" Width="128" SensorName="{x:Bind DisplayName, Mode=OneWay}" Reading="{x:Bind ReadingAsText, Mode=OneWay}" ImageUri="{x:Bind IconImageUri, Mode=OneWay}" TrendImageUri="{x:Bind TrendImageUri, Mode=OneWay}" />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

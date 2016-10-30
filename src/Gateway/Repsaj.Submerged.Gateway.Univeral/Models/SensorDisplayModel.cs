@@ -22,6 +22,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             this._reading = sensor.Reading;
             this._sensorType = sensor.SensorType;
             this._orderNumber = sensor.OrderNumber;
+            this._trend = sensor.Trend;
         }
 
         string _name;
@@ -60,6 +61,22 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             }
         }
 
+        string _trend;
+        public String Trend
+        {
+            get { return this._trend; }
+            set
+            {
+                SetProperty(this._trend, value, () => this._trend = value);
+                RaisePropertyChanged(nameof(TrendImageUri));
+            }
+        }
+
+        public string TrendImageUri
+        {
+            get { return GetTrendImageUri(); }
+        }
+
         public string IconImageUri
         {
             get { return GetIconImageUri(); }
@@ -79,6 +96,22 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
                 iconImageUri = "ms-appx:///Icons/Sensor_Flow.png";
             else
                 iconImageUri = "ms-appx:///Icons/Sensor_Gauge.png";
+
+            return iconImageUri;
+        }
+
+        private string GetTrendImageUri()
+        {
+            string iconImageUri;
+
+            if (this._trend == Enum.GetName(typeof(TelemetryTrendIndication), TelemetryTrendIndication.Decreasing))
+                iconImageUri = "ms-appx:///Icons/trending_down_white.png";
+            else if (this._trend == Enum.GetName(typeof(TelemetryTrendIndication), TelemetryTrendIndication.Equal))
+                iconImageUri = "ms-appx:///Icons/trending_flat_white.png";
+            else if (this._trend == Enum.GetName(typeof(TelemetryTrendIndication), TelemetryTrendIndication.Increasing))
+                iconImageUri = "ms-appx:///Icons/trending_up_white.png";
+            else 
+                iconImageUri = "";
 
             return iconImageUri;
         }

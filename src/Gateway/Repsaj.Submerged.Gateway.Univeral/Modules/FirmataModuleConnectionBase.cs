@@ -87,10 +87,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 _arduino.DeviceConnectionLost += _arduino_DeviceConnectionLost;
                 _arduino.DeviceReady += _arduino_DeviceReady;
 
-                await Task.Run(() =>
-                {
-                    _adapter.begin(9600, SerialConfig.SERIAL_8N1);
-                });
+                _adapter.begin(9600, SerialConfig.SERIAL_8N1);
             }
             catch (Exception ex)
             {
@@ -106,13 +103,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         private void _adapter_ConnectionLost(string message)
         {
-            LogEventSource.Log.Warn($"Bluetooth connection to [{ModuleName}] lost.");
+            LogEventSource.Log.Warn($"Bluetooth connection to [{ModuleName}] lost: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _adapter_ConnectionFailed(string message)
         {
-            LogEventSource.Log.Error($"Bluetooth connection to [{ModuleName}] failed.");
+            LogEventSource.Log.Error($"Bluetooth connection to [{ModuleName}] failed: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
@@ -129,13 +126,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         private void _firmata_FirmataConnectionLost(string message)
         {
-            LogEventSource.Log.Warn($"Firmata connection lost on module {ModuleName}.");
+            LogEventSource.Log.Warn($"Firmata connection lost on module {ModuleName}: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _firmata_FirmataConnectionFailed(string message)
         {
-            LogEventSource.Log.Error($"Firmata connection failed on module {ModuleName}.");
+            LogEventSource.Log.Error($"Firmata connection failed on module {ModuleName}: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
@@ -147,13 +144,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
 
         private void _arduino_DeviceConnectionLost(string message)
         {
-            LogEventSource.Log.Warn($"Remote device connection for [{ModuleName}] lost.");
+            LogEventSource.Log.Warn($"Remote device connection for [{ModuleName}] lost: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
         private void _arduino_DeviceConnectionFailed(string message)
         {
-            LogEventSource.Log.Error($"Remote device connection for [{ModuleName}] failed.");
+            LogEventSource.Log.Error($"Remote device connection for [{ModuleName}] failed: {message}");
             SetModuleStatus(ModuleConnectionStatus.Disconnected);
         }
 
@@ -217,11 +214,13 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             }
             if (_firmata != null)
             {
+                _firmata.finish();
                 _firmata.Dispose();
                 _firmata = null;
             }
             if (_adapter != null)
             {
+                _adapter.end();
                 _adapter.Dispose();
                 _adapter = null;
             }
