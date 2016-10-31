@@ -20,6 +20,7 @@ public static void Run(string inputEventMessage, string inputBlob, IBinder binde
     }
 
     log.Info($"C# Event Hub trigger function processed a message:  {inputEventMessage}"); 
+    string[] triggers = inputEventMessage.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
      
     if (String.IsNullOrEmpty(inputBlob))
         inputBlob = DateTime.MinValue.ToString();
@@ -28,7 +29,9 @@ public static void Run(string inputEventMessage, string inputBlob, IBinder binde
     TimeSpan duration = DateTime.Now - lastEvent;
         
     if (duration.TotalMinutes >= 60) {
-        ProcessNotifications(inputEventMessage, binder, log).Wait();
+        foreach (var trigger in triggers)
+            ProcessNotifications(trigger, binder, log).Wait();
+
         outputBlob = DateTime.Now.ToString();
         
         log.Info("Notification sent, outputBlob updated with new datetime");
