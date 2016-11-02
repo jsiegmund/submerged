@@ -551,10 +551,10 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                     sensorRule.DataType = sensor.SensorType;
                     sensorRule.RuleOutput = sensor.Name + "Alarm";
                     sensorRule.Threshold = 1;
-                    sensorRule.EnabledState = sensor.MinThresholdEnabled;
-
-                    await _deviceRulesLogic.SaveDeviceRuleAsync(sensorRule);
                 }
+
+                sensorRule.EnabledState = sensor.MinThresholdEnabled;
+                await _deviceRulesLogic.SaveDeviceRuleAsync(sensorRule);
             }
             else
             {
@@ -588,7 +588,6 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                 maxRule.EnabledState = sensor.MaxThresholdEnabled;
 
                 await _deviceRulesLogic.SaveDeviceRuleAsync(maxRule);
-
             }
         }
 
