@@ -331,6 +331,9 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
             // update the subscription 
             await UpdateSubscriptionAsync(subscription, owner);
 
+            // send a device configuration message back to the device
+            await SendDeviceConfigurationMessage(updatedDevice);
+
             return updatedDevice;
         }
 
@@ -548,7 +551,7 @@ namespace Repsaj.Submerged.Infrastructure.BusinessLogic
                     sensorRule.DataType = sensor.SensorType;
                     sensorRule.RuleOutput = sensor.Name + "Alarm";
                     sensorRule.Threshold = 1;
-                    sensorRule.EnabledState = true;
+                    sensorRule.EnabledState = sensor.MinThresholdEnabled;
 
                     await _deviceRulesLogic.SaveDeviceRuleAsync(sensorRule);
                 }
