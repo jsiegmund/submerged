@@ -19,7 +19,7 @@
                 <md-subheader class="md-primary">{{sensorType.displayName}}</md-subheader>
 
                 <md-list>
-                    <md-list-item ng-repeat="sensor in vm.selectedDevice.sensors | filter:vm.sensorBySensorType(sensorType.name)" ng-click="vm.openSensor(sensor)" class="md-2-line">
+                    <md-list-item ng-repeat="sensor in vm.selectedDevice.sensors | filter:vm.sensorBySensorType(sensorType.name) | orderBy:'orderNumber'" ng-click="vm.openSensor(sensor)" class="md-2-line">
                         <div class="md-list-item-text" layout="column">
                             <h3 class="md-title">{{sensor.displayName}}</h3>
                             <h4>{{sensor.description}}</h4>
@@ -35,7 +35,7 @@
         <md-tab-content flex layout-fill>
 
             <md-list>
-                <md-list-item ng-repeat="relay in vm.selectedDevice.relays" ng-click="vm.openRelay(relay)" class="md-2-line">
+                <md-list-item ng-repeat="relay in vm.selectedDevice.relays | orderBy:'orderNumber'" ng-click="vm.openRelay(relay)" class="md-2-line">
                     <div class="md-list-item-text" layout="column">
                         <h3>{{relay.displayName}}</h3>
                         <h4>{{relay.description}}</h4>
@@ -50,7 +50,7 @@
         <md-tab-content flex layout-fill>
 
             <md-list>
-                <md-list-item ng-repeat="module in vm.selectedDevice.modules" ng-click="vm.openModule(module)" class="md-2-line">
+                <md-list-item ng-repeat="module in vm.selectedDevice.modules | orderBy:'orderNumber'" ng-click="vm.openModule(module)" class="md-2-line">
                     <div class="md-list-item-text" layout="column">
                         <h3 class="md-title">{{module.displayName}}</h3>
                         <h4>{{module.description}}</h4>

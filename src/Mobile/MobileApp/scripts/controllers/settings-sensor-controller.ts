@@ -5,6 +5,7 @@ namespace Submerged.Controllers {
     export class SettingsSensorController extends BaseController {
 
         showThresholds: boolean;
+        showEnableThreshold: boolean;
         minThreshold: number;
         maxThreshold: number;
         step: number;
@@ -77,24 +78,36 @@ namespace Submerged.Controllers {
                     this.maxThreshold = 40;
                     this.step = 1;
                     this.showThresholds = true;
+                    this.showEnableThreshold = false;
                     break;
                 case Statics.SENSORTYPES.PH:
                     this.minThreshold = 5.5;
                     this.maxThreshold = 8;
                     this.step = 0.1;
                     this.showThresholds = true;
+                    this.showEnableThreshold = false;
                     break;
                 case Statics.SENSORTYPES.FLOW:
                     this.minThreshold = 1000;
                     this.maxThreshold = 10000;
                     this.step = 100;
                     this.showThresholds = true;
+                    this.showEnableThreshold = false;
+                    break;
+                case Statics.SENSORTYPES.MOISTURE:
+                    this.showThresholds = false;
+                    this.showEnableThreshold = true;
+                    break;
+                case Statics.SENSORTYPES.STOCKFLOAT:
+                    this.showThresholds = false;
+                    this.showEnableThreshold = true;
                     break;
                 default:
                     this.minThreshold = 1;
                     this.maxThreshold = 1;
                     this.step = 1;
                     this.showThresholds = false;
+                    this.showEnableThreshold = false;
             }
         }
 

@@ -24,7 +24,7 @@
 
             <md-input-container flex>
                 <label>Pin configuration</label>
-                <md-select ng-model="vm.relay.pinConfig[0]" required>
+                <md-select ng-model="vm.sensor.pinConfig[0]" required>
                     <md-option ng-repeat="pin in vm.pinConfigOptions" value="{{pin}}">
                         {{pin}}
                     </md-option>
@@ -74,12 +74,24 @@
             </div>
         </section>
 
-        <!-- Action buttons -->
-        <div layout="row" layout-padding layout-align="end center" flex="none">
-            <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
-            <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
-        </div>
+        <section ng-show="vm.showEnableThreshold">
+            <md-subheader class="md-primary">Notification</md-subheader>
+            <div layout="row">
+                <div class="md-padding md-body-1">
+                    Switch notifications for this sensor on/off
+                </div>
+                <div layout="column" flex="10" layout-align="end center">
+                    <md-switch ng-model="vm.sensor.minThresholdEnabled"></md-switch>
+                </div>
+            </div>
+        </section>
 
-    </form>
+            <!-- Action buttons -->
+            <div layout="row" layout-padding layout-align="end center" flex="none">
+                <!--<md-button ng-click="vm.cancel()" class="md-raised md-primary">CANCEL</md-button>-->
+                <md-button type="submit" class="md-raised md-primary" ng-disabled="vm.busy">SAVE</md-button>
+            </div>
+
+</form>
 
 </md-content>
