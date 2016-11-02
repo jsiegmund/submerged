@@ -187,7 +187,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules.Connections
             // this is a switch sensor, return bool instead of value
             // LOW = circuit closed, fluid present
             // HIGH = circuit broken, fluid not present
-            return value == PinState.LOW;
+            return value == PinState.HIGH;
         }
 
         private ushort GetAnalogPinValue(string pinName)

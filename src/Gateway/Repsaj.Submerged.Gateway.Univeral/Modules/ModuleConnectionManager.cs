@@ -26,14 +26,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         public event ModuleStatusChanged ModuleStatusChanged;
         public event Action ModulesInitialized;
 
-        public bool AllModulesInitialized { get; private set; }
+        private static bool _allModulesInitialized = false;
+        private static object _allModulesInitializedLock = new object();
+        public bool AllModulesInitialized {
+            get { return _allModulesInitialized; }
+        }
 
         public ModuleConnectionManager(IModuleConnectionFactory moduleConnectionFactory, ISensorDataStore sensorDatastore)
         {
             _moduleConnectionFactory = moduleConnectionFactory;
             _sensorDatastore = sensorDatastore;
-
-            AllModulesInitialized = false;
         }
 
         public async Task Init()
@@ -56,7 +58,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 }
 
                 // if there's a new module to initialize; set the 'all initialized' flag to false again
-                AllModulesInitialized = false;
+                _allModulesInitialized = false;
 
                 try
                 {
@@ -107,13 +109,15 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             if (oldStatus != newStatus)
                 ModuleStatusChanged?.Invoke(moduleName, moduleConnection.ModuleStatus);
 
-            if (oldStatus == ModuleConnectionStatus.Initializing)
+            // when this module was initializing, it's not any more and 
+            // there are no modules left initializing; fire the all modules initialized event
+            lock (_allModulesInitializedLock)
             {
-                // check to see whether there are any modules left initializing
-                if (AllModulesInitialized == false &&
+                if (oldStatus == ModuleConnectionStatus.Initializing &&
+                    AllModulesInitialized == false &&
                     !_moduleConnections.Any(s => s.Value.ModuleStatus == ModuleConnectionStatus.Initializing))
                 {
-                    AllModulesInitialized = true;
+                    _allModulesInitialized = true;
                     ModulesInitialized?.Invoke();
                 }
             }

@@ -58,7 +58,7 @@ namespace Repsaj.Submerged.GatewayApp
 
             // initialize logging
             EventListener listener = new StorageFileEventListener("SubmergedListener");
-            listener.EnableEvents(LogEventSource.Log, EventLevel.Warning);
+            listener.EnableEvents(LogEventSource.Log, EventLevel.Verbose);
 
             LogEventSource.Log.Info("The application is booting.");
 

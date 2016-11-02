@@ -50,6 +50,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         private void SaveSensorData(ISensorModule module, SensorTelemetryModel telemetryRecord)
         {
             string sensorName = telemetryRecord.SensorName;
+
             // ensure there will be a queue for every sensor in the colletion
             if (! _datastore.Keys.Any(k => k.Item1 == module.ModuleName && k.Item2 == sensorName))
             {
@@ -58,6 +59,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                 if (sensorDefinition == null)
                     throw new ArgumentException($"Module {module.ModuleName} is not configured for sensor {sensorName}");
 
+                // create a new queue and set the capacity based on the predefined queue capacity
                 int queueCapacity = GetQueueCapacityForSensor(sensorDefinition);
                 _datastore.TryAdd(new Tuple<string, string>(module.ModuleName, sensorName), new FixedSizeQueue<SensorTelemetryModel>(queueCapacity));
             }

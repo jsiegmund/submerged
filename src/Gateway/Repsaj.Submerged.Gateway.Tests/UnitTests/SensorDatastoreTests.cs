@@ -241,5 +241,23 @@ namespace Repsaj.Submerged.Gateway.Tests.UnitTests
 
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void SensorDataStore_CanGetData_ShouldNotReturnWhenLastValuesAreNull_Success()
+        {
+            IEnumerable<SensorTelemetryModel[]> telemetry;
+
+            telemetry = GenerateFakeTelemetry(10);
+            telemetry = telemetry.Union(GenerateFakeNullTelemetry(10));
+
+            ISensorDataStore datastore = new SensorDatastore();
+            foreach (var item in telemetry)
+                datastore.ProcessData(_sensorModule, item);
+
+            var result = datastore.GetData();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result.Count());
+        }
     }
 }

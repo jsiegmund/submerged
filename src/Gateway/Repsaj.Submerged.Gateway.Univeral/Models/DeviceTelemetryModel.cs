@@ -20,7 +20,19 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
     {
         public string ObjectType { get { return DeviceMessageObjectTypes.TELEMETRY; } }
         public string DeviceId { get; set; }
-        public IEnumerable<SensorTelemetryModel> SensorData { get; set; }
+        public IEnumerable<SensorTelemetryCloudModel> SensorData { get; set; }
+    }
+
+    public class SensorTelemetryCloudModel
+    {
+        public SensorTelemetryCloudModel(string sensorName, object value)
+        {
+            this.SensorName = sensorName;
+            this.Value = value;
+        }
+
+        public string SensorName { get; set; }
+        public object Value { get; set; }
     }
 
     public class SensorTelemetryModel

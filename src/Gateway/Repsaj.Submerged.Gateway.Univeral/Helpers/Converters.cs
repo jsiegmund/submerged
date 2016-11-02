@@ -34,7 +34,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Helpers
                 {
                     bool? readingAsBool = (bool?)reading;
                     if (readingAsBool.HasValue)
-                        formattedText = readingAsBool.Value ? "OK" : "FILL";
+                        formattedText = readingAsBool.Value ? "FILL" : "OK";
                 }
                 else
                     formattedText = reading?.ToString();

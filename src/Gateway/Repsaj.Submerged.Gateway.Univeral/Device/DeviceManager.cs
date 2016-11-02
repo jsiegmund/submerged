@@ -371,12 +371,12 @@ namespace Repsaj.Submerged.GatewayApp.Device
         { 
             try
             {
-                sensorData = PrepareSensorData(sensorData);
+                var dataToSend = PrepareSensorData(sensorData);
 
                 DeviceTelemetryModel telemetryModel = new DeviceTelemetryModel()
                 {
                     DeviceId = _connectionInfo.DeviceId,
-                    SensorData = sensorData
+                    SensorData = dataToSend
                 };
 
                 string payload = Newtonsoft.Json.JsonConvert.SerializeObject(telemetryModel);
@@ -396,19 +396,19 @@ namespace Repsaj.Submerged.GatewayApp.Device
             }
         }
 
-        private IEnumerable<SensorTelemetryModel> PrepareSensorData(IEnumerable<SensorTelemetryModel> sensorData)
+        private IEnumerable<SensorTelemetryCloudModel> PrepareSensorData(IEnumerable<SensorTelemetryModel> sensorData)
         {
-            List<SensorTelemetryModel> preppedData = new List<SensorTelemetryModel>(sensorData);
+            var preppedData = sensorData.ToList();
 
             // remove all sensor floats that not high, no relevance in storing that
             var stockFloatSensors = _deviceModel.Sensors.Where(s => s.SensorType == SensorTypes.STOCKFLOAT);
-            preppedData.RemoveAll(d => stockFloatSensors.Any(sf => sf.Name == d.SensorName) && (bool?)d.Value == false);
+            preppedData.RemoveAll(d => stockFloatSensors.Any(sf => sf.Name == d.SensorName) && d.Value != null && Convert.ToBoolean(d.Value) == false);
 
             // remove all moisture sensors that read false
             var moistureSensors = _deviceModel.Sensors.Where(s => s.SensorType == SensorTypes.MOISTURE);
-            preppedData.RemoveAll(d => moistureSensors.Any(ms => ms.Name == d.SensorName) && (bool?)d.Value == false);
+            preppedData.RemoveAll(d => moistureSensors.Any(ms => ms.Name == d.SensorName) && d.Value != null && Convert.ToBoolean(d.Value) == false);
 
-            return preppedData;
+            return sensorData.Select(d => new SensorTelemetryCloudModel(d.SensorName, d.Value));
         }
 
         private async Task _azureConnection_CommandReceived(DeserializableCommand command)
@@ -425,7 +425,7 @@ namespace Repsaj.Submerged.GatewayApp.Device
 
         private async void _moduleConnectionManager_ModulesInitialized()
         {
-            NewLogLine?.Invoke("All modules have intialized.");
+            NewLogLine?.Invoke("All modules have initialized.");
             
             await SendDeviceData();
             StartTimer();
