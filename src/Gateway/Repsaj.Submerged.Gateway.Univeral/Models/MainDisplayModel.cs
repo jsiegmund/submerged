@@ -1,5 +1,6 @@
 ﻿using Repsaj.Submerged.GatewayApp.Universal.Helpers;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
+using Repsaj.Submerged.GatewayApp.Universal.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -64,7 +65,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
                     Name = "Leakage",
                     DisplayName = "Leak detection",
                     Reading = value,
-                    SensorType = SensorTypes.MOISTURE
+                    SensorType = SensorTypes.MOISTURE,
+                    OrderNumber = Int16.MaxValue
                 };
 
                 this.Sensors.Add(newSensor);
@@ -91,7 +93,11 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             else if (displayModel != null && sensor.Reading != null)
             {
                 displayModel.Reading = sensor.Reading;
+                displayModel.Trend = sensor.Trend;
+                displayModel.OrderNumber = sensor.OrderNumber;
             }
+
+            this.Sensors.Sort(x => x.OrderNumber);
         }
 
         public void ProcessRelayData(IEnumerable<Relay> relayData)

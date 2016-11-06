@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Media.Imaging;
 
 namespace Repsaj.Submerged.GatewayApp.Universal.Models
 {
-    public class SensorDisplayModel : NotificationBase
+    public class SensorDisplayModel : NotificationBase, IComparable<SensorDisplayModel>, IEquatable<SensorDisplayModel>
     {
         public SensorDisplayModel() { }
 
@@ -116,7 +116,6 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             return iconImageUri;
         }
 
-
         int? _orderNumber;
         public int? OrderNumber
         {
@@ -130,6 +129,30 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Models
             {
                 return Converters.ConvertReadingToText(Reading, this._sensorType);
             }
+        }
+
+        public int CompareTo(SensorDisplayModel other)
+        {
+            if (this.OrderNumber != null && other.OrderNumber != null)
+            {
+                if (this.OrderNumber < other.OrderNumber)
+                    return -1;
+                else if (this.OrderNumber > other.OrderNumber)
+                    return 1;
+                else
+                    return 0;
+            }
+            else if (this.OrderNumber == null && other.OrderNumber != null)
+                return -1;
+            else if (this.OrderNumber != null && other.OrderNumber == null)
+                return 1;
+            else
+                return -1;
+        }
+
+        public bool Equals(SensorDisplayModel other)
+        {
+            return other.Name == this.Name;
         }
     }
 }

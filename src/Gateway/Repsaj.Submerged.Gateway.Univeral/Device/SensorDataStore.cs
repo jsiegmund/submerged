@@ -7,8 +7,9 @@ using Repsaj.Submerged.GatewayApp.Universal.Models;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Repsaj.Submerged.GatewayApp.Universal.Helpers;
+using Repsaj.Submerged.GatewayApp.Universal.Modules;
 
-namespace Repsaj.Submerged.GatewayApp.Universal.Modules
+namespace Repsaj.Submerged.GatewayApp.Universal.Device
 {
     public class SensorDatastore : ISensorDataStore
     {
@@ -75,7 +76,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             if (sensor.SensorType == SensorTypes.FLOW ||
                 sensor.SensorType == SensorTypes.PH ||
                 sensor.SensorType == SensorTypes.TEMPERATURE)
-                return 6;
+                return 30;
 
             // for sensors returning booleans or other non-numeric values, use 1 so the datastore will just return the last recorded value
             if (sensor.SensorType == SensorTypes.MOISTURE ||
@@ -92,7 +93,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             int hasRemainedEqual = 0;
             SensorTelemetryModel previous = null;
 
-            foreach (var item in telemetry)
+            foreach (var item in telemetry.Where(t => t.Value != null))
             {
                 if (previous == null)
                 {
@@ -105,20 +106,20 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     continue;
 
                 // increase the correct instance based on comparing current value with previous
-                hasGoneUp += (double)item.Value > (double)previous.Value ? 1 : 0;
-                hasGoneDown += (double)item.Value < (double)previous.Value ? 1 : 0;
-                hasRemainedEqual += (double)item.Value == (double)previous.Value ? 1 : 0;
+                hasGoneUp += Convert.ToDouble(item.Value) > Convert.ToDouble(previous.Value) ? 1 : 0;
+                hasGoneDown += Convert.ToDouble(item.Value) < Convert.ToDouble(previous.Value) ? 1 : 0;
+                hasRemainedEqual += Convert.ToDouble(item.Value) == Convert.ToDouble(previous.Value) ? 1 : 0;
 
                 previous = item;
             }
 
             // Exactly one of hasGoneUp and hasGoneDown is true by this point
-            double criticalCount = telemetry.Count() * 0.75;
-            if (hasGoneUp > criticalCount)
+            double itemCount = telemetry.Count();
+            if (hasGoneUp >= (itemCount * 0.6))
                 return TelemetryTrendIndication.Increasing;
-            else if (hasGoneDown > criticalCount)
+            else if (hasGoneDown >= (itemCount * 0.6))
                 return TelemetryTrendIndication.Decreasing;
-            else if (hasRemainedEqual > criticalCount)
+            else if (hasRemainedEqual >= (itemCount * 0.5))
                 return TelemetryTrendIndication.Equal;
             else
                 return TelemetryTrendIndication.Unknown;
@@ -132,13 +133,22 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
         public IEnumerable<SensorTelemetryModel> GetData()
         {
             List<SensorTelemetryModel> result = new List<SensorTelemetryModel>();
+            int useNValues = 6;
 
             try
             {
                 foreach (var sensorQueue in _datastore)
                 {
-                    // if all of the queue values are null, the sensor is skipped
-                    if (sensorQueue.Value.All(v => v.Value == null))
+                    // each sensor stores a number of values. These are used to calculate
+                    // the trend and average value, but for the latter we want to use only a subset
+                    // of the last n values
+                    int numberOfValues = sensorQueue.Value.Count;
+                    int skipToLastSix = numberOfValues > useNValues ? numberOfValues - 6 : 0;
+                    int takeNumber = numberOfValues < useNValues ? numberOfValues : useNValues;
+                    var lastSixValues = sensorQueue.Value.Skip(skipToLastSix).Take(useNValues);
+
+                    // if all of the queue values are null, the sensor should return null
+                    if (lastSixValues.All(v => v.Value == null))
                     {
                         result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, null));
                     }
@@ -151,12 +161,8 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
                     // the running average
                     else
                     {
-                        var values = sensorQueue.Value.Where(v => v.Value != null);
-
-                        double sensorSum = values.Sum(v => Convert.ToDouble(v.Value));
-                        double sensorAverage = sensorSum / (double)values.Count();
-
-                        TelemetryTrendIndication trend = CalculateTrend(values);
+                        TelemetryTrendIndication trend = CalculateTrend(sensorQueue.Value);
+                        double sensorAverage = CalculateAverage(lastSixValues);
 
                         result.Add(new SensorTelemetryModel(sensorQueue.Key.Item2, sensorAverage, trend));
                     };
@@ -168,6 +174,16 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Modules
             }
 
             return result;
+        }
+
+        private double CalculateAverage(IEnumerable<SensorTelemetryModel> lastSixValues)
+        {
+            var values = lastSixValues.Where(v => v.Value != null);
+
+            double sensorSum = values.Sum(v => Convert.ToDouble(v.Value));
+            double sensorAverage = sensorSum / (double)values.Count();
+
+            return sensorAverage;
         }
     }
 }

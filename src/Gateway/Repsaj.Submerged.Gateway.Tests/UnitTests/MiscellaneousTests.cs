@@ -31,15 +31,14 @@ namespace Repsaj.Submerged.Gateway.Tests.UnitTests
         [TestMethod]
         public void Get_SensorReadingToTextStockFloat_Success()
         {
+            string result_float_ok = Converters.ConvertReadingToText(false, SensorTypes.STOCKFLOAT);
+            Assert.AreEqual(Converters.OK, result_float_ok);
 
-            string result_float_ok = Converters.ConvertReadingToText(true, SensorTypes.STOCKFLOAT);
-            Assert.AreEqual("OK", result_float_ok);
-
-            string result_float_empty = Converters.ConvertReadingToText(false, SensorTypes.STOCKFLOAT);
-            Assert.AreEqual("FILL", result_float_empty);
+            string result_float_empty = Converters.ConvertReadingToText(true, SensorTypes.STOCKFLOAT);
+            Assert.AreEqual(Converters.FILL, result_float_empty);
 
             string result_float_null = Converters.ConvertReadingToText(null, SensorTypes.STOCKFLOAT);
-            Assert.AreEqual("", result_float_null);
+            Assert.AreEqual(string.Empty, result_float_null);
         }
     }
 }

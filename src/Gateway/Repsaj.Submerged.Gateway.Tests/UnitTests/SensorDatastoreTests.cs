@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Repsaj.Submerged.GatewayApp.Universal.Device;
 using Repsaj.Submerged.GatewayApp.Universal.Models;
 using Repsaj.Submerged.GatewayApp.Universal.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Modules.Simulated;
@@ -243,7 +244,7 @@ namespace Repsaj.Submerged.Gateway.Tests.UnitTests
         }
 
         [TestMethod]
-        public void SensorDataStore_CanGetData_ShouldNotReturnWhenLastValuesAreNull_Success()
+        public void SensorDataStore_CanGetData_ShouldReturnNullWhenLastValuesAreNull_Success()
         {
             IEnumerable<SensorTelemetryModel[]> telemetry;
 
@@ -257,7 +258,105 @@ namespace Repsaj.Submerged.Gateway.Tests.UnitTests
             var result = datastore.GetData();
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Count());
+            Assert.AreEqual(null, result.First().Value);
+            Assert.AreEqual(null, result.Skip(1).First().Value);
+            Assert.AreEqual(null, result.Skip(2).First().Value);
+        }
+
+        [TestMethod]
+        public void SensorDataStore_CanGetData_TrendIncrease_Success()
+        {
+            SensorTelemetryModel[][] telemetry = new SensorTelemetryModel[][]
+            {
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.2) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.3) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.4) }
+            };
+
+            ISensorDataStore datastore = new SensorDatastore();
+            foreach (var item in telemetry)
+                datastore.ProcessData(_sensorModule, item);
+
+            var result = datastore.GetData();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(TelemetryTrendIndication.Increasing, result.First().TrendIndication);
+        }
+
+        [TestMethod]
+        public void SensorDataStore_CanGetData_TrendDecrease_Success()
+        {
+            SensorTelemetryModel[][] telemetry = new SensorTelemetryModel[][]
+            {
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.4) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.3) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.2) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) }
+            };
+
+            ISensorDataStore datastore = new SensorDatastore();
+            foreach (var item in telemetry)
+                datastore.ProcessData(_sensorModule, item);
+
+            var result = datastore.GetData();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(TelemetryTrendIndication.Decreasing, result.First().TrendIndication);
+        }
+
+        [TestMethod]
+        public void SensorDataStore_CanGetData_TrendEqual_Success()
+        {
+            SensorTelemetryModel[][] telemetry = new SensorTelemetryModel[][]
+            {
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) }
+            };
+
+            ISensorDataStore datastore = new SensorDatastore();
+            foreach (var item in telemetry)
+                datastore.ProcessData(_sensorModule, item);
+
+            var result = datastore.GetData();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(TelemetryTrendIndication.Equal, result.First().TrendIndication);
+        }
+
+        [TestMethod]
+        public void SensorDataStore_CanGetData_TrendUnknown_Success()
+        {
+            SensorTelemetryModel[][] telemetry = new SensorTelemetryModel[][]
+            {
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.2) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.1) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.2) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.0) },
+                new SensorTelemetryModel[] {  new SensorTelemetryModel(_sensorName1, 21.2) }
+            };
+
+            ISensorDataStore datastore = new SensorDatastore();
+            foreach (var item in telemetry)
+                datastore.ProcessData(_sensorModule, item);
+
+            var result = datastore.GetData();
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(TelemetryTrendIndication.Unknown, result.First().TrendIndication);
         }
     }
 }

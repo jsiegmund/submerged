@@ -9,6 +9,9 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Helpers
 {
     public static class Converters
     {
+        public static readonly string FILL = "FILL";
+        public static readonly string OK = "OK";
+
         public static string ConvertReadingToText(object reading, string sensorType)
         {
             string formattedText = "";
@@ -34,7 +37,7 @@ namespace Repsaj.Submerged.GatewayApp.Universal.Helpers
                 {
                     bool? readingAsBool = (bool?)reading;
                     if (readingAsBool.HasValue)
-                        formattedText = readingAsBool.Value ? "FILL" : "OK";
+                        formattedText = readingAsBool.Value ? FILL : OK;
                 }
                 else
                     formattedText = reading?.ToString();

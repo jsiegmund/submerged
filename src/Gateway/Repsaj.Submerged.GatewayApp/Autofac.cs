@@ -3,6 +3,7 @@ using Autofac.Core;
 using Repsaj.Submerged.GatewayApp.Device;
 using Repsaj.Submerged.GatewayApp.Universal.Azure;
 using Repsaj.Submerged.GatewayApp.Universal.Commands;
+using Repsaj.Submerged.GatewayApp.Universal.Device;
 using Repsaj.Submerged.GatewayApp.Universal.Modules;
 using Repsaj.Submerged.GatewayApp.Universal.Repositories;
 using System;
