@@ -13,6 +13,7 @@
         reading: any;
         readingFormatted: string;
         sensorType: string;
+        pinConfig: string[];
     }
 
     export class SensorRuleModel extends SensorModel {
