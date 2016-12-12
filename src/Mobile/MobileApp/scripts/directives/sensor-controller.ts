@@ -53,7 +53,7 @@ namespace Submerged.Directives {
                     result = value.toFixed(2);
                     break;
                 case Statics.SENSORTYPES.STOCKFLOAT:
-                    result = value != true ? "LEVEL OK" : "LEVEL LOW";
+                    result = value == 0 ? "LEVEL OK" : "LEVEL LOW";
                     break;
                 case Statics.SENSORTYPES.MOISTURE:
                     result = value != true ? "DRY" : "WET";
@@ -78,7 +78,7 @@ namespace Submerged.Directives {
                 case Statics.SENSORTYPES.PH:
                     return this.calculateSensorClassByThreshold(sensor);
                 case Statics.SENSORTYPES.STOCKFLOAT:
-                    return this.calculateSensorClassByBool(sensor, false, true);
+                    return this.calculateSensorClassByBool(sensor, false, false);
                 case Statics.SENSORTYPES.TEMPERATURE:
                     return this.calculateSensorClassByThreshold(sensor);
                 default:
@@ -91,8 +91,10 @@ namespace Submerged.Directives {
 
             if (sensor.reading === undefined || sensor.reading === null)
                 result = nullIsOk;
-            else
-                result = sensor.reading === okState;
+            else {
+                var okReading = okState ? 1 : 0;
+                result = sensor.reading === okReading;
+            }
 
             if (result)
                 return "npt-kpigreen";
